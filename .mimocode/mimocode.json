@@ -1,0 +1,28 @@
+{
+  "$schema": "https://mimo.xiaomi.com/mimocode/config.json",
+  "model": "aerolink/claude-opus-5",
+  "enabled_providers": [
+    "aerolink"
+  ],
+  "provider": {
+    "aerolink": {
+      "name": "Aerolink",
+      "npm": "@ai-sdk/anthropic",
+      "env": [
+        "AEROLINK_API_KEY"
+      ],
+      "options": {
+        "baseURL": "https://capi.aerolink.lat/v1"
+      },
+      "models": {
+        "claude-opus-5": {
+          "name": "Opus 5 (Aerolink)",
+          "limit": {
+            "context": 200000,
+            "output": 32000
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Бюджет 2А класса — прозрачный учёт взносов и расходов">
+  <meta name="theme-color" content="#1f5d88">
+  <title>Классная копилка 2 «А»</title>
+  
+  <!-- Tailwind CSS -->
+  <script defer src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Supabase JS -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2'"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Neucha&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --ink: #18324a;
+      --blue: #1f5d88;
+      --blue-dark: #174563;
+      --red: #e6533c;
+      --yellow: #f4c542;
+      --green: #4b9b72;
+      --paper: #fffdf6;
+      --cream: #f7efd6;
+      --line: #b9d8e8;
+      --shadow: 0 12px 0 rgba(24, 50, 74, 0.08), 0 18px 35px rgba(24, 50, 74, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--cream);
+      background-image:
+        linear-gradient(rgba(55, 139, 178, 0.09) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(55, 139, 178, 0.09) 1px, transparent 1px),
+        radial-gradient(circle at 8% 12%, rgba(244, 197, 66, 0.35) 0 80px, transparent 82px),
+        radial-gradient(circle at 94% 82%, rgba(230, 83, 60, 0.14) 0 110px, transparent 112px);
+      background-size: 28px 28px, 28px 28px, auto, auto;
+    }
+
+    button, input, select { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+
+    #app { position: relative; padding-bottom: 5rem; }
+
+    .glass, .glass-strong {
+      color: var(--ink);
+      background: var(--paper);
+      border: 2px solid rgba(31, 93, 136, 0.18);
+      box-shadow: var(--shadow);
+    }
+
+    header.glass-strong {
+      position: relative;
+      overflow: hidden;
+      color: white;
+      background:
+        linear-gradient(110deg, rgba(255,255,255,0.07) 25%, transparent 25%) 0 0 / 28px 28px,
+        var(--blue);
+      border: 3px solid white;
+      outline: 2px solid var(--blue);
+      box-shadow: 0 10px 0 rgba(23, 69, 99, 0.18), 0 18px 35px rgba(24, 50, 74, 0.18);
+    }
+
+    header.glass-strong::after {
+      content: '✎  ·  ABC  ·  2 + 2 = 4';
+      position: absolute;
+      right: 2rem;
+      bottom: -0.3rem;
+      color: rgba(255,255,255,0.12);
+      font: 2.2rem 'Neucha', cursive;
+      transform: rotate(-3deg);
+      pointer-events: none;
+    }
+
+    header .text-white { color: white !important; }
+    header .text-purple-100 { color: #dceef7 !important; }
+
+    .class-mark {
+      width: 72px;
+      height: 72px;
+      flex: 0 0 72px;
+      display: grid;
+      place-items: center;
+      position: relative;
+      color: var(--ink);
+      background: var(--yellow);
+      border: 3px solid white;
+      border-radius: 18px 18px 22px 16px;
+      box-shadow: 5px 5px 0 var(--red);
+      transform: rotate(-3deg);
+      font: 900 2rem 'Nunito', sans-serif;
+    }
+
+    .class-mark small {
+      position: absolute;
+      right: 6px;
+      bottom: 2px;
+      font-size: 0.82rem;
+      color: var(--red);
+    }
+
+    .app-title {
+      font-family: 'Neucha', cursive;
+      font-size: clamp(2rem, 5vw, 3.1rem) !important;
+      line-height: 0.95;
+      letter-spacing: 0.01em;
+    }
+
+    .connection-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-top: 0.65rem;
+      padding: 0.38rem 0.75rem;
+      border-radius: 999px;
+      color: #e9f7ee;
+      background: rgba(0,0,0,0.18);
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--yellow);
+      box-shadow: 0 0 0 4px rgba(244,197,66,0.18);
+    }
+
+    .connection-pill.is-online .status-dot { background: #76d49b; box-shadow: 0 0 0 4px rgba(118,212,155,0.18); }
+    .connection-pill.is-offline .status-dot { background: #ff8b78; box-shadow: 0 0 0 4px rgba(255,139,120,0.18); }
+
+    #app > .grid .glass {
+      position: relative;
+      overflow: hidden;
+      min-height: 138px;
+      border-radius: 22px;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    #app > .grid .glass:hover { transform: translateY(-4px) rotate(-0.3deg); }
+    #app > .grid .glass:nth-child(1) { border-top: 8px solid var(--green); transform: rotate(-0.5deg); }
+    #app > .grid .glass:nth-child(2) { border-top: 8px solid var(--red); transform: rotate(0.5deg); }
+    #app > .grid .glass:nth-child(3) { border-top: 8px solid var(--yellow); transform: rotate(-0.3deg); }
+    #app > .grid .glass .text-white { color: var(--ink) !important; }
+    #app > .grid .glass .text-purple-100 { color: #60798d !important; }
+    #app > .grid .glass .text-4xl { font-family: 'Neucha', cursive; font-size: 2.8rem !important; color: var(--blue-dark); }
+
+    #app > .glass-strong.flex {
+      padding: 0.45rem !important;
+      background: #e7d8ad;
+      border: 2px dashed rgba(24,50,74,0.32);
+      box-shadow: 0 8px 0 rgba(24,50,74,0.08);
+    }
+
+    #app > .glass-strong.flex button {
+      color: var(--ink) !important;
+      border: 2px solid transparent;
+      border-radius: 14px;
+    }
+
+    #app > .glass-strong.flex button.bg-white\/20 {
+      color: white !important;
+      background: var(--blue) !important;
+      border-color: var(--blue-dark);
+      box-shadow: 0 4px 0 var(--blue-dark);
+    }
+
+    #contentStudents, #contentExpenses, #contentFunds {
+      position: relative;
+      overflow: hidden;
+      padding-left: clamp(1.2rem, 5vw, 4.5rem) !important;
+      background-color: var(--paper);
+      background-image: repeating-linear-gradient(to bottom, transparent 0 35px, rgba(79,150,184,0.14) 36px);
+      border-radius: 12px 24px 18px 12px;
+    }
+
+    #contentStudents::before, #contentExpenses::before, #contentFunds::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: clamp(2rem, 4vw, 3.2rem);
+      width: 2px;
+      background: rgba(230,83,60,0.35);
+    }
+
+    #contentStudents h2, #contentExpenses h2, #contentFunds h2 {
+      color: var(--ink) !important;
+      font-family: 'Neucha', cursive;
+      font-size: 2rem !important;
+    }
+
+    #contentStudents .text-white, #contentExpenses .text-white, #contentFunds .text-white { color: var(--ink) !important; }
+    #contentStudents .text-purple-100, #contentExpenses .text-purple-100, #contentFunds .text-purple-100 { color: #506b7f !important; }
+
+    table { border-collapse: separate; border-spacing: 0; }
+    th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    tbody tr { transition: background 150ms ease; }
+    tbody tr:hover { background: rgba(244,197,66,0.14) !important; }
+
+    #fundsGrid .glass {
+      box-shadow: 4px 5px 0 rgba(24,50,74,0.1);
+      border: 1px solid rgba(31,93,136,0.22);
+    }
+
+    .admin-only { display: none; }
+    body.admin-mode .admin-only { display: revert; }
+
+    .admin-trigger {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      min-height: 52px;
+      padding: 0.65rem 0.9rem;
+      color: white;
+      background: var(--red);
+      border: 3px solid white;
+      outline: 2px solid var(--red);
+      border-radius: 15px 18px 16px 12px;
+      box-shadow: 0 7px 0 #a8362b, 0 12px 24px rgba(24,50,74,0.24);
+      cursor: pointer;
+      font-weight: 900;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .admin-trigger:hover { transform: translateY(-3px) rotate(-1deg); box-shadow: 0 10px 0 #a8362b, 0 16px 28px rgba(24,50,74,0.24); }
+    .admin-trigger:active { transform: translateY(4px); box-shadow: 0 3px 0 #a8362b; }
+    .admin-trigger-icon { font-size: 1.25rem; }
+
+    #adminBadge { position: relative; z-index: 2; }
+
+    dialog {
+      width: min(92vw, 560px);
+      max-height: 90vh;
+      padding: 0;
+      overflow: auto;
+      color: var(--ink);
+      background: var(--paper);
+      border: 3px solid var(--blue);
+      border-radius: 18px;
+      box-shadow: 10px 12px 0 rgba(24,50,74,0.2), 0 30px 80px rgba(24,50,74,0.3);
+    }
+
+    dialog h3 { font-family: 'Neucha', cursive; color: var(--blue-dark); }
+    dialog input, dialog select {
+      color: var(--ink);
+      background: white;
+      border: 2px solid #b7c9d4 !important;
+      outline: none;
+    }
+    dialog input:focus, dialog select:focus { border-color: var(--blue) !important; box-shadow: 0 0 0 3px rgba(31,93,136,0.14); }
+    dialog .bg-purple-600 { background: var(--blue) !important; }
+    dialog .bg-purple-600:hover { background: var(--blue-dark) !important; }
+    dialog::backdrop { background: rgba(24,50,74,0.56); backdrop-filter: blur(4px); }
+
+    .pin-sheet { text-align: center; }
+    .pin-sheet .pin-icon { width: 68px; height: 68px; display: grid; place-items: center; margin: -3.4rem auto 1rem; font-size: 2rem; background: var(--yellow); border: 3px solid white; outline: 2px solid var(--yellow); border-radius: 50%; }
+    #adminPinInput { text-align: center; font-size: 1.8rem; font-weight: 900; letter-spacing: 0.4em; }
+
+    #toast { font-family: 'Nunito', sans-serif; border: 2px solid white; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .animate-fade-in { animation: fadeIn 480ms cubic-bezier(.2,.75,.25,1) both; }
+
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: #eadfbf; }
+    ::-webkit-scrollbar-thumb { background: var(--blue); border: 2px solid #eadfbf; border-radius: 10px; }
+
+    @media (max-width: 640px) {
+      body { padding: 0.8rem !important; }
+      header.glass-strong { padding: 1.1rem !important; }
+      header.glass-strong::after { display: none; }
+      .class-mark { width: 58px; height: 58px; flex-basis: 58px; font-size: 1.5rem; }
+      .app-title { font-size: 1.9rem !important; }
+      #contentStudents, #contentExpenses, #contentFunds { padding: 1.1rem 0.8rem 1.4rem 2rem !important; }
+      #contentStudents::before, #contentExpenses::before, #contentFunds::before { left: 1.35rem; }
+      .admin-trigger-label { display: none; }
+      .admin-trigger { width: 52px; justify-content: center; padding: 0.55rem; border-radius: 50%; }
+      th, td { white-space: nowrap; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body class="p-4 md:p-8">
+  
+  <!-- Контейнер приложения -->
+  <div id="app" class="max-w-7xl mx-auto">
+    
+    <!-- Шапка -->
+    <header class="glass-strong rounded-3xl p-6 mb-6 animate-fade-in">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-4">
+          <div class="class-mark" aria-hidden="true"><span>2</span><small>А</small></div>
+          <div>
+            <h1 class="app-title text-3xl font-bold text-white">Классная копилка</h1>
+            <p class="text-purple-100 text-sm font-bold">Бюджет 2 «А» класса · всё по-честному</p>
+            <div id="connectionStatus" class="connection-pill" aria-live="polite"><span class="status-dot"></span><span id="connectionStatusText">Подключаем дневник…</span></div>
+          </div>
+        </div>
+        <button id="adminBadge" type="button" onclick="logoutAdmin()" class="admin-only px-4 py-2 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 rounded-full font-semibold text-sm transition-colors" title="Выйти из режима администратора">
+          👑 Администратор · выйти
+        </button>
+      </div>
+    </header>
+
+    <!-- Статистика -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      
+      <!-- Карточка: Собрано -->
+      <div class="glass rounded-2xl p-6 animate-fade-in text-white">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-purple-100 text-sm font-medium">Всего собрано</span>
+          <span class="text-3xl">💰</span>
+        </div>
+        <div class="text-4xl font-bold" id="totalCollected">0 ₽</div>
+      </div>
+
+      <!-- Карточка: Потрачено -->
+      <div class="glass rounded-2xl p-6 animate-fade-in text-white" style="animation-delay: 0.1s;">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-purple-100 text-sm font-medium">Всего потрачено</span>
+          <span class="text-3xl">🛍️</span>
+        </div>
+        <div class="text-4xl font-bold" id="totalSpent">0 ₽</div>
+      </div>
+
+      <!-- Карточка: Остаток -->
+      <div class="glass rounded-2xl p-6 animate-fade-in text-white" style="animation-delay: 0.2s;">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-purple-100 text-sm font-medium">Остаток в кассе</span>
+          <span class="text-3xl">🐷</span>
+        </div>
+        <div class="text-4xl font-bold" id="totalBalance">0 ₽</div>
+      </div>
+
+    </div>
+
+    <!-- Табы навигации -->
+    <div class="glass-strong rounded-2xl p-2 mb-6 flex gap-2 overflow-x-auto">
+      <button onclick="switchTab('students')" id="tabStudents" class="flex-1 min-w-max px-6 py-3 rounded-xl font-semibold text-white transition-all bg-white/20">
+        📚 Ученики
+      </button>
+      <button onclick="switchTab('expenses')" id="tabExpenses" class="flex-1 min-w-max px-6 py-3 rounded-xl font-semibold text-white transition-all hover:bg-white/10">
+        🧾 Расходы
+      </button>
+      <button onclick="switchTab('funds')" id="tabFunds" class="flex-1 min-w-max px-6 py-3 rounded-xl font-semibold text-white transition-all hover:bg-white/10">
+        🎁 Фонды
+      </button>
+    </div>
+
+    <!-- Контент: Ученики -->
+    <div id="contentStudents" class="glass-strong rounded-2xl p-6 animate-fade-in">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-white">Взносы учеников</h2>
+        <button onclick="openAddStudentModal()" class="admin-only px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-all">
+          + Новый ученик
+        </button>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full text-white">
+          <thead>
+            <tr class="border-b border-white/20">
+              <th class="text-left py-3 px-2 font-semibold text-purple-100">№</th>
+              <th class="text-left py-3 px-2 font-semibold text-purple-100">Фамилия и имя</th>
+              <th class="text-right py-3 px-2 font-semibold text-purple-100">Сумма взноса</th>
+              <th class="text-center py-3 px-2 font-semibold text-purple-100 admin-only">Действия</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTable">
+            <tr>
+              <td colspan="4" class="text-center py-8 text-purple-100">Загрузка...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Контент: Расходы -->
+    <div id="contentExpenses" class="glass-strong rounded-2xl p-6 animate-fade-in hidden">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-white">Журнал расходов</h2>
+        <button onclick="openAddExpenseModal()" class="admin-only px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-all">
+          + Добавить расход
+        </button>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full text-white">
+          <thead>
+            <tr class="border-b border-white/20">
+              <th class="text-left py-3 px-2 font-semibold text-purple-100">Дата</th>
+              <th class="text-left py-3 px-2 font-semibold text-purple-100">Описание</th>
+              <th class="text-left py-3 px-2 font-semibold text-purple-100">Фонд</th>
+              <th class="text-right py-3 px-2 font-semibold text-purple-100">Сумма</th>
+              <th class="text-center py-3 px-2 font-semibold text-purple-100 admin-only">Действия</th>
+            </tr>
+          </thead>
+          <tbody id="expensesTable">
+            <tr>
+              <td colspan="5" class="text-center py-8 text-purple-100">Загрузка...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Контент: Фонды -->
+    <div id="contentFunds" class="glass-strong rounded-2xl p-6 animate-fade-in hidden">
+      <h2 class="text-2xl font-bold text-white mb-6">Остатки по фондам</h2>
+      
+      <div id="fundsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="text-center py-8 text-purple-100">Загрузка...</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="toast" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-[2000] max-w-[calc(100%-2rem)] px-5 py-3 rounded-xl bg-emerald-600 text-white font-semibold shadow-2xl" role="status" aria-live="polite"></div>
+
+  <!-- Кнопка входа для администратора -->
+  <button id="adminTrigger" class="admin-trigger" type="button" title="Вход администратора" aria-label="Вход администратора">
+    <span class="admin-trigger-icon" aria-hidden="true">🔑</span>
+    <span class="admin-trigger-label">Для учителя</span>
+  </button>
+
+  <!-- Модальное окно: Вход администратора -->
+  <dialog id="pinModal">
+    <form id="pinForm" class="pin-sheet p-6" method="dialog">
+      <div class="pin-icon" aria-hidden="true">🔐</div>
+      <h3 class="text-3xl font-bold mb-2">Вход для учителя</h3>
+      <p class="text-sm text-slate-600 mb-5">Введите четырёхзначный PIN, чтобы редактировать копилку.</p>
+      <label for="adminPinInput" class="sr-only">PIN-код администратора</label>
+      <input type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="one-time-code" id="adminPinInput" class="w-full px-4 py-3 rounded-lg mb-5" placeholder="••••" required>
+      <div class="flex gap-3">
+        <button id="cancelPinButton" type="button" class="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 rounded-lg font-bold transition-all">Отмена</button>
+        <button id="submitPinButton" type="submit" class="flex-1 px-4 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-bold transition-all">Войти</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Модальное окно: Редактирование взноса ученика -->
+  <dialog id="editStudentModal">
+    <div class="p-6">
+      <h3 class="text-2xl font-bold mb-4">Редактировать взнос</h3>
+      <input type="hidden" id="editStudentId">
+      <input type="hidden" id="editContributionId">
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Фамилия и имя</label>
+        <input type="text" id="editStudentName" disabled class="w-full px-4 py-2 rounded-lg border bg-gray-100">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Сумма взноса (₽)</label>
+        <input type="number" id="editStudentAmount" step="0.01" min="0" class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-purple-500">
+      </div>
+      <div class="flex gap-3">
+        <button onclick="closeModal('editStudentModal')" class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-all">
+          Отмена
+        </button>
+        <button onclick="saveStudentContribution()" class="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all">
+          Сохранить
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Модальное окно: Добавление расхода -->
+  <dialog id="addExpenseModal">
+    <div class="p-6">
+      <h3 class="text-2xl font-bold mb-4">Добавить расход</h3>
+      <input type="hidden" id="editExpenseId">
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Дата</label>
+        <input type="date" id="expenseDate" class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-purple-500">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Описание</label>
+        <input type="text" id="expenseDescription" placeholder="Например: канцелярия" class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-purple-500">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Фонд</label>
+        <select id="expenseFund" class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-purple-500">
+          <option value="">Выберите фонд</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Сумма (₽)</label>
+        <input type="number" id="expenseAmount" step="0.01" min="0.01" class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-purple-500">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Ссылка на чек (необязательно)</label>
+        <input type="url" id="expenseReceipt" placeholder="https://..." class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-purple-500">
+      </div>
+      <div class="flex gap-3">
+        <button onclick="closeModal('addExpenseModal')" class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-all">
+          Отмена
+        </button>
+        <button onclick="saveExpense()" class="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all">
+          Сохранить
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Модальное окно: Добавление ученика -->
+  <dialog id="addStudentModal">
+    <div class="p-6">
+      <h3 class="text-2xl font-bold mb-4">Добавить ученика</h3>
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-2">Фамилия и имя</label>
+        <input type="text" id="newStudentName" placeholder="Иванов И." class="w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-purple-500">
+      </div>
+      <div class="flex gap-3">
+        <button onclick="closeModal('addStudentModal')" class="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-semibold transition-all">
+          Отмена
+        </button>
+        <button onclick="saveNewStudent()" class="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-all">
+          Добавить
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    // =====================================================
+    // КОНФИГУРАЦИЯ SUPABASE
+    // =====================================================
+    const SUPABASE_URL = 'https://vdeexzvsjlqvyckvqqvz.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_ybe7tt4XcTb24Zg7IqCm7Q_VrSaugab';
+
+    let supabase = null;
+
+    // Глобальное состояние
+    let isAdminMode = false;
+    let adminPin = '';
+    let studentsData = [];
+    let contributionsData = [];
+    let expensesData = [];
+    let fundsData = [];
+    let campaignsData = [];
+    let currentCampaignId = null;
+    let realtimeRefreshTimer = null;
+
+    // =====================================================
+    // ИНИЦИАЛИЗАЦИЯ
+    // =====================================================
+    window.addEventListener('DOMContentLoaded', async () => {
+      document.getElementById('adminTrigger').addEventListener('click', showPinPrompt);
+      document.getElementById('cancelPinButton').addEventListener('click', () => closeModal('pinModal'));
+      document.getElementById('pinForm').addEventListener('submit', submitPinForm);
+
+      if (!window.supabase?.createClient) {
+        setConnectionStatus('offline', 'Не загрузился модуль данных');
+        showToast('Не удалось загрузить Supabase JS. Проверьте интернет и обновите страницу.', 'error');
+        return;
+      }
+
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+          detectSessionInUrl: false
+        }
+      });
+      const loaded = await loadAllData();
+      renderAll();
+      if (loaded) subscribeToRealtime();
+    });
+
+    // =====================================================
+    // ЗАГРУЗКА ДАННЫХ
+    // =====================================================
+    async function loadAllData() {
+      if (!supabase) return false;
+      try {
+        const [studentsResult, campaignsResult, contributionsResult, expensesResult, fundsResult] = await Promise.all([
+          supabase.from('students').select('*').eq('is_active', true).order('sort_order'),
+          supabase.from('campaigns').select('*').order('sort_order'),
+          supabase.from('contributions').select('*'),
+          supabase.from('expenses').select('*, funds(name)').order('date', { ascending: false }).order('created_at', { ascending: false }),
+          supabase.from('funds').select('*').order('sort_order')
+        ]);
+
+        const failedResult = [studentsResult, campaignsResult, contributionsResult, expensesResult, fundsResult]
+          .find(result => result.error);
+        if (failedResult) throw failedResult.error;
+
+        studentsData = studentsResult.data || [];
+        campaignsData = campaignsResult.data || [];
+        contributionsData = contributionsResult.data || [];
+        expensesData = expensesResult.data || [];
+        fundsData = fundsResult.data || [];
+        currentCampaignId = campaignsData.find(campaign => campaign.is_open)?.id || null;
+        populateFundSelects();
+        setConnectionStatus('online', 'Данные актуальны');
+        return true;
+      } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+        setConnectionStatus('offline', 'Нет связи с базой данных');
+        showToast('Не удалось загрузить данные. Проверьте подключение и настройку Supabase.', 'error');
+        return false;
+      }
+    }
+
+    function renderAll() {
+      updateStats();
+      renderStudentsTable();
+      renderExpensesTable();
+      renderFundsGrid();
+    }
+
+    function populateFundSelects() {
+      const select = document.getElementById('expenseFund');
+      select.innerHTML = '<option value="">Выберите фонд</option>';
+      fundsData.forEach(fund => {
+        const option = document.createElement('option');
+        option.value = fund.id;
+        option.textContent = fund.name;
+        select.appendChild(option);
+      });
+    }
+
+    // =====================================================
+    // ОБНОВЛЕНИЕ СТАТИСТИКИ
+    // =====================================================
+    function updateStats() {
+      const totalCollected = contributionsData.reduce((sum, c) => sum + parseFloat(c.amount || 0), 0);
+      const totalSpent = expensesData.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+      const balance = totalCollected - totalSpent;
+
+      document.getElementById('totalCollected').textContent = formatMoney(totalCollected);
+      document.getElementById('totalSpent').textContent = formatMoney(totalSpent);
+      document.getElementById('totalBalance').textContent = formatMoney(balance);
+    }
+
+    // =====================================================
+    // РЕНДЕРИНГ ТАБЛИЦЫ УЧЕНИКОВ
+    // =====================================================
+    function renderStudentsTable() {
+      const tbody = document.getElementById('studentsTable');
+      
+      if (studentsData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-purple-100">Нет учеников</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = studentsData.map((student, index) => {
+        const contribution = contributionsData.find(c => 
+          c.student_id === student.id && c.campaign_id === currentCampaignId
+        );
+        const amount = contribution?.amount || 0;
+
+        return `
+          <tr class="border-b border-white/10 hover:bg-white/5 transition-all">
+            <td class="py-3 px-2">${index + 1}</td>
+            <td class="py-3 px-2 font-semibold">${escapeHtml(student.last_name)}</td>
+            <td class="py-3 px-2 text-right font-mono">${formatMoney(amount)}</td>
+            <td class="py-3 px-2 text-center admin-only">
+              <button onclick="editStudentContribution('${student.id}')" 
+                      class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm font-semibold transition-all">
+                Изменить
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // =====================================================
+    // РЕНДЕРИНГ ТАБЛИЦЫ РАСХОДОВ
+    // =====================================================
+    function renderExpensesTable() {
+      const tbody = document.getElementById('expensesTable');
+      
+      if (expensesData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-purple-100">Расходов пока нет</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = expensesData.map(expense => {
+        const fundName = expense.funds?.name || 'Не указан';
+        const receiptUrl = safeHttpUrl(expense.receipt_url);
+        const receiptLink = receiptUrl
+          ? `<a href="${escapeHtml(receiptUrl)}" target="_blank" rel="noopener noreferrer" class="text-blue-300 hover:text-blue-100 underline">Чек</a>`
+          : '';
+
+        return `
+          <tr class="border-b border-white/10 hover:bg-white/5 transition-all">
+            <td class="py-3 px-2">${formatDate(expense.date)}</td>
+            <td class="py-3 px-2">${escapeHtml(expense.description)}${receiptLink ? ` · ${receiptLink}` : ''}</td>
+            <td class="py-3 px-2 text-sm text-purple-100">${escapeHtml(fundName)}</td>
+            <td class="py-3 px-2 text-right font-mono whitespace-nowrap">${formatMoney(expense.amount)}</td>
+            <td class="py-3 px-2 text-center admin-only">
+              <button onclick="deleteExpense('${expense.id}')" 
+                      class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm font-semibold transition-all">
+                Удалить
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // =====================================================
+    // РЕНДЕРИНГ КАРТОЧЕК ФОНДОВ
+    // =====================================================
+    function renderFundsGrid() {
+      const grid = document.getElementById('fundsGrid');
+      
+      if (fundsData.length === 0) {
+        grid.innerHTML = '<div class="text-center py-8 text-purple-100">Нет фондов</div>';
+        return;
+      }
+
+      grid.innerHTML = fundsData.map(fund => {
+        const spent = expensesData
+          .filter(e => e.fund_id === fund.id)
+          .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+        const campaignIds = new Set(
+          campaignsData.filter(campaign => campaign.fund_id === fund.id).map(campaign => campaign.id)
+        );
+        const collected = contributionsData
+          .filter(contribution => campaignIds.has(contribution.campaign_id))
+          .reduce((sum, contribution) => sum + parseFloat(contribution.amount || 0), 0);
+        const balance = collected - spent;
+        const color = /^#[0-9a-f]{6}$/i.test(fund.color || '') ? fund.color : '#3b82f6';
+
+        return `
+          <div class="glass rounded-xl p-5 text-white">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-3 h-3 rounded-full" style="background: ${color}"></div>
+              <h3 class="font-bold text-lg">${escapeHtml(fund.name)}</h3>
+            </div>
+            <p class="text-sm text-purple-100 mb-3">${escapeHtml(fund.description || '')}</p>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <div class="text-purple-100">Собрано</div>
+                <div class="font-mono font-semibold">${formatMoney(collected)}</div>
+              </div>
+              <div>
+                <div class="text-purple-100">Потрачено</div>
+                <div class="font-mono font-semibold">${formatMoney(spent)}</div>
+              </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-white/20">
+              <div class="text-purple-100 text-sm">Остаток</div>
+              <div class="font-mono font-bold text-xl">${formatMoney(balance)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // =====================================================
+    // ПЕРЕКЛЮЧЕНИЕ ТАБОВ
+    // =====================================================
+    function switchTab(tab) {
+      // Убираем активные классы
+      document.querySelectorAll('[id^="tab"]').forEach(btn => {
+        btn.classList.remove('bg-white/20');
+        btn.classList.add('hover:bg-white/10');
+      });
+      document.querySelectorAll('[id^="content"]').forEach(content => {
+        content.classList.add('hidden');
+      });
+
+      // Активируем нужный таб
+      document.getElementById(`tab${capitalize(tab)}`).classList.add('bg-white/20');
+      document.getElementById(`tab${capitalize(tab)}`).classList.remove('hover:bg-white/10');
+      document.getElementById(`content${capitalize(tab)}`).classList.remove('hidden');
+    }
+
+    // =====================================================
+    // ВХОД АДМИНИСТРАТОРА
+    // =====================================================
+    function showPinPrompt() {
+      if (isAdminMode) {
+        logoutAdmin();
+        return;
+      }
+      const pinModal = document.getElementById('pinModal');
+      const pinInput = document.getElementById('adminPinInput');
+      pinInput.value = '';
+      pinModal.showModal();
+      setTimeout(() => pinInput.focus(), 50);
+    }
+
+    async function submitPinForm(event) {
+      event.preventDefault();
+      const pin = document.getElementById('adminPinInput').value.trim();
+      const submitButton = document.getElementById('submitPinButton');
+
+      if (!/^\d{4}$/.test(pin)) {
+        showToast('PIN должен состоять из четырёх цифр', 'error');
+        return;
+      }
+
+      if (!supabase) {
+        showToast('Нет подключения к базе. Обновите страницу.', 'error');
+        return;
+      }
+
+      try {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Проверяем…';
+        const { data, error } = await supabase.rpc('verify_admin_pin', { pin });
+        if (error) throw error;
+        if (!data) {
+          showToast('Неверный ПИН-код', 'error');
+          document.getElementById('adminPinInput').select();
+          return;
+        }
+        adminPin = pin;
+        isAdminMode = true;
+        document.body.classList.add('admin-mode');
+        setAdminTriggerState(true);
+        closeModal('pinModal');
+        renderStudentsTable();
+        renderExpensesTable();
+        showToast('Режим администратора активирован');
+      } catch (error) {
+        console.error('Ошибка проверки ПИН-кода:', error);
+        showToast('Не удалось проверить ПИН-код', 'error');
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Войти';
+      }
+    }
+
+    function logoutAdmin() {
+      adminPin = '';
+      isAdminMode = false;
+      document.body.classList.remove('admin-mode');
+      setAdminTriggerState(false);
+      renderStudentsTable();
+      renderExpensesTable();
+      showToast('Режим администратора выключен');
+    }
+
+    function setAdminTriggerState(isActive) {
+      const trigger = document.getElementById('adminTrigger');
+      trigger.innerHTML = isActive
+        ? '<span class="admin-trigger-icon" aria-hidden="true">🔓</span><span class="admin-trigger-label">Выйти</span>'
+        : '<span class="admin-trigger-icon" aria-hidden="true">🔑</span><span class="admin-trigger-label">Для учителя</span>';
+      trigger.title = isActive ? 'Выйти из режима администратора' : 'Вход администратора';
+      trigger.setAttribute('aria-label', trigger.title);
+    }
+
+    // =====================================================
+    // РЕДАКТИРОВАНИЕ ВЗНОСА УЧЕНИКА
+    // =====================================================
+    function editStudentContribution(studentId) {
+      if (!requireAdmin()) return;
+      const student = studentsData.find(item => item.id === studentId);
+      const contribution = contributionsData.find(item =>
+        item.student_id === studentId && item.campaign_id === currentCampaignId
+      );
+      if (!student || !currentCampaignId) {
+        showToast('Нет открытого сбора для редактирования', 'error');
+        return;
+      }
+      document.getElementById('editStudentId').value = studentId;
+      document.getElementById('editContributionId').value = contribution?.id || '';
+      document.getElementById('editStudentName').value = student.last_name;
+      document.getElementById('editStudentAmount').value = contribution?.amount || 0;
+      document.getElementById('editStudentModal').showModal();
+    }
+
+    async function saveStudentContribution() {
+      const studentId = document.getElementById('editStudentId').value;
+      const rawAmount = document.getElementById('editStudentAmount').value;
+      const amount = Number(rawAmount);
+
+      if (!requireAdmin() || !currentCampaignId || rawAmount === '' || !Number.isFinite(amount) || amount < 0) {
+        showToast('Введите корректную сумму', 'error');
+        return;
+      }
+
+      try {
+        const { error } = await supabase.rpc('admin_set_contribution', {
+          pin: adminPin,
+          target_student_id: studentId,
+          target_campaign_id: currentCampaignId,
+          new_amount: amount
+        });
+        if (error) throw error;
+
+        closeModal('editStudentModal');
+        await loadAllData();
+        renderAll();
+        showToast('Взнос сохранён');
+      } catch (error) {
+        console.error('Ошибка сохранения:', error);
+        handleAdminError(error, 'Не удалось сохранить взнос');
+      }
+    }
+
+    // =====================================================
+    // ДОБАВЛЕНИЕ РАСХОДА
+    // =====================================================
+    function openAddExpenseModal() {
+      if (!requireAdmin()) return;
+      document.getElementById('editExpenseId').value = '';
+      document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('expenseDescription').value = '';
+      document.getElementById('expenseFund').value = '';
+      document.getElementById('expenseAmount').value = '';
+      document.getElementById('expenseReceipt').value = '';
+      document.getElementById('addExpenseModal').showModal();
+    }
+
+    async function saveExpense() {
+      const date = document.getElementById('expenseDate').value;
+      const description = document.getElementById('expenseDescription').value.trim();
+      const fundId = document.getElementById('expenseFund').value;
+      const amount = parseFloat(document.getElementById('expenseAmount').value);
+      const receiptUrl = document.getElementById('expenseReceipt').value.trim();
+
+      if (!requireAdmin() || !date || description.length < 2 || !fundId || !Number.isFinite(amount) || amount <= 0) {
+        showToast('Заполните все обязательные поля', 'error');
+        return;
+      }
+
+      if (receiptUrl && !safeHttpUrl(receiptUrl)) {
+        showToast('Ссылка на чек должна начинаться с http:// или https://', 'error');
+        return;
+      }
+
+      try {
+        const { error } = await supabase.rpc('admin_add_expense', {
+          pin: adminPin,
+          expense_date: date,
+          expense_description: description,
+          target_fund_id: fundId,
+          expense_amount: amount,
+          expense_receipt_url: receiptUrl || null
+        });
+        if (error) throw error;
+
+        closeModal('addExpenseModal');
+        await loadAllData();
+        renderAll();
+        showToast('Расход добавлен');
+      } catch (error) {
+        console.error('Ошибка добавления расхода:', error);
+        handleAdminError(error, 'Не удалось добавить расход');
+      }
+    }
+
+    async function deleteExpense(expenseId) {
+      if (!requireAdmin()) return;
+      if (!confirm('Удалить этот расход?')) return;
+
+      try {
+        const { error } = await supabase.rpc('admin_delete_expense', {
+          pin: adminPin,
+          target_expense_id: expenseId
+        });
+        if (error) throw error;
+
+        await loadAllData();
+        renderAll();
+        showToast('Расход удалён');
+      } catch (error) {
+        console.error('Ошибка удаления:', error);
+        handleAdminError(error, 'Не удалось удалить расход');
+      }
+    }
+
+    // =====================================================
+    // ДОБАВЛЕНИЕ УЧЕНИКА
+    // =====================================================
+    function openAddStudentModal() {
+      if (!requireAdmin()) return;
+      document.getElementById('newStudentName').value = '';
+      document.getElementById('addStudentModal').showModal();
+    }
+
+    async function saveNewStudent() {
+      const name = document.getElementById('newStudentName').value.trim();
+      
+      if (!requireAdmin() || name.length < 2) {
+        showToast('Введите фамилию и имя', 'error');
+        return;
+      }
+
+      try {
+        const { error } = await supabase.rpc('admin_add_student', {
+          pin: adminPin,
+          student_name: name
+        });
+        if (error) throw error;
+
+        closeModal('addStudentModal');
+        await loadAllData();
+        renderAll();
+        showToast('Ученик добавлен');
+      } catch (error) {
+        console.error('Ошибка добавления ученика:', error);
+        handleAdminError(error, 'Не удалось добавить ученика');
+      }
+    }
+
+    // =====================================================
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+    // =====================================================
+    function subscribeToRealtime() {
+      if (!supabase) return;
+      supabase
+        .channel('class-budget-live')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, scheduleRealtimeRefresh)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'campaigns' }, scheduleRealtimeRefresh)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'contributions' }, scheduleRealtimeRefresh)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, scheduleRealtimeRefresh)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'funds' }, scheduleRealtimeRefresh)
+        .subscribe(status => {
+          if (status === 'SUBSCRIBED') setConnectionStatus('online', 'Обновляется в реальном времени');
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+            console.error('Ошибка подключения Supabase Realtime:', status);
+            setConnectionStatus('offline', 'Данные загружены · автообновление недоступно');
+          }
+        });
+    }
+
+    function scheduleRealtimeRefresh() {
+      clearTimeout(realtimeRefreshTimer);
+      realtimeRefreshTimer = setTimeout(async () => {
+        if (await loadAllData()) renderAll();
+      }, 200);
+    }
+
+    function requireAdmin() {
+      if (isAdminMode && adminPin) return true;
+      showToast('Сначала войдите в режим администратора', 'error');
+      return false;
+    }
+
+    function handleAdminError(error, fallbackMessage) {
+      const message = String(error?.message || '');
+      if (message.includes('Неверный ПИН-код')) logoutAdmin();
+      showToast(message.includes('Неверный ПИН-код') ? 'Сессия администратора завершена' : fallbackMessage, 'error');
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.toggle('bg-red-600', type === 'error');
+      toast.classList.toggle('bg-emerald-600', type !== 'error');
+      toast.classList.remove('hidden');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.add('hidden'), 3500);
+    }
+
+    function setConnectionStatus(state, message) {
+      const status = document.getElementById('connectionStatus');
+      const text = document.getElementById('connectionStatusText');
+      if (!status || !text) return;
+      status.classList.remove('is-online', 'is-offline');
+      if (state === 'online') status.classList.add('is-online');
+      if (state === 'offline') status.classList.add('is-offline');
+      text.textContent = message;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      })[char]);
+    }
+
+    function safeHttpUrl(value) {
+      if (!value) return '';
+      try {
+        const url = new URL(value);
+        return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+      } catch {
+        return '';
+      }
+    }
+
+    function formatMoney(amount) {
+      const numericAmount = Number(amount) || 0;
+      const hasKopecks = Math.round(numericAmount * 100) % 100 !== 0;
+      return new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
+        minimumFractionDigits: hasKopecks ? 2 : 0,
+        maximumFractionDigits: 2
+      }).format(numericAmount);
+    }
+
+    function formatDate(dateStr) {
+      const [year, month, day] = String(dateStr).split('-');
+      return year && month && day ? `${day}.${month}.${year}` : '—';
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).close();
+    }
+  </script>
+
+</body>
+</html>
