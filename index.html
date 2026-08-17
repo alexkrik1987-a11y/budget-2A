@@ -16,6 +16,12 @@
   <link rel="icon" href="icons/class-2a.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
+  <style>
+    /* Inline guard prevents protected data flashing before external CSS and JS load. */
+    #authGate { display: grid; }
+    #protectedContent { display: none; }
+    #protectedContent.is-authenticated { display: block; }
+  </style>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>

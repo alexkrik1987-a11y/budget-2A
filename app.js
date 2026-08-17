@@ -271,7 +271,8 @@ async function loginWithGoogle() {
   const { error } = await db.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${window.location.origin}${window.location.pathname}`
+      // Preserve the GitHub Pages path but never send stale OAuth query/hash values back.
+      redirectTo: getOAuthRedirectUrl()
     }
   });
 
@@ -279,6 +280,13 @@ async function loginWithGoogle() {
     if (dom.googleLoginButton) setButtonLoading(dom.googleLoginButton, false);
     showAuthError(`Ошибка входа: ${error.message}`);
   }
+}
+
+function getOAuthRedirectUrl() {
+  const redirectUrl = new URL(`${window.location.origin}${window.location.pathname}`);
+  redirectUrl.search = "";
+  redirectUrl.hash = "";
+  return redirectUrl.toString();
 }
 
 async function logout() {
