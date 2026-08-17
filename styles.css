@@ -858,6 +858,7 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
   .mascot-chip > span:last-child { display: none; }
   .mascot-chip { padding-right: 6px; }
   .button-small { min-height: 40px; }
+  .button-google { padding-inline: 10px; font-size: .88rem; }
   .metric-card { padding: 22px; }
   .metric-card strong { font-size: 2.25rem; }
   .fund-grid { gap: 12px; }

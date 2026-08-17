@@ -12,7 +12,8 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"></noscript>
   <link rel="icon" href="icons/class-2a.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
@@ -45,14 +46,14 @@
       <h1 id="authTitle">Бюджет нашего класса</h1>
       <p>Взносы, расходы и чеки — понятно и всегда под рукой.</p>
       <figure class="auth-illustration">
-        <img src="images/parent-committee.webp" alt="Шуточная иллюстрация родительского комитета, который считает бюджет класса" width="1100" height="466" decoding="async">
+        <img src="images/parent-committee.webp" alt="Шуточная иллюстрация родительского комитета, который считает бюджет класса" width="1100" height="466" loading="lazy" decoding="async">
         <figcaption>Когда «соберём по чуть-чуть» превратилось в отдельную науку 😄</figcaption>
       </figure>
       <button id="googleLoginButton" class="button button-google" type="button">
-        <span aria-hidden="true">G</span> Войти через Google
+        <span aria-hidden="true">G</span> Войти или зарегистрироваться
       </button>
       <p class="auth-load-note"><span aria-hidden="true">⏳</span> Первая загрузка может занять немного больше времени — подготавливаем данные класса.</p>
-      <p class="auth-note">Вход разрешён родителям и администратору класса.</p>
+      <p class="auth-note">Отдельная регистрация не нужна: при первом входе Google создаст аккаунт автоматически.</p>
       <div id="configWarning" class="notice notice-warning hidden" role="alert"></div>
       <div id="authError" class="notice notice-error hidden" role="alert"></div>
     </section>
@@ -479,8 +480,8 @@
 
   <section id="printReport" class="print-report" aria-hidden="true"></section>
 
-  <!-- Supabase JS v2 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Local copy avoids a second network dependency on slow mobile connections. -->
+  <script src="vendor/supabase.min.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>

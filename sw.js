@@ -1,12 +1,13 @@
 "use strict";
 
-const CACHE_NAME = "budget-2a-shell-v7";
+const CACHE_NAME = "budget-2a-shell-v8";
 const INDEX_URL = new URL("./index.html", self.location.href).href;
 const APP_SHELL = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
+  "./vendor/supabase.min.js",
   "./manifest.webmanifest",
   "./images/parent-committee.webp",
   "./icons/class-2a.svg",

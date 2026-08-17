@@ -314,6 +314,10 @@ async function handleSession(session) {
   }
 
   renderUser();
+  state.isAdmin = false;
+  applyRoleToUi();
+  setProtectedAccess(true);
+  showNotice("Вход выполнен. Загружаем данные класса…", "info", 0);
 
   try {
     const { data: isAdminData } = await db.rpc("is_admin");
@@ -334,8 +338,8 @@ async function handleSession(session) {
   } catch (error) {
     console.error(error);
     state.loadedSessionUserId = null;
-    setProtectedAccess(false);
-    showAuthError(`Вход выполнен, но данные не загрузились: ${friendlyError(error)}. Попробуйте обновить страницу.`);
+    setProtectedAccess(true);
+    showNotice(`Вход выполнен, но данные пока не загрузились: ${friendlyError(error)}. Проверьте интернет и обновите страницу.`, "error", 0);
   }
 }
 
