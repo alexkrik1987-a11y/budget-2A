@@ -1,13 +1,13 @@
 "use strict";
 
-const CACHE_NAME = "budget-2a-shell-v8";
+const CACHE_NAME = "budget-2a-shell-v9";
 const INDEX_URL = new URL("./index.html", self.location.href).href;
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./styles.css",
-  "./app.js",
-  "./vendor/supabase.min.js",
+  "./styles.css?v=9",
+  "./app.js?v=9",
+  "./vendor/supabase.min.js?v=9",
   "./manifest.webmanifest",
   "./images/parent-committee.webp",
   "./icons/class-2a.svg",
@@ -39,13 +39,20 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(INDEX_URL, copy));
+      (async () => {
+        const cached = await caches.match(INDEX_URL);
+        const network = fetch(request).then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(INDEX_URL, copy));
+          }
           return response;
-        })
-        .catch(() => caches.match(INDEX_URL))
+        });
+
+        if (!cached) return network;
+        const timeout = new Promise((resolve) => setTimeout(() => resolve(cached), 1500));
+        return Promise.race([network.catch(() => cached), timeout]);
+      })()
     );
     return;
   }

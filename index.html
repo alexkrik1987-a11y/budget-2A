@@ -23,7 +23,7 @@
     #protectedContent { display: none; }
     #protectedContent.is-authenticated { display: block; }
   </style>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -481,7 +481,7 @@
   <section id="printReport" class="print-report" aria-hidden="true"></section>
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
-  <script src="vendor/supabase.min.js" defer></script>
-  <script src="app.js" defer></script>
+  <script src="vendor/supabase.min.js?v=9" defer></script>
+  <script src="app.js?v=9" defer></script>
 </body>
 </html>

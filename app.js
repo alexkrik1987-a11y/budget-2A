@@ -108,6 +108,12 @@ async function init() {
   setupInstallExperience();
   registerServiceWorker();
 
+  const authWatchdog = window.setTimeout(() => {
+    if (state.authStateConfirmed) return;
+    setProtectedAccess(false);
+    showAuthError("Проверка входа заняла слишком много времени. Форма оставлена доступной — попробуйте войти ещё раз.");
+  }, 7000);
+
   try {
     if (!db) {
       showConfigWarning();
@@ -137,6 +143,7 @@ async function init() {
       await handleSession(data.session);
     }
   } finally {
+    window.clearTimeout(authWatchdog);
     hideLoadingScreen();
   }
 }
@@ -344,8 +351,14 @@ async function handleSession(session) {
 }
 
 function setProtectedAccess(hasSession) {
-  if (dom.authGate) dom.authGate.classList.toggle("hidden", hasSession);
-  if (dom.protectedContent) dom.protectedContent.classList.toggle("is-authenticated", hasSession);
+  if (dom.authGate) {
+    dom.authGate.classList.toggle("hidden", hasSession);
+    dom.authGate.style.setProperty("display", hasSession ? "none" : "grid", "important");
+  }
+  if (dom.protectedContent) {
+    dom.protectedContent.classList.toggle("is-authenticated", hasSession);
+    dom.protectedContent.style.setProperty("display", hasSession ? "block" : "none", "important");
+  }
 }
 
 function renderUser() {
