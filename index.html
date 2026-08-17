@@ -143,6 +143,126 @@
     .connection-pill.is-online .status-dot { background: #76d49b; box-shadow: 0 0 0 4px rgba(118,212,155,0.18); }
     .connection-pill.is-offline .status-dot { background: #ff8b78; box-shadow: 0 0 0 4px rgba(255,139,120,0.18); }
 
+    /* Скрытие через атрибут hidden — надёжнее классов при конфликте специфичности */
+    [hidden] { display: none !important; }
+
+    /* Экран входа через Google */
+    .auth-gate-card {
+      position: relative;
+      overflow: hidden;
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 2.8rem 2rem 2.4rem;
+      text-align: center;
+      background-color: var(--paper);
+      background-image: repeating-linear-gradient(to bottom, transparent 0 35px, rgba(79,150,184,0.12) 36px);
+      border: 3px solid white;
+      outline: 2px dashed rgba(31,93,136,0.45);
+      border-radius: 24px 20px 26px 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .auth-gate-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: clamp(1.6rem, 5vw, 2.6rem);
+      width: 2px;
+      background: rgba(230,83,60,0.35);
+    }
+
+    .auth-gate-icon {
+      width: 96px;
+      height: 96px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 1.1rem;
+      font-size: 2.7rem;
+      background: var(--yellow);
+      border: 3px solid white;
+      outline: 2px solid var(--yellow);
+      border-radius: 50% 46% 52% 48%;
+      box-shadow: 6px 6px 0 rgba(230,83,60,0.75);
+      transform: rotate(-3deg);
+    }
+
+    .auth-gate-title {
+      margin: 0 0 0.4rem;
+      color: var(--blue-dark);
+      font-family: 'Neucha', cursive;
+      font-size: clamp(1.8rem, 5vw, 2.4rem);
+      line-height: 1.05;
+    }
+
+    .auth-gate-sub {
+      margin: 0 auto;
+      max-width: 34ch;
+      color: #60798d;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .google-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-top: 1.7rem;
+      padding: 0.85rem 1.7rem;
+      color: #1f1f1f;
+      background: white;
+      border: 2px solid #d7dee5;
+      border-radius: 999px;
+      box-shadow: 0 5px 0 rgba(24,50,74,0.16), 0 10px 22px rgba(24,50,74,0.12);
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .google-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 0 rgba(24,50,74,0.16), 0 14px 26px rgba(24,50,74,0.16); }
+    .google-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(24,50,74,0.16); }
+    .google-btn:disabled { cursor: wait; opacity: 0.65; transform: none; }
+    .google-btn svg { flex: 0 0 auto; }
+
+    .auth-gate-note {
+      margin: 1.3rem 0 0;
+      color: #8ba0b1;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    /* Чип пользователя и кнопка выхода в шапке */
+    .user-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      max-width: 250px;
+      padding: 0.45rem 0.85rem;
+      color: #dceef7;
+      background: rgba(0,0,0,0.18);
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .user-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .sign-out-btn {
+      padding: 0.5rem 1.05rem;
+      color: white;
+      background: rgba(0,0,0,0.22);
+      border: 2px solid rgba(255,255,255,0.55);
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+    }
+
+    .sign-out-btn:hover { background: var(--red); border-color: white; transform: translateY(-2px); }
+    .sign-out-btn:active { transform: translateY(1px); }
+
     #app > .grid .glass {
       position: relative;
       overflow: hidden;
@@ -297,6 +417,8 @@
       #contentStudents::before, #contentExpenses::before, #contentFunds::before { left: 1.35rem; }
       .admin-trigger-label { display: none; }
       .admin-trigger { width: 52px; justify-content: center; padding: 0.55rem; border-radius: 50%; }
+      .user-chip { max-width: 140px; }
+      .auth-gate-card { padding: 2.2rem 1.3rem 2rem; }
       th, td { white-space: nowrap; }
     }
 
@@ -318,14 +440,42 @@
           <div>
             <h1 class="app-title text-3xl font-bold text-white">Классная копилка</h1>
             <p class="text-purple-100 text-sm font-bold">Бюджет 2 «А» класса · всё по-честному</p>
-            <div id="connectionStatus" class="connection-pill" aria-live="polite"><span class="status-dot"></span><span id="connectionStatusText">Подключаем дневник…</span></div>
+            <div id="connectionStatus" class="connection-pill" aria-live="polite"><span class="status-dot"></span><span id="connectionStatusText">Ожидаем входа…</span></div>
           </div>
         </div>
-        <button id="adminBadge" type="button" onclick="logoutAdmin()" class="admin-only px-4 py-2 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 rounded-full font-semibold text-sm transition-colors" title="Выйти из режима администратора">
-          👑 Администратор · выйти
-        </button>
+        <div class="flex items-center gap-3 flex-wrap">
+          <div id="userChip" class="user-chip" hidden title="">👋 <span id="userEmail"></span></div>
+          <button id="signOutButton" type="button" onclick="signOutApp()" class="sign-out-btn" hidden title="Выйти из аккаунта Google">
+            Выйти
+          </button>
+          <button id="adminBadge" type="button" onclick="logoutAdmin()" class="admin-only px-4 py-2 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 rounded-full font-semibold text-sm transition-colors" title="Выйти из режима администратора">
+            👑 Администратор · выйти
+          </button>
+        </div>
       </div>
     </header>
+
+    <!-- Экран входа через Google -->
+    <section id="authGate" class="animate-fade-in" aria-live="polite">
+      <div class="auth-gate-card">
+        <div class="auth-gate-icon" aria-hidden="true">🐷</div>
+        <h2 class="auth-gate-title">Классная копилка 2 «А»</h2>
+        <p class="auth-gate-sub">Бюджет класса доступен родителям после входа. Нажмите кнопку — и копилка откроется.</p>
+        <button id="googleSignInButton" type="button" onclick="signInWithGoogle()" class="google-btn">
+          <svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          <span id="googleSignInText">Войти через Google</span>
+        </button>
+        <p class="auth-gate-note">Подойдёт любой аккаунт Google (@gmail.com). Незнакомые адреса модератор удалит.</p>
+      </div>
+    </section>
+
+    <!-- Защищённый контент: виден только после входа -->
+    <div id="protectedContent" hidden>
 
     <!-- Статистика -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -438,12 +588,14 @@
       </div>
     </div>
 
+    </div><!-- /protectedContent -->
+
   </div>
 
   <div id="toast" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-[2000] max-w-[calc(100%-2rem)] px-5 py-3 rounded-xl bg-emerald-600 text-white font-semibold shadow-2xl" role="status" aria-live="polite"></div>
 
-  <!-- Кнопка входа для администратора -->
-  <button id="adminTrigger" class="admin-trigger" type="button" title="Вход администратора" aria-label="Вход администратора">
+  <!-- Кнопка входа для администратора (доступна после входа через Google) -->
+  <button id="adminTrigger" class="admin-trigger" type="button" title="Вход администратора" aria-label="Вход администратора" hidden>
     <span class="admin-trigger-icon" aria-hidden="true">🔑</span>
     <span class="admin-trigger-label">Для учителя</span>
   </button>
@@ -564,6 +716,8 @@
     let campaignsData = [];
     let currentCampaignId = null;
     let realtimeRefreshTimer = null;
+    let realtimeChannel = null;
+    let authDataInitialized = false;
 
     // =====================================================
     // ИНИЦИАЛИЗАЦИЯ
@@ -579,17 +733,128 @@
         return;
       }
 
+      // Сохранение сессии включено: нужно для возврата из Google OAuth
+      // и для автоматического входа при повторном открытии сайта.
       supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
         auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-          detectSessionInUrl: false
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true
         }
       });
-      const loaded = await loadAllData();
-      renderAll();
-      if (loaded) subscribeToRealtime();
+
+      supabase.auth.onAuthStateChange(handleAuthStateChange);
+
+      // Резервная проверка: событие INITIAL_SESSION приходит само,
+      // но при сбое хранилища гарантированно выставляем стартовое состояние.
+      const { data: { session } } = await supabase.auth.getSession();
+      handleAuthStateChange(session ? 'SIGNED_IN' : 'INITIAL_SESSION', session);
     });
+
+    // =====================================================
+    // АВТОРИЗАЦИЯ ЧЕРЕЗ GOOGLE
+    // =====================================================
+    function handleAuthStateChange(event, session) {
+      if (session) {
+        enterAuthenticatedUi(session);
+      } else {
+        enterLoginUi();
+      }
+    }
+
+    async function signInWithGoogle() {
+      const button = document.getElementById('googleSignInButton');
+      const label = document.getElementById('googleSignInText');
+
+      if (!supabase) {
+        showToast('Модуль данных не загрузился. Обновите страницу.', 'error');
+        return;
+      }
+      if (!/^https?:$/.test(window.location.protocol)) {
+        showToast('Вход работает только через http(s). Откройте сайт на сервере, а не как локальный файл.', 'error');
+        return;
+      }
+
+      try {
+        button.disabled = true;
+        label.textContent = 'Перенаправляем в Google…';
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: window.location.origin + window.location.pathname
+          }
+        });
+        if (error) throw error;
+      } catch (error) {
+        console.error('Ошибка входа через Google:', error);
+        button.disabled = false;
+        label.textContent = 'Войти через Google';
+        showToast('Не удалось начать вход через Google. Проверьте настройку провайдера в Supabase.', 'error');
+      }
+    }
+
+    async function signOutApp() {
+      if (!supabase) return;
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+        showToast('Вы вышли из аккаунта');
+      } catch (error) {
+        console.error('Ошибка выхода:', error);
+        showToast('Не удалось выйти. Попробуйте ещё раз.', 'error');
+      }
+    }
+
+    function enterAuthenticatedUi(session) {
+      const email = session.user?.email || '';
+
+      document.getElementById('userEmail').textContent = email;
+      document.getElementById('userChip').title = email;
+      document.getElementById('userChip').hidden = false;
+      document.getElementById('signOutButton').hidden = false;
+      document.getElementById('authGate').hidden = true;
+      document.getElementById('protectedContent').hidden = false;
+      document.getElementById('adminTrigger').hidden = false;
+
+      // Загрузку и подписку запускаем один раз за сессию:
+      // TOKEN_REFRESHED тоже приходит с сессией, данные заново не нужны.
+      if (authDataInitialized) return;
+      authDataInitialized = true;
+      setConnectionStatus('', 'Загружаем дневник…');
+      loadAllData().then(loaded => {
+        renderAll();
+        if (loaded) subscribeToRealtime();
+      });
+    }
+
+    function enterLoginUi() {
+      if (isAdminMode) {
+        adminPin = '';
+        isAdminMode = false;
+        document.body.classList.remove('admin-mode');
+        setAdminTriggerState(false);
+      }
+      if (realtimeChannel && supabase) {
+        supabase.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+      }
+      clearTimeout(realtimeRefreshTimer);
+      authDataInitialized = false;
+
+      document.getElementById('userEmail').textContent = '';
+      document.getElementById('userChip').title = '';
+      document.getElementById('userChip').hidden = true;
+      document.getElementById('signOutButton').hidden = true;
+      document.getElementById('authGate').hidden = false;
+      document.getElementById('protectedContent').hidden = true;
+      document.getElementById('adminTrigger').hidden = true;
+
+      const button = document.getElementById('googleSignInButton');
+      const label = document.getElementById('googleSignInText');
+      button.disabled = false;
+      label.textContent = 'Войти через Google';
+      setConnectionStatus('', 'Ожидаем входа…');
+    }
 
     // =====================================================
     // ЗАГРУЗКА ДАННЫХ
@@ -1029,8 +1294,8 @@
     // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
     // =====================================================
     function subscribeToRealtime() {
-      if (!supabase) return;
-      supabase
+      if (!supabase || realtimeChannel) return;
+      realtimeChannel = supabase
         .channel('class-budget-live')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'students' }, scheduleRealtimeRefresh)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'campaigns' }, scheduleRealtimeRefresh)
