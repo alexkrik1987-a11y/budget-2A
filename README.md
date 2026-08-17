@@ -1,99 +1,121 @@
-# Бюджет 2 «А» класса
+# «Бюджет класса» — запуск и подключение Supabase
 
-Одностраничное адаптивное приложение для прозрачного учёта взносов и расходов класса. Родители видят актуальные данные после входа через Google, а изменения доступны после проверки PIN администратора в Supabase.
+Проект состоит из статического адаптивного интерфейса и базы Supabase. Сборка через npm не требуется: сайт можно разместить на Netlify, Vercel, Cloudflare Pages, GitHub Pages или обычном Nginx-хостинге.
 
-## Что входит в проект
+## Что реализовано
 
-- `index.html` — интерфейс на Tailwind CSS и Supabase JS, без этапа сборки.
-- `setup.sql` — таблицы, 14 учеников, RLS, защищённые RPC и Supabase Realtime.
-- `oauth-protect.sql` — скрывает данные от анонимного доступа (читать могут только вошедшие).
-- Backend — Supabase: `https://vdeexzvsjlqvyckvqqvz.supabase.co`.
+Интерфейс содержит сводку с общей кассой и тремя фондами, круговые диаграммы, автоматические статусы учеников, поиск и фильтры, шаблоны сборов, журнал расходов, закрытое хранилище чеков, месячные CSV/Excel-отчёты и печать. Также доступны ручные и ежедневные резервные копии, восстановление из JSON и отмена последнего изменения.
 
-## Первичная настройка Supabase
+Родитель может только читать данные. Администратор меняет план сбора, открывает и закрывает сборы, вводит взносы, добавляет расходы и ссылки на чеки. Права защищены не только интерфейсом, но и RLS-политиками PostgreSQL.
 
-> Важно: `setup.sql` удаляет и пересоздаёт таблицы приложения. Выполняйте его целиком при первой установке. Повторный запуск удалит внесённые взносы и расходы.
+## 1. Создание проекта Supabase
 
-1. Откройте нужный проект в Supabase.
-2. Перейдите в **SQL Editor** и создайте запрос.
-3. Вставьте содержимое `setup.sql` и нажмите **Run**.
-4. Убедитесь, что запрос завершился без ошибок.
+Создайте проект на Supabase. В разделе **SQL Editor → New query** вставьте и выполните файл `supabase.sql` целиком.
 
-URL и publishable key уже указаны в `index.html`. Secret/service-role key в браузере не используется.
+Если основная база уже создана, не запускайте её заново. Для установки новых функций один раз выполните файл `upgrade-features.sql`. Он добавляет поле чека, закрытый bucket `class-receipts`, резервные копии, восстановление и ежедневное расписание. Сначала выполните SQL и дождитесь `Success`, затем публикуйте новую версию frontend.
 
-## Вход через Google
+Затем добавьте email администратора и родителей. Адреса должны совпадать с Google-аккаунтами и быть в нижнем регистре:
 
-Модель «саморегистрация с пост-модерацией»: любой обладатель аккаунта Google может войти и увидеть бюджет, а вы удаляете незнакомые адреса вручную в дашборде Supabase.
+````sql
+insert into public.class_members (email, role) values
+  ('admin@example.com', 'ADMIN'),
+  ('parent1@example.com', 'PARENT'),
+  ('parent2@example.com', 'PARENT')
+on conflict (email) do update set role = excluded.role;
+````
 
-### Шаг 1. Приложение в Google Cloud Console
+## 2. Google OAuth
 
-1. Откройте [console.cloud.google.com](https://console.cloud.google.com/) и создайте проект (или выберите существующий).
-2. В разделе **APIs & Services → OAuth consent screen** настройте экран согласия (тип External, название приложения — например, «Классная копилка 2А»).
-3. В разделе **APIs & Services → Credentials → Create credentials → OAuth client ID** выберите тип **Web application**.
-4. В **Authorized redirect URIs** добавьте ровно этот адрес:
-   ```
-   https://vdeexzvsjlqvyckvqqvz.supabase.co/auth/v1/callback
-   ```
-5. Сохраните — появится **Client ID** и **Client Secret**.
+В Supabase откройте **Authentication → Providers → Google** и включите Google. Создайте OAuth Client в Google Cloud Console и перенесите Client ID и Client Secret в Supabase.
 
-### Шаг 2. Настройка Supabase
+В Google OAuth укажите callback URL, который показывает Supabase в настройках Google Provider. Обычно он имеет вид:
 
-1. В дашборде Supabase откройте **Authentication → Sign In / Providers → Google**.
-2. Включите провайдера и вставьте Client ID и Client Secret из шага 1.
-3. Откройте **Authentication → URL Configuration**:
-   - **Site URL** — адрес опубликованного сайта (например, `https://user.github.io/...`);
-   - **Redirect URLs** — добавьте адрес сайта и `http://localhost:8080` для локальной проверки.
+````text
+https://PROJECT_ID.supabase.co/auth/v1/callback
+````
 
-### Шаг 3. Скрыть данные от анонимов
+В **Authentication → URL Configuration** укажите публичный адрес сайта как `Site URL`, а также добавьте его в `Redirect URLs`. Для локальной проверки добавьте:
 
-Выполните `oauth-protect.sql` в **SQL Editor**. После этого бюджет нельзя прочитать ни без входа на сайте, ни напрямую через API.
+````text
+http://localhost:8080/**
+````
 
-### Модерация пользователей
+## 3. Подключение frontend
 
-Список вошедших — в **Authentication → Users**. Удаление неизвестного адреса отзывает доступ: сессия удалённого пользователя перестаёт продлеваться и «умирает» максимум через час (стандартное время жизни access-токена Supabase).
+В начале `app.js` замените два значения:
 
-## Работа с приложением
+````javascript
+const SUPABASE_URL = "https://PROJECT_ID.supabase.co";
+const SUPABASE_ANON_KEY = "ВАШ_PUBLISHABLE_ИЛИ_ANON_KEY";
+````
 
-Откройте `index.html` через статический веб-сервер или опубликуйте его на GitHub Pages, Netlify либо другом статическом хостинге. Для локальной проверки можно выполнить:
+Используйте только **Publishable key** или старый **anon key**. Никогда не публикуйте `service_role key`: он обходит RLS и предназначен исключительно для защищённого сервера.
 
-```bash
-python3 -m http.server 8080
-```
+## 4. Локальный запуск
 
-После этого откройте `http://localhost:8080`.
+Не открывайте `index.html` через `file://`, потому что OAuth требует HTTP-адрес. Запустите локальный сервер из каталога проекта:
 
-### Режим родителя
+````bash
+cd budget-class
+python3 -m http.server 8080 --bind 127.0.0.1
+````
 
-- нажмите «Войти через Google» на главном экране и авторизуйтесь в аккаунте Google;
-- статистика, взносы, расходы и фонды видны только после входа;
-- прямые `INSERT`, `UPDATE` и `DELETE` запрещены политиками и правами Supabase;
-- открытые вкладки автоматически обновляются через Realtime.
+Откройте `http://localhost:8080`.
 
-### Режим администратора
+## 5. Размещение на Nginx
 
-1. Нажмите кнопку с замком в правом нижнем углу.
-2. Введите PIN `8521`.
-3. Изменяйте взносы, добавляйте расходы или учеников.
-4. Для выхода нажмите жёлтую плашку администратора в шапке.
+Скопируйте файлы на сервер с безопасными правами:
 
-PIN проверяется функцией Supabase по bcrypt-хешу. Каждая операция записи повторно проверяет PIN на стороне базы и выполняется через отдельный RPC.
+````bash
+sudo mkdir -p /var/www/budget-class
+sudo cp index.html styles.css app.js /var/www/budget-class/
+sudo chown -R root:root /var/www/budget-class
+sudo find /var/www/budget-class -type d -exec chmod 755 {} \;
+sudo find /var/www/budget-class -type f -exec chmod 644 {} \;
+````
 
-## Расчёты
+Пример `/etc/nginx/sites-available/budget-class.conf`:
 
-- **Всего собрано** — сумма всех взносов.
-- **Всего потрачено** — сумма всех расходов.
-- **Остаток в кассе** — собранные средства минус расходы.
-- **Остаток фонда** — взносы сборов, привязанных к фонду, минус расходы этого фонда.
+````nginx
+server {
+    listen 80;
+    listen [::]:80;
+    server_name budget.example.ru;
 
-Начальная база содержит один открытый сбор, привязанный к «Основному фонду». Поэтому средства других фондов будут равны нулю, пока для них не появятся отдельные сборы.
+    root /var/www/budget-class;
+    index index.html;
 
-## Состав класса
+    server_tokens off;
 
-В базу добавляются 14 учеников: Варчак К., Горовик В., Дергачёв А., Иштутинов Т., Кармес Д., Лепетухина В., Лукьянова С., Макаренко О., Марков М., Мотовилов З., Удовенко А., Чан В., Ширманова Д., Яковлева М.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
 
-## Если данные не загружаются
+    location ~* \.(?:css|js|png|jpg|jpeg|gif|svg|webp|ico)$ {
+        expires 7d;
+        add_header Cache-Control "public, max-age=604800, immutable";
+        try_files $uri =404;
+    }
 
-1. Проверьте, что вы вошли через Google — до входа бюджет скрыт.
-2. Проверьте, что `setup.sql` успешно выполнен именно в проекте из `SUPABASE_URL`.
-3. Откройте консоль браузера (`F12`) и проверьте ошибки сети.
-4. Проверьте, что статический хостинг не блокирует CDN Tailwind, Supabase JS и Google Fonts.
-5. В Supabase откройте **Database → Replication** и убедитесь, что таблицы приложения добавлены в `supabase_realtime` (скрипт делает это автоматически).
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+}
+````
+
+Активируйте конфигурацию и выпустите TLS-сертификат:
+
+````bash
+sudo ln -s /etc/nginx/sites-available/budget-class.conf /etc/nginx/sites-enabled/budget-class.conf
+sudo nginx -t
+sudo systemctl reload nginx
+sudo certbot --nginx -d budget.example.ru
+````
+
+После публикации добавьте `https://budget.example.ru/**` в Supabase Redirect URLs.
+
+## Важные замечания
+
+Фонд «Дни рождения» присутствует в расчётах. Чтобы начать собирать в него деньги, администратор создаёт в разделе «Настройки» новый сбор и выбирает фонд «Дни рождения». Исходные 9 месяцев относятся к основному фонду, а 4 праздника — к фонду праздников.
+
+Чеки, загруженные через форму расхода, хранятся в приватном Supabase Storage и открываются участникам класса по временной ссылке. Внешние HTTPS-ссылки оставлены как запасной вариант. Для персональных данных учеников рекомендуется использовать сокращённые фамилии, как в исходном списке, и выдавать доступ только актуальным родителям.
