@@ -611,7 +611,7 @@ function renderRecentExpenses() {
   if (!recent.length) {
     dom.recentExpenses.className = "compact-list empty-state";
     dom.recentExpenses.append(createEmptyContent(
-      "🐷",
+      "✨",
       "Расходов пока нет",
       "Копилка в порядке — новые записи появятся здесь."
     ));
