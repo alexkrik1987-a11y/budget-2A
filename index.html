@@ -30,7 +30,7 @@
       <img class="loading-emblem" src="icons/class-2a.svg" alt="">
       <p class="loading-kicker">2 «А» класс</p>
       <strong>Считаем бюджет…</strong>
-      <span class="chalk-loader" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="pencil-loader" aria-hidden="true"><i></i></span>
     </div>
   </div>
 
@@ -94,22 +94,28 @@
             <span class="sticker sticker-yellow">Всё под контролем 🍎</span>
             <h2 id="summaryTitle">Сводка класса</h2>
           </div>
-          <p id="lastUpdated" class="last-updated">Обновляем данные…</p>
+          <div class="summary-status">
+            <span class="mascot-chip" title="Совёнок-счётовод помогает следить за бюджетом">
+              <span class="mascot-owl" aria-hidden="true">🦉</span>
+              <span>Совёнок-счётовод</span>
+            </span>
+            <p id="lastUpdated" class="last-updated">Обновляем данные…</p>
+          </div>
         </div>
 
         <div class="totals-grid">
           <article class="metric-card chalkboard chalk-blue">
-            <span class="metric-icon" aria-hidden="true">💰</span>
+            <span class="metric-icon metric-icon-blue" aria-hidden="true">🪙</span>
             <p>Всего собрано</p>
             <strong id="totalCollected">0 ₽</strong>
           </article>
           <article class="metric-card chalkboard chalk-pink">
-            <span class="metric-icon" aria-hidden="true">🛍️</span>
+            <span class="metric-icon metric-icon-pink" aria-hidden="true">🧾</span>
             <p>Всего потрачено</p>
             <strong id="totalSpent">0 ₽</strong>
           </article>
           <article class="metric-card chalkboard chalk-green">
-            <span class="metric-icon" aria-hidden="true">🧮</span>
+            <span class="metric-icon metric-icon-green" aria-hidden="true">🧮</span>
             <p>Остаток в кассе</p>
             <strong id="totalBalance">0 ₽</strong>
           </article>

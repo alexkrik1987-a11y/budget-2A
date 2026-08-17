@@ -510,10 +510,10 @@ function renderSummary() {
   const totalSpent = sum(state.expenses.map((item) => item.amount));
   const totalBalance = totalCollected - totalSpent;
 
-  if (dom.totalCollected) dom.totalCollected.textContent = formatMoney(totalCollected);
-  if (dom.totalSpent) dom.totalSpent.textContent = formatMoney(totalSpent);
+  if (dom.totalCollected) animateMoney(dom.totalCollected, totalCollected);
+  if (dom.totalSpent) animateMoney(dom.totalSpent, totalSpent);
   if (dom.totalBalance) {
-    dom.totalBalance.textContent = formatMoney(totalBalance);
+    animateMoney(dom.totalBalance, totalBalance);
     dom.totalBalance.style.color = totalBalance < 0 ? "#ff9f9f" : "";
   }
 
@@ -1535,6 +1535,34 @@ function formatMoney(value) {
     currency: "RUB",
     maximumFractionDigits: Number(value) % 1 === 0 ? 0 : 2
   }).format(toNumber(value));
+}
+
+function animateMoney(element, value) {
+  const target = toNumber(value);
+  const start = toNumber(element.dataset.moneyValue ?? 0);
+  element.dataset.moneyValue = String(target);
+
+  if (element._moneyAnimationFrame) cancelAnimationFrame(element._moneyAnimationFrame);
+  if (start === target || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    element.textContent = formatMoney(target);
+    return;
+  }
+
+  const startedAt = performance.now();
+  const duration = 650;
+  const renderFrame = (now) => {
+    const progress = Math.min((now - startedAt) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = start + ((target - start) * eased);
+    element.textContent = formatMoney(Number.isInteger(target) ? Math.round(current) : Math.round(current * 100) / 100);
+    if (progress < 1) {
+      element._moneyAnimationFrame = requestAnimationFrame(renderFrame);
+    } else {
+      element.textContent = formatMoney(target);
+      element._moneyAnimationFrame = null;
+    }
+  };
+  element._moneyAnimationFrame = requestAnimationFrame(renderFrame);
 }
 
 function formatDate(value) {
