@@ -106,13 +106,7 @@ async function init() {
   bindEvents();
   applySeasonalTheme();
   setupInstallExperience();
-  registerServiceWorker();
-
-  const authWatchdog = window.setTimeout(() => {
-    if (state.authStateConfirmed) return;
-    setProtectedAccess(false);
-    showAuthError("Проверка входа заняла слишком много времени. Форма оставлена доступной — попробуйте войти ещё раз.");
-  }, 7000);
+  removeLegacyServiceWorker();
 
   try {
     if (!db) {
@@ -120,32 +114,54 @@ async function init() {
       return;
     }
 
-    // Subscribe first: Supabase emits INITIAL_SESSION from its persisted session.
-    // The page remains locked until this confirmation arrives.
-    db.auth.onAuthStateChange((event, session) => {
-      if (event === "TOKEN_REFRESHED" && state.authStateConfirmed && session?.user?.id === state.user?.id) {
-        state.session = session;
-        return;
-      }
-      state.authStateConfirmed = true;
-      window.setTimeout(() => handleSession(session), 0);
-    });
-
-    const { data, error } = await db.auth.getSession();
+    // getSession is the single source of truth after an OAuth redirect.
+    // Subscribing before it returns can race with INITIAL_SESSION on mobile browsers.
+    const { data, error } = await getSessionWithTimeout();
     if (error) {
       showAuthError(`Не удалось проверить авторизацию: ${error.message}`);
       return;
     }
 
-    // Fallback for environments where INITIAL_SESSION is delayed or unavailable.
-    if (!state.authStateConfirmed) {
-      state.authStateConfirmed = true;
-      await handleSession(data.session);
-    }
+    state.authStateConfirmed = true;
+    await handleSession(data.session);
+    clearOAuthCallbackFromUrl();
+
+    db.auth.onAuthStateChange((event, session) => {
+      if (event === "INITIAL_SESSION") return;
+      if (event === "TOKEN_REFRESHED" && session?.user?.id === state.user?.id) {
+        state.session = session;
+        return;
+      }
+      // Deferring leaves Supabase's internal auth lock before data requests begin.
+      window.setTimeout(() => handleSession(session), 0);
+    });
   } finally {
-    window.clearTimeout(authWatchdog);
     hideLoadingScreen();
   }
+}
+
+async function getSessionWithTimeout() {
+  const timeoutMs = 12000;
+  let timeoutId;
+  const timeout = new Promise((resolve) => {
+    timeoutId = window.setTimeout(() => resolve({
+      data: { session: null },
+      error: new Error("проверка входа заняла более 12 секунд")
+    }), timeoutMs);
+  });
+
+  try {
+    return await Promise.race([db.auth.getSession(), timeout]);
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
+function clearOAuthCallbackFromUrl() {
+  const hash = window.location.hash;
+  const query = window.location.search;
+  if (!/(access_token|refresh_token|code|error)=/.test(`${hash}&${query}`)) return;
+  window.history.replaceState({}, document.title, window.location.pathname);
 }
 
 function cacheDom() {
@@ -1530,13 +1546,16 @@ function isStandalone() {
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
 
-function registerServiceWorker() {
-  if (!("serviceWorker" in navigator) || !/^https?:$/.test(window.location.protocol)) return;
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch((error) => {
-      console.warn("Service worker registration failed:", error);
-    });
-  });
+function removeLegacyServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.getRegistrations()
+    .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+    .then(() => ("caches" in window ? window.caches.keys() : []))
+    .then((keys) => {
+      if (!keys) return;
+      return Promise.all(keys.filter((key) => key.startsWith("budget-2a-")).map((key) => caches.delete(key)));
+    })
+    .catch((error) => console.warn("Legacy cache cleanup failed:", error));
 }
 
 function hideLoadingScreen() {
