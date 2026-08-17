@@ -143,8 +143,21 @@
     .connection-pill.is-online .status-dot { background: #76d49b; box-shadow: 0 0 0 4px rgba(118,212,155,0.18); }
     .connection-pill.is-offline .status-dot { background: #ff8b78; box-shadow: 0 0 0 4px rgba(255,139,120,0.18); }
 
-    /* Скрытие через атрибут hidden — надёжнее классов при конфликте специфичности */
     [hidden] { display: none !important; }
+
+    #protectedContent,
+    #userChip,
+    #signOutButton,
+    #adminTrigger {
+      display: none !important;
+    }
+
+    body.authenticated #protectedContent,
+    body.authenticated #userChip,
+    body.authenticated #signOutButton,
+    body.authenticated #adminTrigger {
+      display: revert !important;
+    }
 
     /* Экран входа через Google */
     .auth-gate-card {
@@ -444,8 +457,8 @@
           </div>
         </div>
         <div class="flex items-center gap-3 flex-wrap">
-          <div id="userChip" class="user-chip" hidden title="">👋 <span id="userEmail"></span></div>
-          <button id="signOutButton" type="button" onclick="signOutApp()" class="sign-out-btn" hidden title="Выйти из аккаунта Google">
+          <div id="userChip" class="user-chip" title="">👋 <span id="userEmail"></span></div>
+          <button id="signOutButton" type="button" onclick="signOutApp()" class="sign-out-btn" title="Выйти из аккаунта Google">
             Выйти
           </button>
           <button id="adminBadge" type="button" onclick="logoutAdmin()" class="admin-only px-4 py-2 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 rounded-full font-semibold text-sm transition-colors" title="Выйти из режима администратора">
@@ -475,7 +488,7 @@
     </section>
 
     <!-- Защищённый контент: виден только после входа -->
-    <div id="protectedContent" hidden>
+    <div id="protectedContent">
 
     <!-- Статистика -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -595,7 +608,7 @@
   <div id="toast" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-[2000] max-w-[calc(100%-2rem)] px-5 py-3 rounded-xl bg-emerald-600 text-white font-semibold shadow-2xl" role="status" aria-live="polite"></div>
 
   <!-- Кнопка входа для администратора (доступна после входа через Google) -->
-  <button id="adminTrigger" class="admin-trigger" type="button" title="Вход администратора" aria-label="Вход администратора" hidden>
+  <button id="adminTrigger" class="admin-trigger" type="button" title="Вход администратора" aria-label="Вход администратора">
     <span class="admin-trigger-icon" aria-hidden="true">🔑</span>
     <span class="admin-trigger-label">Для учителя</span>
   </button>
@@ -745,10 +758,14 @@
 
       supabase.auth.onAuthStateChange(handleAuthStateChange);
 
-      // Резервная проверка: событие INITIAL_SESSION приходит само,
-      // но при сбое хранилища гарантированно выставляем стартовое состояние.
+      // Резервная проверка на случай, если INITIAL_SESSION не придёт
+      // (например, при сбое localStorage): явно читаем сессию и применяем UI.
       const { data: { session } } = await supabase.auth.getSession();
-      handleAuthStateChange(session ? 'SIGNED_IN' : 'INITIAL_SESSION', session);
+      if (!session) {
+        // Сессии нет — гарантированно показываем экран входа
+        enterLoginUi();
+      }
+      // Если сессия есть, onAuthStateChange уже вызвал enterAuthenticatedUi
     });
 
     // =====================================================
@@ -810,11 +827,8 @@
 
       document.getElementById('userEmail').textContent = email;
       document.getElementById('userChip').title = email;
-      document.getElementById('userChip').hidden = false;
-      document.getElementById('signOutButton').hidden = false;
       document.getElementById('authGate').hidden = true;
-      document.getElementById('protectedContent').hidden = false;
-      document.getElementById('adminTrigger').hidden = false;
+      document.body.classList.add('authenticated');
 
       // Загрузку и подписку запускаем один раз за сессию:
       // TOKEN_REFRESHED тоже приходит с сессией, данные заново не нужны.
@@ -843,11 +857,8 @@
 
       document.getElementById('userEmail').textContent = '';
       document.getElementById('userChip').title = '';
-      document.getElementById('userChip').hidden = true;
-      document.getElementById('signOutButton').hidden = true;
       document.getElementById('authGate').hidden = false;
-      document.getElementById('protectedContent').hidden = true;
-      document.getElementById('adminTrigger').hidden = true;
+      document.body.classList.remove('authenticated');
 
       const button = document.getElementById('googleSignInButton');
       const label = document.getElementById('googleSignInText');
