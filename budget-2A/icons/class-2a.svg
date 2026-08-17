@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Эмблема 2 А класса</title>
+  <desc id="desc">Синяя школьная эмблема с раскрытой книгой, карандашом и надписью 2А</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2f7599"/>
+      <stop offset="1" stop-color="#173f59"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="14" stdDeviation="10" flood-color="#102f3d" flood-opacity=".28"/>
+    </filter>
+  </defs>
+  <circle cx="256" cy="256" r="236" fill="#fff8df"/>
+  <circle cx="256" cy="256" r="218" fill="url(#bg)" stroke="#f1c64e" stroke-width="16"/>
+  <path d="M116 140c34-38 79-61 140-67 61 6 106 29 140 67" fill="none" stroke="#fff8df" stroke-width="9" stroke-linecap="round" stroke-dasharray="4 18" opacity=".75"/>
+  <g filter="url(#shadow)">
+    <path d="M105 265c46-24 95-22 151 13v116c-54-34-105-40-151-17z" fill="#fffdf4" stroke="#103b34" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M407 265c-46-24-95-22-151 13v116c54-34 105-40 151-17z" fill="#fffdf4" stroke="#103b34" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M256 278v116" stroke="#d95445" stroke-width="8" stroke-linecap="round"/>
+    <path d="M139 302c31-7 59-1 84 14M139 334c31-7 59-1 84 14M373 302c-31-7-59-1-84 14M373 334c-31-7-59-1-84 14" fill="none" stroke="#9bc8dc" stroke-width="7" stroke-linecap="round"/>
+  </g>
+  <g transform="rotate(12 365 216)">
+    <path d="M345 120h40v183h-40z" fill="#f2c347" stroke="#103b34" stroke-width="8"/>
+    <path d="M345 120h40v31h-40z" fill="#dd7191" stroke="#103b34" stroke-width="8"/>
+    <path d="m345 303 20 45 20-45z" fill="#f5d6a2" stroke="#103b34" stroke-width="8" stroke-linejoin="round"/>
+    <path d="m360 337 5 11 5-11" fill="#183044"/>
+  </g>
+  <text x="239" y="243" fill="#fff8df" font-family="Nunito, Arial, sans-serif" font-size="116" font-weight="900" text-anchor="middle" letter-spacing="-7">2А</text>
+  <circle cx="120" cy="224" r="11" fill="#d95445"/>
+  <circle cx="399" cy="174" r="10" fill="#67b987"/>
+</svg>
