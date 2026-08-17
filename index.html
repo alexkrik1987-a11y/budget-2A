@@ -18,8 +18,8 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="is-loading">
-  <div id="loadingScreen" class="loading-screen" role="status" aria-live="polite" aria-label="Загрузка данных">
+<body>
+  <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
     <div class="loading-board chalkboard">
       <img class="loading-emblem" src="icons/class-2a.svg" alt="">
       <p class="loading-kicker">2 «А» класс</p>
@@ -32,7 +32,7 @@
   <div class="page-decor decor-ruler" aria-hidden="true">📐</div>
   <div id="seasonDecor" class="season-decor" aria-hidden="true"></div>
 
-  <main id="authScreen" class="auth-screen">
+  <main id="authGate" class="auth-screen">
     <section class="auth-card chalkboard" aria-labelledby="authTitle">
       <div class="chalk-doodle" aria-hidden="true">A + Б = ❤️</div>
       <img class="auth-emblem" src="icons/class-2a.svg" alt="Эмблема 2 А класса">
@@ -47,7 +47,7 @@
     </section>
   </main>
 
-  <div id="app" class="app hidden">
+  <div id="protectedContent" class="app">
     <header class="site-header chalkboard">
       <div class="header-inner">
         <div class="brand">

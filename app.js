@@ -87,7 +87,9 @@ const state = {
   realtimeChannel: null,
   realtimeRefreshTimer: null,
   noticeTimer: null,
-  installPrompt: null
+  installPrompt: null,
+  authStateConfirmed: false,
+  loadedSessionUserId: null
 };
 
 const dom = {};
@@ -99,6 +101,7 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   cacheDom();
+  setProtectedAccess(false);
   fillStaticSelects();
   bindEvents();
   applySeasonalTheme();
@@ -111,17 +114,28 @@ async function init() {
       return;
     }
 
+    // Subscribe first: Supabase emits INITIAL_SESSION from its persisted session.
+    // The page remains locked until this confirmation arrives.
+    db.auth.onAuthStateChange((event, session) => {
+      if (event === "TOKEN_REFRESHED" && state.authStateConfirmed && session?.user?.id === state.user?.id) {
+        state.session = session;
+        return;
+      }
+      state.authStateConfirmed = true;
+      window.setTimeout(() => handleSession(session), 0);
+    });
+
     const { data, error } = await db.auth.getSession();
     if (error) {
       showAuthError(`Не удалось проверить авторизацию: ${error.message}`);
       return;
     }
 
-    await handleSession(data.session);
-
-    db.auth.onAuthStateChange((_event, session) => {
-      window.setTimeout(() => handleSession(session), 0);
-    });
+    // Fallback for environments where INITIAL_SESSION is delayed or unavailable.
+    if (!state.authStateConfirmed) {
+      state.authStateConfirmed = true;
+      await handleSession(data.session);
+    }
   } finally {
     hideLoadingScreen();
   }
@@ -129,7 +143,7 @@ async function init() {
 
 function cacheDom() {
   const ids = [
-    "loadingScreen", "authScreen", "app", "googleLoginButton", "logoutButton", "configWarning", "authError",
+    "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "logoutButton", "configWarning", "authError",
     "globalNotice", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated",
     "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions",
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "currentCampaignSummary",
@@ -283,39 +297,41 @@ async function handleSession(session) {
   state.session = session;
   state.user = session?.user ?? null;
 
-  // Всегда открываем приложение для всех посетителей
-  if (dom.authScreen) dom.authScreen.classList.add("hidden");
-  if (dom.app) dom.app.classList.remove("hidden");
-
   if (!session) {
     state.isAdmin = false;
+    state.loadedSessionUserId = null;
+    setProtectedAccess(false);
     renderUser();
-    applyRoleToUi();
-    try {
-      await loadAllData();
-      subscribeRealtime();
-    } catch (error) {
-      console.error(error);
-      showNotice(`Не удалось загрузить данные: ${friendlyError(error)}`, "error", 0);
-    }
     return;
   }
 
+  setProtectedAccess(true);
   renderUser();
 
   try {
     const { data: isAdminData } = await db.rpc("is_admin");
     state.isAdmin = isAdminData === true;
     applyRoleToUi();
-    await loadAllData();
-    subscribeRealtime();
+    if (state.loadedSessionUserId !== session.user.id) {
+      state.loadedSessionUserId = session.user.id;
+      await loadAllData();
+      subscribeRealtime();
+    }
   } catch (error) {
     console.error(error);
     state.isAdmin = false;
     applyRoleToUi();
-    await loadAllData();
-    subscribeRealtime();
+    if (state.loadedSessionUserId !== session.user.id) {
+      state.loadedSessionUserId = session.user.id;
+      await loadAllData();
+      subscribeRealtime();
+    }
   }
+}
+
+function setProtectedAccess(hasSession) {
+  if (dom.authGate) dom.authGate.classList.toggle("hidden", hasSession);
+  if (dom.protectedContent) dom.protectedContent.classList.toggle("is-authenticated", hasSession);
 }
 
 function renderUser() {

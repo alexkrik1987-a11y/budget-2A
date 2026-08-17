@@ -80,6 +80,10 @@ a { color: inherit; }
 img { max-width: 100%; }
 .hidden { display: none !important; }
 
+/* Financial data must never flash before Supabase confirms a session. */
+#protectedContent { display: none; }
+#protectedContent.is-authenticated { display: block; }
+
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
