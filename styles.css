@@ -879,3 +879,19 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
   .print-report th { font-weight: 900; }
   .print-report footer { margin-top: 12px; color: #555; font-size: 9px; text-align: right; }
 }
+/* =========================================================
+   ЗАЩИТА КОНТЕНТА И АВТОРИЗАЦИЯ
+   ========================================================= */
+#protectedContent,
+#userChip,
+#signOutButton,
+#adminTrigger {
+  display: none !important;
+}
+
+body.authenticated #protectedContent,
+body.authenticated #userChip,
+body.authenticated #signOutButton,
+body.authenticated #adminTrigger {
+  display: revert !important;
+}
