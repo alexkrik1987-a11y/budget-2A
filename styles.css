@@ -339,8 +339,8 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 
 .auth-card {
   position: relative;
-  width: min(100%, 500px);
-  padding: 58px 46px 42px;
+  width: min(100%, 680px);
+  padding: 42px 44px 36px;
   overflow: hidden;
   text-align: center;
   border-radius: 15px;
@@ -361,6 +361,9 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 
 .auth-card h1 { margin: 12px 0 9px; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.05; }
 .auth-card p { margin: 0 0 26px; color: rgba(255, 255, 255, .82); }
+.auth-illustration { margin: 0 0 21px; overflow: hidden; background: #f8f0d8; border: 3px solid rgba(255, 255, 255, .72); border-radius: 13px 17px 12px 16px; box-shadow: 0 6px 0 rgba(0, 0, 0, .18); transform: rotate(.35deg); }
+.auth-illustration img { display: block; width: 100%; height: auto; aspect-ratio: 1100 / 466; object-fit: cover; }
+.auth-illustration figcaption { padding: 8px 12px 9px; color: var(--board-dark); font-size: .74rem; font-weight: 900; line-height: 1.3; background: #fff3bd; }
 .auth-card .auth-load-note { display: flex; align-items: center; gap: 8px; margin: 19px 0 0; padding: 10px 12px; color: #fff3bd; font-size: .79rem; font-weight: 700; line-height: 1.35; text-align: left; background: rgba(255, 231, 131, .1); border: 1px dashed rgba(255, 231, 131, .42); border-radius: 10px; }
 .auth-load-note span { flex: 0 0 auto; font-size: 1.15rem; }
 .auth-card .auth-note { margin: 12px 0 0; font-size: .76rem; }
@@ -807,7 +810,10 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
   .modal-card::before { left: 18px; }
   .modal-actions { position: sticky; bottom: -20px; z-index: 3; margin-inline: -8px; padding: 14px 8px 3px; background: linear-gradient(transparent, var(--paper) 28%); }
   .modal-actions .button { flex: 1; }
-  .auth-card { padding: 52px 23px 34px; }
+  .auth-card { padding: 42px 23px 30px; }
+  .auth-emblem { width: 92px; height: 92px; }
+  .auth-illustration { margin-bottom: 18px; }
+  .auth-illustration figcaption { font-size: .69rem; }
   .chalk-doodle { top: 15px; right: 16px; font-size: .8rem; }
   .page-decor { display: none; }
   .season-decor { display: none; }
