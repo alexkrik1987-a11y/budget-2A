@@ -313,27 +313,29 @@ async function handleSession(session) {
     return;
   }
 
-  setProtectedAccess(true);
   renderUser();
 
   try {
     const { data: isAdminData } = await db.rpc("is_admin");
     state.isAdmin = isAdminData === true;
-    applyRoleToUi();
-    if (state.loadedSessionUserId !== session.user.id) {
-      state.loadedSessionUserId = session.user.id;
-      await loadAllData();
-      subscribeRealtime();
-    }
   } catch (error) {
     console.error(error);
     state.isAdmin = false;
+  }
+
+  try {
     applyRoleToUi();
     if (state.loadedSessionUserId !== session.user.id) {
       state.loadedSessionUserId = session.user.id;
       await loadAllData();
       subscribeRealtime();
     }
+    setProtectedAccess(true);
+  } catch (error) {
+    console.error(error);
+    state.loadedSessionUserId = null;
+    setProtectedAccess(false);
+    showAuthError(`Вход выполнен, но данные не загрузились: ${friendlyError(error)}. Попробуйте обновить страницу.`);
   }
 }
 
