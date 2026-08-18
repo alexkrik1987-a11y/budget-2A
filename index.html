@@ -62,7 +62,10 @@
       <h1 id="authTitle">Бюджет нашего класса</h1>
       <p>Взносы, расходы и чеки — понятно и всегда под рукой.</p>
       <figure class="auth-illustration clean-parent-art">
-        <img src="images/parents-piggybank-illustration.png?v=2" alt="Родительский комитет с котом-казначеем обсуждает бюджет за столом с копилкой" width="2304" height="1536" decoding="async">
+        <picture>
+          <source srcset="images/parents-piggybank-illustration.webp?v=1" type="image/webp">
+          <img src="images/parents-piggybank-illustration.png?v=2" alt="Родительский комитет с котом-казначеем обсуждает бюджет за столом с копилкой" width="1600" height="1067" decoding="async">
+        </picture>
       </figure>
       <form id="emailPasswordForm" class="email-password-form" novalidate>
         <label for="emailPasswordEmailInput">Вход по почте и паролю</label>
@@ -619,6 +622,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=29" defer></script>
+  <script src="app.js?v=30" defer></script>
 </body>
 </html>
