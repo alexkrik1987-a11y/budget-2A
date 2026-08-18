@@ -408,6 +408,16 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 .notebook-login > p:not(.notebook-note):not(.auth-note):not(.auth-load-note) { margin: 0 0 18px; color: #344a5a; font-size: .88rem; }
 .notebook-login .auth-illustration { margin-bottom: 18px; border: 3px solid #293d4e; border-radius: 5px; box-shadow: 4px 5px 0 rgba(41, 61, 78, .36); transform: rotate(-.3deg); }
 .notebook-login .auth-illustration figcaption { color: #182a38; background: #fff3bd; }
+/* Пользовательская иллюстрация уже содержит заголовок и школьные рисунки. */
+.notebook-login:has(.provided-login-art) .notebook-header,
+.notebook-login:has(.provided-login-art) .notebook-note,
+.notebook-login:has(.provided-login-art) .auth-emblem,
+.notebook-login:has(.provided-login-art) h1,
+.notebook-login:has(.provided-login-art) > p:not(.auth-note):not(.auth-load-note),
+.notebook-login:has(.provided-login-art) .notebook-doodle { display: none; }
+.notebook-login .provided-login-art { max-width: 560px; margin: 0 auto 18px; border: 0; border-radius: 0; box-shadow: 0 8px 21px rgba(28, 47, 65, .22); transform: none; }
+.notebook-login .provided-login-art img { display: block; width: 100%; height: auto; aspect-ratio: auto; }
+.notebook-login .provided-login-art figcaption { padding: 7px 10px; font-size: .73rem; }
 .notebook-login .email-password-form { gap: 8px; max-width: 440px; margin: 0 auto 9px; text-align: left; }
 .notebook-login .email-password-form label { color: #172737; font-size: .83rem; }
 .notebook-login .email-password-form input { min-height: 40px; padding: 8px 11px; background: rgba(255, 255, 255, .88); border: 2px solid #263f52; border-radius: 5px; box-shadow: inset 0 1px 0 rgba(0,0,0,.04); }
