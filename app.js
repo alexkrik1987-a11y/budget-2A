@@ -5,7 +5,9 @@
    ========================================================= */
 const SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
-const APP_VERSION = "v25";
+const APP_VERSION = "v26";
+const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
 
 const isSupabaseConfigured =
   SUPABASE_URL.startsWith("https://") &&
@@ -108,8 +110,7 @@ const state = {
   loadedSessionUserId: null,
   loadedSessionRunId: 0,
   loadRunId: 0,
-  sessionRunId: 0,
-  emailOtpEmail: null
+  sessionRunId: 0
 };
 
 const dom = {};
@@ -152,6 +153,10 @@ async function init() {
 
     db.auth.onAuthStateChange((event, session) => {
       if (event === "INITIAL_SESSION") return;
+      if (event === "PASSWORD_RECOVERY" && session) {
+        openPasswordResetMode();
+        return;
+      }
       if (event === "TOKEN_REFRESHED" && session?.user?.id === state.user?.id) {
         state.session = session;
         return;
@@ -188,6 +193,11 @@ async function finishInitialSession(result) {
   if (session) {
     // URL очищается только после того, как Supabase вернул уже сохранённую сессию.
     clearOAuthCallbackFromUrl();
+    if (IS_INITIAL_PASSWORD_RECOVERY) {
+      state.authStateConfirmed = true;
+      openPasswordResetMode();
+      return;
+    }
   }
   state.authStateConfirmed = true;
   await queueSessionHandling(session);
@@ -202,7 +212,7 @@ function clearOAuthCallbackFromUrl() {
 
 function cacheDom() {
   const ids = [
-    "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "emailOtpRequestForm", "emailOtpVerifyForm", "emailOtpEmailInput", "emailOtpCodeInput", "sendEmailOtpButton", "verifyEmailOtpButton", "emailOtpStatus", "logoutButton", "configWarning", "authError",
+    "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "emailPasswordForm", "emailPasswordEmailInput", "emailPasswordInput", "emailPasswordLoginButton", "requestPasswordSetupButton", "emailPasswordStatus", "passwordResetForm", "newPasswordInput", "confirmPasswordInput", "saveNewPasswordButton", "logoutButton", "configWarning", "authError",
     "globalNotice", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated",
     "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions",
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "currentCampaignSummary",
@@ -252,11 +262,9 @@ function setSelectOptions(select, options) {
 
 function bindEvents() {
   if (dom.googleLoginButton) dom.googleLoginButton.addEventListener("click", loginWithGoogle);
-  if (dom.emailOtpRequestForm) dom.emailOtpRequestForm.addEventListener("submit", sendEmailOtp);
-  if (dom.emailOtpVerifyForm) dom.emailOtpVerifyForm.addEventListener("submit", verifyEmailOtp);
-  if (dom.emailOtpCodeInput) dom.emailOtpCodeInput.addEventListener("input", () => {
-    dom.emailOtpCodeInput.value = dom.emailOtpCodeInput.value.replace(/\D/g, "").slice(0, 6);
-  });
+  if (dom.emailPasswordForm) dom.emailPasswordForm.addEventListener("submit", loginWithEmailPassword);
+  if (dom.requestPasswordSetupButton) dom.requestPasswordSetupButton.addEventListener("click", requestPasswordSetup);
+  if (dom.passwordResetForm) dom.passwordResetForm.addEventListener("submit", savePasswordReset);
   if (dom.logoutButton) dom.logoutButton.addEventListener("click", logout);
   if (dom.campaignSelect) {
     dom.campaignSelect.addEventListener("change", () => {
@@ -349,68 +357,107 @@ function bindEvents() {
 /* =========================================================
    4. АВТОРИЗАЦИЯ И РОЛИ
    ========================================================= */
-function showEmailOtpStatus(message) {
-  if (!dom.emailOtpStatus) return;
-  dom.emailOtpStatus.textContent = message;
-  dom.emailOtpStatus.classList.remove("hidden");
+function showEmailPasswordStatus(message) {
+  if (!dom.emailPasswordStatus) return;
+  dom.emailPasswordStatus.textContent = message;
+  dom.emailPasswordStatus.classList.remove("hidden");
 }
 
-async function sendEmailOtp(event) {
+function validEmail(value) {
+  return /^\S+@\S+\.\S+$/.test(value);
+}
+
+async function loginWithEmailPassword(event) {
   event.preventDefault();
   if (!db) return showConfigWarning();
 
-  const email = (dom.emailOtpEmailInput?.value || "").trim().toLowerCase();
-  if (!/^\S+@\S+\.\S+$/.test(email)) {
-    showAuthError("Введите корректный адрес электронной почты.");
+  const email = (dom.emailPasswordEmailInput?.value || "").trim().toLowerCase();
+  const password = dom.emailPasswordInput?.value || "";
+  if (!validEmail(email) || !password) {
+    showAuthError("Введите почту и пароль.");
     return;
   }
 
   hideElement(dom.authError);
-  if (dom.sendEmailOtpButton) setButtonLoading(dom.sendEmailOtpButton, true, "Отправляем…");
-  const { error } = await db.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: false }
-  });
-  if (dom.sendEmailOtpButton) setButtonLoading(dom.sendEmailOtpButton, false);
-
-  if (error) {
-    showAuthError("Не удалось отправить код. Проверьте адрес или воспользуйтесь входом через Google.");
-    return;
-  }
-
-  state.emailOtpEmail = email;
-  dom.emailOtpRequestForm?.classList.add("hidden");
-  dom.emailOtpVerifyForm?.classList.remove("hidden");
-  if (dom.emailOtpCodeInput) dom.emailOtpCodeInput.value = "";
-  showEmailOtpStatus(`Код отправлен на ${email}. Введите 6 цифр из письма.`);
-  dom.emailOtpCodeInput?.focus();
-}
-
-async function verifyEmailOtp(event) {
-  event.preventDefault();
-  if (!db) return showConfigWarning();
-
-  const token = (dom.emailOtpCodeInput?.value || "").replace(/\D/g, "");
-  if (!state.emailOtpEmail || token.length !== 6) {
-    showAuthError("Введите все 6 цифр из письма.");
-    return;
-  }
-
-  hideElement(dom.authError);
-  if (dom.verifyEmailOtpButton) setButtonLoading(dom.verifyEmailOtpButton, true, "Проверяем…");
-  const { data, error } = await db.auth.verifyOtp({
-    email: state.emailOtpEmail,
-    token,
-    type: "email"
-  });
-  if (dom.verifyEmailOtpButton) setButtonLoading(dom.verifyEmailOtpButton, false);
+  if (dom.emailPasswordLoginButton) setButtonLoading(dom.emailPasswordLoginButton, true, "Входим…");
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
+  if (dom.emailPasswordLoginButton) setButtonLoading(dom.emailPasswordLoginButton, false);
 
   if (error || !data?.session) {
-    showAuthError("Код не подошёл или истёк. Запросите новый код.");
+    showAuthError("Не удалось войти. Проверьте почту и пароль или задайте пароль по ссылке из письма.");
     return;
   }
 
-  showEmailOtpStatus("Код подтверждён. Открываем бюджет…");
+  showEmailPasswordStatus("Вход выполнен. Открываем бюджет…");
+  await queueSessionHandling(data.session);
+}
+
+async function requestPasswordSetup() {
+  if (!db) return showConfigWarning();
+
+  const email = (dom.emailPasswordEmailInput?.value || "").trim().toLowerCase();
+  if (!validEmail(email)) {
+    showAuthError("Сначала введите свою почту в поле входа.");
+    dom.emailPasswordEmailInput?.focus();
+    return;
+  }
+
+  hideElement(dom.authError);
+  if (dom.requestPasswordSetupButton) setButtonLoading(dom.requestPasswordSetupButton, true, "Отправляем…");
+  const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo: getPasswordResetUrl() });
+  if (dom.requestPasswordSetupButton) setButtonLoading(dom.requestPasswordSetupButton, false);
+
+  if (error) {
+    showAuthError("Не удалось отправить письмо. Попробуйте позже или воспользуйтесь входом через Google.");
+    return;
+  }
+
+  showEmailPasswordStatus("Письмо отправлено. Откройте ссылку из письма и задайте постоянный пароль.");
+}
+
+function getPasswordResetUrl() {
+  const isLocalPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  return isLocalPreview ? `${window.location.origin}${window.location.pathname}` : "https://rodcomitet.budget2a.kriknexus.pro/";
+}
+
+function openPasswordResetMode() {
+  setProtectedAccess(false);
+  dom.emailPasswordForm?.classList.add("hidden");
+  dom.requestPasswordSetupButton?.classList.add("hidden");
+  dom.googleLoginButton?.classList.add("hidden");
+  dom.passwordResetForm?.classList.remove("hidden");
+  showEmailPasswordStatus("Придумайте и сохраните постоянный пароль для входа.");
+  dom.newPasswordInput?.focus();
+}
+
+async function savePasswordReset(event) {
+  event.preventDefault();
+  if (!db) return showConfigWarning();
+
+  const password = dom.newPasswordInput?.value || "";
+  const confirmation = dom.confirmPasswordInput?.value || "";
+  if (password.length < 6) {
+    showAuthError("Пароль должен содержать не менее 6 символов.");
+    return;
+  }
+  if (password !== confirmation) {
+    showAuthError("Пароли не совпадают.");
+    return;
+  }
+
+  hideElement(dom.authError);
+  if (dom.saveNewPasswordButton) setButtonLoading(dom.saveNewPasswordButton, true, "Сохраняем…");
+  const { error } = await db.auth.updateUser({ password });
+  if (dom.saveNewPasswordButton) setButtonLoading(dom.saveNewPasswordButton, false);
+
+  if (error) {
+    showAuthError("Не удалось сохранить пароль. Откройте новую ссылку из письма и попробуйте ещё раз.");
+    return;
+  }
+
+  clearOAuthCallbackFromUrl();
+  showEmailPasswordStatus("Пароль сохранён. Открываем бюджет…");
+  const { data } = await db.auth.getSession();
   await queueSessionHandling(data.session);
 }
 
@@ -2521,7 +2568,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=25", window.location.href);
+  const workerUrl = new URL("./sw.js?v=26", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
