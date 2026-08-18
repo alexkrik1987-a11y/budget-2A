@@ -23,7 +23,7 @@
     #protectedContent { display: none; }
     #protectedContent.is-authenticated { display: block; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=11">
+  <link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -65,8 +65,8 @@
         <div class="brand">
           <span class="brand-icon" aria-hidden="true"><img src="icons/class-2a.svg" alt=""></span>
           <div>
-            <p class="eyebrow">Наш дружный класс</p>
-            <h1>Бюджет 2 «А»</h1>
+            <p class="eyebrow">Наш дружный класс <span data-school-year></span></p>
+            <h1>Бюджет <span data-class-name>2 «А»</span></h1>
           </div>
         </div>
 
@@ -87,6 +87,7 @@
         <button class="nav-button active" type="button" data-view="summary"><span>📚</span> Сводка</button>
         <button class="nav-button" type="button" data-view="contributions"><span>✏️</span> Взносы</button>
         <button class="nav-button" type="button" data-view="expenses"><span>🧾</span> Расходы</button>
+        <button class="nav-button" type="button" data-view="archive"><span>🗂️</span> Архив</button>
         <button id="settingsNavButton" class="nav-button admin-only hidden" type="button" data-view="settings"><span>⚙️</span> Настройки</button>
       </div>
     </nav>
@@ -316,6 +317,17 @@
         </section>
       </section>
 
+      <section id="view-archive" class="view" aria-labelledby="archiveTitle">
+        <div class="section-heading">
+          <div>
+            <span class="sticker sticker-blue">Сохраняем историю</span>
+            <h2 id="archiveTitle">Архив закрытых сборов</h2>
+          </div>
+          <p class="last-updated">Здесь остаются взносы, расходы и история завершённых сборов.</p>
+        </div>
+        <div id="archiveCampaigns" class="archive-grid"></div>
+      </section>
+
       <section id="view-settings" class="view" aria-labelledby="settingsTitle">
         <div class="section-heading">
           <div>
@@ -360,6 +372,36 @@
           </div>
         </section>
 
+        <section class="paper-card student-management-card" aria-labelledby="studentsManageTitle">
+          <div class="card-title-row">
+            <div>
+              <span class="sticker sticker-green">Список класса</span>
+              <h3 id="studentsManageTitle">Ученики</h3>
+              <p>Добавляйте новых детей, а выбывших отмечайте неактивными: прошлые взносы останутся в истории.</p>
+            </div>
+            <button id="openStudentModalButton" class="button button-primary" type="button">+ Добавить ученика</button>
+          </div>
+          <div id="studentManagementList" class="student-management-list"></div>
+        </section>
+
+        <section class="paper-card school-year-card" aria-labelledby="schoolYearTitle">
+          <div class="card-title-row">
+            <div>
+              <span class="sticker sticker-orange">Переход в следующий класс</span>
+              <h3 id="schoolYearTitle">Подготовить новый учебный год</h3>
+              <p>Операция закрывает и архивирует все активные сборы, создаёт дополнительную копию и оставляет историю доступной в архиве.</p>
+            </div>
+            <span aria-hidden="true" class="large-emoji">🎒</span>
+          </div>
+          <form id="startSchoolYearForm" class="school-year-form">
+            <label class="field"><span>Новое название класса</span><input id="nextClassName" type="text" maxlength="40" placeholder="Например: 3 «А»" required></label>
+            <label class="field"><span>Учебный год</span><input id="nextSchoolYear" type="text" inputmode="numeric" pattern="20[0-9]{2}/20[0-9]{2}" placeholder="2026/2027" required></label>
+            <button id="startSchoolYearButton" class="button button-primary" type="submit">Подготовить новый год</button>
+          </form>
+          <div id="schoolYearFormError" class="notice notice-error hidden" role="alert"></div>
+          <p class="form-hint">Сначала проверьте, что все сборы текущего года закончены. Для отмены можно восстановить созданную копию.</p>
+        </section>
+
         <section class="paper-card backup-card" aria-labelledby="backupsTitle">
           <div class="card-title-row">
             <div>
@@ -402,6 +444,7 @@
         <label class="field field-wide"><span>Описание *</span><input id="expenseDescription" type="text" maxlength="160" placeholder="Например: бумага и краски" required></label>
         <label class="field"><span>Категория *</span><select id="expenseCategory" required></select></label>
         <label class="field"><span>Списать из фонда *</span><select id="expenseFund" required></select></label>
+        <label class="field"><span>Связать со сбором</span><select id="expenseCampaign"></select></label>
         <label class="field field-wide file-upload-field"><span>Загрузить чек прямо на сайт</span><input id="expenseReceiptFile" type="file" accept="image/jpeg,image/png,image/webp,application/pdf"><small id="expenseReceiptStatus">Фото JPG/PNG/WebP или PDF, не больше 10 МБ</small></label>
         <label class="field field-wide"><span>Или внешняя ссылка на чек</span><input id="expenseReceiptUrl" type="url" maxlength="1000" placeholder="https://..."></label>
       </div>
@@ -433,6 +476,25 @@
       <div class="modal-actions">
         <button class="button button-secondary" type="button" data-close-modal="campaignModal">Отмена</button>
         <button id="saveCampaignButton" class="button button-primary" type="submit">Сохранить</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="studentModal" class="modal">
+    <form id="studentForm" class="modal-card" method="dialog">
+      <div class="modal-header">
+        <div><span class="sticker sticker-green">Список класса</span><h2 id="studentModalTitle">Добавить ученика</h2></div>
+        <button class="icon-button" type="button" data-close-modal="studentModal" aria-label="Закрыть">×</button>
+      </div>
+      <input id="studentId" type="hidden">
+      <div class="form-grid">
+        <label class="field field-wide"><span>Фамилия и имя / сокращённое имя *</span><input id="studentFullName" type="text" maxlength="120" placeholder="Например: Иванов И." required></label>
+        <label class="field"><span>Порядок в списке</span><input id="studentSortOrder" type="number" min="0" step="1" inputmode="numeric" required></label>
+      </div>
+      <div id="studentFormError" class="notice notice-error hidden" role="alert"></div>
+      <div class="modal-actions">
+        <button class="button button-secondary" type="button" data-close-modal="studentModal">Отмена</button>
+        <button id="saveStudentButton" class="button button-primary" type="submit">Сохранить</button>
       </div>
     </form>
   </dialog>
@@ -482,6 +544,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=10" defer></script>
+  <script src="app.js?v=12" defer></script>
 </body>
 </html>

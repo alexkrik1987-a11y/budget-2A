@@ -71,10 +71,14 @@ const state = {
   user: null,
   isAdmin: false,
   students: [],
+  allStudents: [],
   campaigns: [],
+  archivedCampaigns: [],
   contributions: [],
   expenses: [],
   backups: [],
+  classProfile: { class_name: "2 «А»", school_year: "" },
+  archiveFeaturesReady: false,
   selectedCampaignId: null,
   studentSearch: "",
   expenseSearch: "",
@@ -184,7 +188,11 @@ function cacheDom() {
     "campaignFund", "campaignExpectedAmount", "campaignSortOrder", "campaignIsOpen",
     "campaignFormError", "saveCampaignButton", "campaignsTableBody", "campaignSearchInput", "campaignTemplates",
     "createBackupButton", "exportBackupButton", "restoreBackupInput", "backupList", "receiptPreviewModal",
-    "receiptPreviewContent", "openReceiptExternal"
+    "receiptPreviewContent", "openReceiptExternal",
+    "archiveCampaigns", "studentManagementList", "openStudentModalButton",
+    "studentModal", "studentForm", "studentModalTitle", "studentId", "studentFullName", "studentSortOrder",
+    "studentFormError", "saveStudentButton", "startSchoolYearForm", "nextClassName", "nextSchoolYear",
+    "schoolYearFormError", "startSchoolYearButton", "expenseCampaign"
   ];
 
   ids.forEach((id) => { dom[id] = document.getElementById(id); });
@@ -266,6 +274,11 @@ function bindEvents() {
   if (dom.openCampaignModalButton) dom.openCampaignModalButton.addEventListener("click", () => openCampaignModal());
   if (dom.expenseForm) dom.expenseForm.addEventListener("submit", saveExpense);
   if (dom.campaignForm) dom.campaignForm.addEventListener("submit", saveCampaign);
+  if (dom.openStudentModalButton) dom.openStudentModalButton.addEventListener("click", () => openStudentModal());
+  if (dom.studentForm) dom.studentForm.addEventListener("submit", saveStudent);
+  if (dom.studentManagementList) dom.studentManagementList.addEventListener("click", handleStudentAction);
+  if (dom.archiveCampaigns) dom.archiveCampaigns.addEventListener("click", handleArchiveAction);
+  if (dom.startSchoolYearForm) dom.startSchoolYearForm.addEventListener("submit", startNewSchoolYear);
   if (dom.installAppButton) dom.installAppButton.addEventListener("click", installApp);
   if (dom.contributionsTableBody) dom.contributionsTableBody.addEventListener("change", handleContributionChange);
   if (dom.expensesTableBody) dom.expensesTableBody.addEventListener("click", handleExpenseAction);
@@ -275,7 +288,7 @@ function bindEvents() {
     button.addEventListener("click", () => closeModal(button.dataset.closeModal));
   });
 
-  [dom.expenseModal, dom.campaignModal, dom.receiptPreviewModal, dom.installHelpModal].forEach((dialog) => {
+  [dom.expenseModal, dom.campaignModal, dom.studentModal, dom.receiptPreviewModal, dom.installHelpModal].forEach((dialog) => {
     if (dialog) {
       dialog.addEventListener("click", (event) => {
         if (event.target === dialog) dialog.close();
@@ -434,18 +447,23 @@ function applyRoleToUi() {
 async function loadAllData({ silent = false } = {}) {
   if (!silent) showNotice("Загружаем свежие данные…", "info", 0);
 
-  const [studentsResult, campaignsResult, contributionsResult, expensesResult] = await Promise.all([
+  const [activeStudentsResult, allStudentsResult, contributionsResult, expensesResult, archiveData] = await Promise.all([
     db.from("students").select("id, full_name, sort_order, is_active, created_at, updated_at").eq("is_active", true).order("sort_order"),
-    db.from("campaigns").select("id, name, campaign_type, fund, expected_amount, is_open, sort_order, created_at, updated_at").order("sort_order"),
+    db.from("students").select("id, full_name, sort_order, is_active, created_at, updated_at").order("is_active", { ascending: false }).order("sort_order"),
     db.from("contributions").select("id, student_id, campaign_id, amount, created_at, updated_at"),
-    fetchExpenses()
+    fetchExpenses(),
+    fetchArchiveAwareData()
   ]);
 
-  const failed = [studentsResult, campaignsResult, contributionsResult, expensesResult].find((result) => result.error);
+  const failed = [activeStudentsResult, allStudentsResult, contributionsResult, expensesResult, archiveData].find((result) => result.error);
   if (failed) throw failed.error;
 
-  state.students = studentsResult.data ?? [];
-  state.campaigns = campaignsResult.data ?? [];
+  state.students = activeStudentsResult.data ?? [];
+  state.allStudents = allStudentsResult.data ?? state.students;
+  state.campaigns = archiveData.campaigns ?? [];
+  state.archivedCampaigns = archiveData.archivedCampaigns ?? [];
+  state.classProfile = archiveData.classProfile ?? state.classProfile;
+  state.archiveFeaturesReady = archiveData.ready === true;
   state.contributions = contributionsResult.data ?? [];
   state.expenses = expensesResult.data ?? [];
 
@@ -465,6 +483,38 @@ async function loadAllData({ silent = false } = {}) {
   if (!silent) hideNotice();
 }
 
+async function fetchArchiveAwareData() {
+  const fields = "id, name, campaign_type, fund, expected_amount, is_open, sort_order, archived_at, archived_by, school_year, archived_students, created_at, updated_at";
+  const [activeResult, archivedResult, profileResult] = await Promise.all([
+    db.from("campaigns").select(fields).is("archived_at", null).order("sort_order"),
+    db.from("campaigns").select(fields).not("archived_at", "is", null).order("archived_at", { ascending: false }),
+    db.from("class_profile").select("class_name, school_year, updated_at").eq("id", true).maybeSingle()
+  ]);
+
+  if (!activeResult.error && !archivedResult.error && !profileResult.error) {
+    return {
+      campaigns: activeResult.data ?? [],
+      archivedCampaigns: archivedResult.data ?? [],
+      classProfile: profileResult.data ?? { class_name: "2 «А»", school_year: "" },
+      ready: true,
+      error: null
+    };
+  }
+
+  // До запуска миграции сайт остаётся доступным в прежнем режиме.
+  const fallback = await db.from("campaigns")
+    .select("id, name, campaign_type, fund, expected_amount, is_open, sort_order, created_at, updated_at")
+    .order("sort_order");
+  if (fallback.error) return { error: fallback.error };
+  return {
+    campaigns: fallback.data ?? [],
+    archivedCampaigns: [],
+    classProfile: { class_name: "2 «А»", school_year: "" },
+    ready: false,
+    error: null
+  };
+}
+
 async function fetchBackups() {
   const result = await db.from("budget_backups")
     .select("id, backup_type, record_count, created_by, created_at")
@@ -476,18 +526,18 @@ async function fetchBackups() {
 }
 
 async function fetchExpenses() {
-  const fields = "id, expense_date, description, category, fund, amount, receipt_url, receipt_path, created_at, updated_at";
+  const fields = "id, expense_date, description, category, fund, amount, receipt_url, receipt_path, campaign_id, created_at, updated_at";
   const result = await db.from("expenses").select(fields).order("expense_date", { ascending: false }).order("created_at", { ascending: false });
   if (!result.error) {
     state.advancedFeaturesReady = true;
     return result;
   }
-  if (!/receipt_path|column .* does not exist/i.test(result.error.message || "")) return result;
+  if (!/receipt_path|campaign_id|column .* does not exist/i.test(result.error.message || "")) return result;
   state.advancedFeaturesReady = false;
 
-  // До запуска upgrade-features.sql продолжаем показывать старые записи без загрузки чеков.
+  // До запуска миграций сохраняем режим просмотра старых расходов без новых полей.
   const fallback = await db.from("expenses").select("id, expense_date, description, category, fund, amount, receipt_url, created_at, updated_at").order("expense_date", { ascending: false }).order("created_at", { ascending: false });
-  return { ...fallback, data: (fallback.data || []).map((expense) => ({ ...expense, receipt_path: null })) };
+  return { ...fallback, data: (fallback.data || []).map((expense) => ({ ...expense, receipt_path: null, campaign_id: null })) };
 }
 
 function subscribeRealtime() {
@@ -523,17 +573,132 @@ function scheduleRealtimeRefresh() {
    6. РЕНДЕРИНГ СВОДКИ И РАСЧЁТЫ
    ========================================================= */
 function renderAll() {
+  renderClassProfile();
   renderCampaignSelect();
   renderSummary();
   renderContributions();
   renderExpenses();
   renderCampaignSettings();
+  renderArchivedCampaigns();
+  renderStudentManagement();
   renderBackupList();
   renderReportMonthOptions();
   renderPrintableReport();
   if (dom.lastUpdated) {
     dom.lastUpdated.textContent = `Обновлено: ${new Intl.DateTimeFormat("ru-RU", { hour: "2-digit", minute: "2-digit" }).format(new Date())}`;
   }
+}
+
+function renderClassProfile() {
+  const className = state.classProfile?.class_name || "2 «А»";
+  const schoolYear = state.classProfile?.school_year || "";
+  document.querySelectorAll("[data-class-name]").forEach((node) => { node.textContent = className; });
+  document.querySelectorAll("[data-school-year]").forEach((node) => { node.textContent = schoolYear; });
+  document.title = `Бюджет ${className} класса`;
+  if (dom.nextClassName && document.activeElement !== dom.nextClassName) dom.nextClassName.value = className;
+  if (dom.nextSchoolYear && document.activeElement !== dom.nextSchoolYear) dom.nextSchoolYear.value = nextSchoolYearLabel(schoolYear);
+}
+
+function renderArchivedCampaigns() {
+  if (!dom.archiveCampaigns) return;
+  dom.archiveCampaigns.replaceChildren();
+  if (!state.archiveFeaturesReady) {
+    dom.archiveCampaigns.append(createEmptyContent("🗂️", "Архив будет готов после обновления базы", "Сначала выполните файл archive-features.sql в Supabase."));
+    return;
+  }
+  if (!state.archivedCampaigns.length) {
+    dom.archiveCampaigns.append(createEmptyContent("🗂️", "Архив пока пуст", "Завершённый сбор можно безопасно архивировать в настройках."));
+    return;
+  }
+
+  state.archivedCampaigns.forEach((campaign) => {
+    const contributions = getCampaignContributions(campaign.id);
+    const collected = sum(contributions.map((item) => item.amount));
+    const linkedExpenses = state.expenses.filter((item) => item.campaign_id === campaign.id);
+    const spent = sum(linkedExpenses.map((item) => item.amount));
+    const card = el("article", "archive-card");
+    const header = el("div", "archive-card-header");
+    const title = el("div");
+    title.append(
+      el("span", "sticker sticker-blue", campaign.school_year || "Учебный год не указан"),
+      el("h3", "", campaign.name),
+      el("p", "", `${CAMPAIGN_TYPE_LABELS[campaign.campaign_type] || "Сбор"} · ${FUND_LABELS[campaign.fund] || "Классный фонд"} · архивирован ${formatDateTime(campaign.archived_at)}`)
+    );
+    const restoreButton = el("button", "button button-secondary button-small admin-only", "Вернуть в активные");
+    restoreButton.type = "button";
+    restoreButton.dataset.action = "restore-campaign";
+    restoreButton.dataset.id = campaign.id;
+    if (!state.isAdmin) restoreButton.classList.add("hidden");
+    header.append(title, restoreButton);
+
+    const metrics = el("div", "archive-metrics");
+    metrics.append(
+      createArchiveMetric("План", formatMoney(toNumber(campaign.expected_amount) * getArchivedCampaignStudents(campaign).length)),
+      createArchiveMetric("Собрано", formatMoney(collected)),
+      createArchiveMetric("Расходы по сбору", linkedExpenses.length ? formatMoney(spent) : "Не привязаны")
+    );
+
+    const details = document.createElement("details");
+    details.className = "archive-details";
+    const summary = el("summary", "", `Полная история: ${contributions.length} взносов${linkedExpenses.length ? ` и ${linkedExpenses.length} расходов` : ""}`);
+    const history = el("div", "archive-history");
+    const studentRows = getArchivedCampaignStudents(campaign).map((student) => {
+      const contribution = getContribution(student.id, campaign.id);
+      return `${student.full_name}: ${formatMoney(contribution?.amount || 0)}`;
+    });
+    history.append(el("p", "archive-history-copy", studentRows.length ? studentRows.join(" · ") : "Взносов по этому сбору не было."));
+    if (linkedExpenses.length) {
+      const expenseList = el("ul", "archive-expense-list");
+      linkedExpenses.forEach((expense) => expenseList.append(el("li", "", `${formatDate(expense.expense_date)} — ${expense.description}: ${formatMoney(expense.amount)}`)));
+      history.append(el("h4", "", "Расходы, привязанные к сбору"), expenseList);
+    } else {
+      history.append(el("p", "form-hint", "Старые расходы до этого обновления не были связаны с отдельными сборами и остаются в общем журнале расходов."));
+    }
+    details.append(summary, history);
+    card.append(header, metrics, details);
+    dom.archiveCampaigns.append(card);
+  });
+}
+
+function createArchiveMetric(label, value) {
+  const metric = el("div", "archive-metric");
+  metric.append(el("small", "", label), el("strong", "", value));
+  return metric;
+}
+
+function getArchivedCampaignStudents(campaign) {
+  if (Array.isArray(campaign.archived_students) && campaign.archived_students.length) {
+    return [...campaign.archived_students].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0) || String(a.full_name).localeCompare(String(b.full_name), "ru"));
+  }
+  // Для архивов, созданных до обновления, показываем только тех, у кого есть сохранённый взнос.
+  const ids = new Set(getCampaignContributions(campaign.id).map((item) => item.student_id));
+  return state.allStudents.filter((student) => ids.has(student.id));
+}
+
+function renderStudentManagement() {
+  if (!dom.studentManagementList) return;
+  dom.studentManagementList.replaceChildren();
+  if (!state.allStudents.length) {
+    dom.studentManagementList.append(createEmptyContent("🧑‍🎓", "Ученики не найдены", "Добавьте первого ученика в список."));
+    return;
+  }
+  state.allStudents.forEach((student) => {
+    const item = el("article", `student-management-item ${student.is_active ? "" : "is-inactive"}`);
+    const copy = el("div");
+    copy.append(el("strong", "", student.full_name), el("small", "", student.is_active ? `Активен · порядок ${student.sort_order}` : "Неактивен · прежние взносы сохранены"));
+    const actions = el("div", "row-actions");
+    const editButton = el("button", "action-button action-edit", "Изменить");
+    editButton.type = "button";
+    editButton.dataset.action = "edit-student";
+    editButton.dataset.id = student.id;
+    const statusButton = el("button", `action-button ${student.is_active ? "action-archive" : "action-reactivate"}`, student.is_active ? "Больше не учится" : "Вернуть в класс");
+    statusButton.type = "button";
+    statusButton.dataset.action = student.is_active ? "deactivate-student" : "reactivate-student";
+    statusButton.dataset.id = student.id;
+    actions.append(editButton, statusButton);
+    item.append(copy, actions);
+    dom.studentManagementList.append(item);
+  });
 }
 
 function renderSummary() {
@@ -956,6 +1121,7 @@ function openExpenseModal(expense = null) {
   dom.expenseReceiptStatus.textContent = expense?.receipt_path
     ? "✓ Чек уже загружен. Выберите новый файл, чтобы заменить его."
     : "Фото JPG/PNG/WebP или PDF, не больше 10 МБ";
+  populateExpenseCampaignSelect(expense?.campaign_id || "");
   dom.expenseModal.showModal();
 }
 
@@ -976,7 +1142,10 @@ async function saveExpense(event) {
     amount: toNumber(dom.expenseAmount.value),
     receipt_url: receiptUrl || null
   };
-  if (state.advancedFeaturesReady) payload.receipt_path = dom.expenseReceiptPath.value || null;
+  if (state.advancedFeaturesReady) {
+    payload.receipt_path = dom.expenseReceiptPath.value || null;
+    payload.campaign_id = dom.expenseCampaign?.value || null;
+  }
 
   if (!payload.description || payload.amount <= 0 || !payload.expense_date) {
     return showElementError(dom.expenseFormError, "Заполните дату, описание и положительную сумму.");
@@ -1061,6 +1230,23 @@ function clearExpenseFilters() {
   renderExpenses();
 }
 
+function populateExpenseCampaignSelect(selectedId = "") {
+  if (!dom.expenseCampaign) return;
+  dom.expenseCampaign.replaceChildren();
+  const noCampaign = document.createElement("option");
+  noCampaign.value = "";
+  noCampaign.textContent = "Не привязывать к сбору";
+  dom.expenseCampaign.append(noCampaign);
+  [...state.campaigns, ...state.archivedCampaigns].forEach((campaign) => {
+    const option = document.createElement("option");
+    option.value = campaign.id;
+    option.textContent = `${campaign.archived_at ? "Архив" : "Сбор"}: ${campaign.name}`;
+    option.selected = campaign.id === selectedId;
+    dom.expenseCampaign.append(option);
+  });
+  dom.expenseCampaign.disabled = !state.archiveFeaturesReady;
+}
+
 function validateReceiptFile(file) {
   if (!file) return null;
   const allowed = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -1101,24 +1287,30 @@ function renderCampaignSettings() {
         cell.append(el("span", `status ${campaign.is_open ? "status-paid" : "status-closed"}`, campaign.is_open ? "Открыт" : "Закрыт"));
         return cell;
       })(),
-      createCampaignActions(campaign.id)
+      createCampaignActions(campaign)
     );
     dom.campaignsTableBody.append(row);
   });
 }
 
-function createCampaignActions(id) {
+function createCampaignActions(campaign) {
   const cell = document.createElement("td");
   const wrapper = el("div", "row-actions");
   const editButton = el("button", "action-button action-edit", "Изменить");
   editButton.type = "button";
   editButton.dataset.action = "edit-campaign";
-  editButton.dataset.id = id;
+  editButton.dataset.id = campaign.id;
+  const archiveButton = el("button", "action-button action-archive", "Архивировать");
+  archiveButton.type = "button";
+  archiveButton.dataset.action = "archive-campaign";
+  archiveButton.dataset.id = campaign.id;
+  archiveButton.disabled = campaign.is_open;
+  archiveButton.title = campaign.is_open ? "Сначала закройте сбор через «Изменить»" : "Переместить закрытый сбор в архив";
   const deleteButton = el("button", "action-button action-delete", "Удалить");
   deleteButton.type = "button";
   deleteButton.dataset.action = "delete-campaign";
-  deleteButton.dataset.id = id;
-  wrapper.append(editButton, deleteButton);
+  deleteButton.dataset.id = campaign.id;
+  wrapper.append(editButton, archiveButton, deleteButton);
   cell.append(wrapper);
   return cell;
 }
@@ -1177,6 +1369,21 @@ async function handleCampaignAction(event) {
   if (!campaign) return;
 
   if (button.dataset.action === "edit-campaign") openCampaignModal(campaign);
+  if (button.dataset.action === "archive-campaign") {
+    if (!state.archiveFeaturesReady) return showNotice("Сначала выполните файл archive-features.sql в Supabase.", "error");
+    const linkedCount = getCampaignContributions(campaign.id).length;
+    const warning = `Архивировать сбор «${campaign.name}»? Он станет закрытым и исчезнет из активного списка, но ${linkedCount ? `${linkedCount} взносов и вся история` : "вся история"} сохранятся в архиве.`;
+    if (!window.confirm(warning)) return;
+    button.disabled = true;
+    const undoBackupId = await createUndoPoint();
+    const { error } = await db.rpc("archive_campaign", { p_campaign_id: campaign.id });
+    if (error) {
+      button.disabled = false;
+      return showNotice(`Не удалось архивировать: ${friendlyError(error)}`, "error");
+    }
+    await loadAllData({ silent: true });
+    showUndoNotice("Сбор отправлен в архив ✓", undoBackupId);
+  }
   if (button.dataset.action === "delete-campaign") {
     const linkedCount = getCampaignContributions(campaign.id).length;
     const warning = linkedCount
@@ -1190,6 +1397,99 @@ async function handleCampaignAction(event) {
     await loadAllData({ silent: true });
     showUndoNotice("Сбор удалён", undoBackupId);
   }
+}
+
+async function handleArchiveAction(event) {
+  if (!state.isAdmin || !state.archiveFeaturesReady) return;
+  const button = event.target.closest('[data-action="restore-campaign"]');
+  if (!button) return;
+  const campaign = state.archivedCampaigns.find((item) => item.id === button.dataset.id);
+  if (!campaign) return;
+  if (!window.confirm(`Вернуть сбор «${campaign.name}» из архива в активный список? Он останется закрытым, пока вы не откроете его вручную.`)) return;
+  button.disabled = true;
+  const undoBackupId = await createUndoPoint();
+  const { error } = await db.rpc("restore_archived_campaign", { p_campaign_id: campaign.id });
+  if (error) {
+    button.disabled = false;
+    return showNotice(`Не удалось вернуть сбор: ${friendlyError(error)}`, "error");
+  }
+  await loadAllData({ silent: true });
+  showUndoNotice("Сбор возвращён в активный список ✓", undoBackupId);
+}
+
+function openStudentModal(student = null) {
+  if (!state.isAdmin || !dom.studentModal) return;
+  dom.studentForm.reset();
+  hideElement(dom.studentFormError);
+  dom.studentId.value = student?.id || "";
+  dom.studentFullName.value = student?.full_name || "";
+  dom.studentSortOrder.value = student?.sort_order ?? ((Math.max(0, ...state.allStudents.map((item) => Number(item.sort_order) || 0)) || 0) + 10);
+  dom.studentModalTitle.textContent = student ? "Изменить данные ученика" : "Добавить ученика";
+  dom.studentModal.showModal();
+}
+
+async function saveStudent(event) {
+  event.preventDefault();
+  if (!state.isAdmin) return;
+  const fullName = dom.studentFullName.value.trim();
+  const sortOrder = Math.max(0, Math.trunc(toNumber(dom.studentSortOrder.value)));
+  if (fullName.length < 2) return showElementError(dom.studentFormError, "Введите имя ученика.");
+
+  setButtonLoading(dom.saveStudentButton, true, "Сохраняем…");
+  const id = dom.studentId.value;
+  const undoBackupId = await createUndoPoint();
+  const result = id
+    ? await db.rpc("update_student", { p_student_id: id, p_full_name: fullName, p_sort_order: sortOrder })
+    : await db.rpc("add_student", { p_full_name: fullName, p_sort_order: sortOrder });
+  setButtonLoading(dom.saveStudentButton, false);
+  if (result.error) return showElementError(dom.studentFormError, `Не удалось сохранить: ${friendlyError(result.error)}`);
+  dom.studentModal.close();
+  await loadAllData({ silent: true });
+  showUndoNotice(id ? "Данные ученика обновлены ✓" : "Ученик добавлен ✓", undoBackupId);
+}
+
+async function handleStudentAction(event) {
+  if (!state.isAdmin) return;
+  const button = event.target.closest("[data-action]");
+  if (!button) return;
+  const student = state.allStudents.find((item) => item.id === button.dataset.id);
+  if (!student) return;
+
+  if (button.dataset.action === "edit-student") return openStudentModal(student);
+  const isDeactivate = button.dataset.action === "deactivate-student";
+  const isReactivate = button.dataset.action === "reactivate-student";
+  if (!isDeactivate && !isReactivate) return;
+  const message = isDeactivate
+    ? `Отметить «${student.full_name}» как выбывшего? Прежние взносы и история сохранятся, но ребёнок не попадёт в новые открытые сборы.`
+    : `Вернуть «${student.full_name}» в активный список учеников?`;
+  if (!window.confirm(message)) return;
+  button.disabled = true;
+  const undoBackupId = await createUndoPoint();
+  const { error } = await db.rpc(isDeactivate ? "deactivate_student" : "reactivate_student", { p_student_id: student.id });
+  if (error) {
+    button.disabled = false;
+    return showNotice(`Не удалось обновить список: ${friendlyError(error)}`, "error");
+  }
+  await loadAllData({ silent: true });
+  showUndoNotice(isDeactivate ? "Ученик отмечен как выбывший" : "Ученик снова в активном списке ✓", undoBackupId);
+}
+
+async function startNewSchoolYear(event) {
+  event.preventDefault();
+  if (!state.isAdmin || !state.archiveFeaturesReady) return;
+  const className = dom.nextClassName.value.trim();
+  const schoolYear = dom.nextSchoolYear.value.trim();
+  if (!/^20\d{2}\/20\d{2}$/.test(schoolYear)) return showElementError(dom.schoolYearFormError, "Укажите учебный год в формате 2026/2027.");
+  const warning = `Подготовить ${className} к ${schoolYear} учебному году? Все текущие сборы будут закрыты и отправлены в архив. Деньги, чеки и история не удалятся. Перед операцией будет создана дополнительная копия.`;
+  if (!window.confirm(warning)) return;
+
+  hideElement(dom.schoolYearFormError);
+  setButtonLoading(dom.startSchoolYearButton, true, "Готовим…");
+  const { error } = await db.rpc("prepare_new_school_year", { p_class_name: className, p_school_year: schoolYear });
+  setButtonLoading(dom.startSchoolYearButton, false);
+  if (error) return showElementError(dom.schoolYearFormError, `Не удалось подготовить учебный год: ${friendlyError(error)}`);
+  await loadAllData({ silent: true });
+  showNotice("Новый учебный год подготовлен. Теперь проверьте список учеников и создайте первый сбор. ✓", "info", 7000);
 }
 
 /* =========================================================
@@ -1221,6 +1521,10 @@ function renderReportMonthOptions() {
   });
 }
 
+function budgetClassTitle() {
+  return `Бюджет ${state.classProfile?.class_name || "2 «А»"} класса`;
+}
+
 function getReportData() {
   const month = dom.reportMonthSelect?.value || todayIso().slice(0, 7);
   const expenses = state.expenses.filter((expense) => expense.expense_date?.startsWith(month));
@@ -1239,7 +1543,7 @@ function renderPrintableReport() {
   dom.printReport.replaceChildren();
 
   const heading = el("header", "print-report-header");
-  heading.append(el("h1", "", "Бюджет 2 «А» класса"), el("p", "", `Отчёт за ${monthYearLabel(report.month)}`));
+  heading.append(el("h1", "", budgetClassTitle()), el("p", "", `Отчёт за ${monthYearLabel(report.month)}`));
   const summary = el("div", "print-summary");
   summary.append(
     createPrintMetric("Всего собрано", report.collected),
@@ -1284,7 +1588,7 @@ function createPrintMetric(label, value) {
 function downloadMonthlyCsv() {
   const report = getReportData();
   const rows = [
-    ["Бюджет 2 «А» класса"],
+    [budgetClassTitle()],
     [`Отчёт за ${monthYearLabel(report.month)}`],
     [],
     ["Всего собрано", report.collected],
@@ -1310,9 +1614,10 @@ function printMonthlyReport() {
 
 function buildSnapshot() {
   return {
-    version: 1,
+    version: 2,
     created_at: new Date().toISOString(),
-    students: state.students,
+    class_profile: state.classProfile,
+    students: state.allStudents,
     campaigns: state.campaigns,
     contributions: state.contributions,
     expenses: state.expenses
@@ -1330,7 +1635,11 @@ async function createManualBackup() {
   setButtonLoading(dom.createBackupButton, true, "Создаём…");
   const { error } = await db.rpc("create_budget_backup", { p_backup_type: "manual" });
   setButtonLoading(dom.createBackupButton, false);
-  if (error) return showNotice(`Копия не создана: ${friendlyError(error)}`, "error");
+  if (error) {
+    // Резервный вариант не оставляет администратора без копии, даже если миграция ещё не применена.
+    downloadBlob(`budget-2A-backup-${todayIso()}.json`, JSON.stringify(buildSnapshot(), null, 2), "application/json");
+    return showNotice(`Копия в Supabase пока не создана: ${friendlyError(error)}. Вместо этого скачан безопасный JSON-файл.`, "error", 7000);
+  }
   await loadAllData({ silent: true });
   showNotice("Резервная копия сохранена в Supabase ✓", "info");
 }
@@ -1621,6 +1930,16 @@ function nextMonthIso() {
   const date = new Date();
   date.setMonth(date.getMonth() + 1, 1);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function nextSchoolYearLabel(currentSchoolYear) {
+  const match = String(currentSchoolYear || "").match(/^(20\d{2})\/(20\d{2})$/);
+  if (match) {
+    const endYear = Number(match[2]);
+    return `${endYear}/${endYear + 1}`;
+  }
+  const start = new Date().getFullYear();
+  return `${start}/${start + 1}`;
 }
 
 function todayIso() {
