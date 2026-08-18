@@ -5,7 +5,7 @@
    ========================================================= */
 const SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
-const APP_VERSION = "v19";
+const APP_VERSION = "v20";
 
 const isSupabaseConfigured =
   SUPABASE_URL.startsWith("https://") &&
@@ -17,9 +17,10 @@ const db = isSupabaseConfigured && window.supabase
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        // Обмен кода выполняем сами ниже: так при сбое на мобильном браузере
-        // можно показать точную ошибку, а не молча вернуться на экран входа.
-        detectSessionInUrl: false
+        // Этот сайт использует браузерный implicit flow: Supabase получает
+        // access_token и refresh_token во фрагменте URL и сохраняет сессию сам.
+        detectSessionInUrl: true,
+        flowType: "implicit"
       }
     })
   : null;
@@ -162,7 +163,15 @@ async function init() {
 }
 
 async function getSessionWithSoftTimeout() {
-  const pending = resolveInitialSession();
+  const oauthError = getOAuthCallbackError();
+  if (oauthError) {
+    clearOAuthCallbackFromUrl();
+    return { timedOut: false, result: { data: { session: null }, error: new Error(`Google не завершил вход: ${oauthError}`) } };
+  }
+
+  // В implicit flow Supabase сам извлекает токены из #access_token в URL,
+  // сохраняет их и возвращает готовую сессию из getSession().
+  const pending = db.auth.getSession();
   let timeoutId;
   const timeout = new Promise((resolve) => {
     timeoutId = window.setTimeout(() => resolve({ timedOut: true }), 12000);
@@ -172,29 +181,10 @@ async function getSessionWithSoftTimeout() {
   return first?.timedOut ? { timedOut: true, pending } : { timedOut: false, result: first };
 }
 
-async function resolveInitialSession() {
-  const callbackUrl = new URL(window.location.href);
-  const code = callbackUrl.searchParams.get("code");
-  const oauthError = callbackUrl.searchParams.get("error");
-  const oauthErrorDescription = callbackUrl.searchParams.get("error_description");
-
-  if (oauthError) {
-    clearOAuthCallbackFromUrl();
-    throw new Error(`Google не завершил вход: ${oauthErrorDescription || oauthError}`);
-  }
-
-  if (!code) return db.auth.getSession();
-
-  showAuthMessage(`${APP_VERSION}: подтверждаем вход Google…`, "info");
-  const exchange = await db.auth.exchangeCodeForSession(code);
-  clearOAuthCallbackFromUrl();
-  if (exchange.error) {
-    throw new Error(`Google подтвердил аккаунт, но браузер не сохранил сессию: ${friendlyError(exchange.error)}`);
-  }
-  if (!exchange.data?.session) {
-    throw new Error("Google не вернул сессию после подтверждения аккаунта.");
-  }
-  return exchange;
+function getOAuthCallbackError() {
+  const query = new URLSearchParams(window.location.search);
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  return query.get("error_description") || query.get("error") || hash.get("error_description") || hash.get("error") || null;
 }
 
 async function finishInitialSession(result) {
@@ -213,7 +203,7 @@ async function finishInitialSession(result) {
 function clearOAuthCallbackFromUrl() {
   const hash = window.location.hash;
   const query = window.location.search;
-  if (!/(access_token|refresh_token|code|error)=/.test(`${hash}&${query}`)) return;
+  if (!/(access_token|refresh_token|code|error|error_code)=/.test(`${hash}&${query}`)) return;
   window.history.replaceState({}, document.title, window.location.pathname);
 }
 
@@ -2446,7 +2436,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=19", window.location.href);
+  const workerUrl = new URL("./sw.js?v=20", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
