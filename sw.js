@@ -1,12 +1,12 @@
 "use strict";
 
-const CACHE_NAME = "budget-2a-shell-v17";
+const CACHE_NAME = "budget-2a-shell-v18";
 const INDEX_URL = new URL("./index.html", self.location.href).href;
 const APP_SHELL = [
   "./",
   "./index.html",
   "./styles.css?v=14",
-  "./app.js?v=17",
+  "./app.js?v=18",
   "./vendor/supabase.min.js?v=10",
   "./manifest.webmanifest",
   "./images/parent-committee.webp",
@@ -38,21 +38,22 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === "navigate") {
+    // Для страницы входа всегда сначала используем сеть. Это исключает возврат
+    // к старому HTML после публикации новой версии и сохраняет кэш лишь как
+    // резервный вариант при полном отсутствии подключения.
     event.respondWith(
-      (async () => {
-        const cached = await caches.match(INDEX_URL);
-        const network = fetch(request).then((response) => {
+      fetch(request)
+        .then((response) => {
           if (response.ok) {
             const copy = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(INDEX_URL, copy));
           }
           return response;
-        });
-
-        if (!cached) return network;
-        const timeout = new Promise((resolve) => setTimeout(() => resolve(cached), 1500));
-        return Promise.race([network.catch(() => cached), timeout]);
-      })()
+        })
+        .catch(async () => (await caches.match(INDEX_URL)) || new Response("Нет подключения к интернету", {
+          status: 503,
+          headers: { "Content-Type": "text/plain; charset=utf-8" }
+        }))
     );
     return;
   }

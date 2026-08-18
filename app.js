@@ -5,6 +5,7 @@
    ========================================================= */
 const SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
+const APP_VERSION = "v18";
 
 const isSupabaseConfigured =
   SUPABASE_URL.startsWith("https://") &&
@@ -401,6 +402,7 @@ async function handleSession(session) {
   setProtectedAccess(false);
 
   try {
+    showNotice(`${APP_VERSION}: проверяем доступ к классу…`, "info", 0);
     const accessResult = await withTimeout(
       () => db.rpc("can_access_budget"),
       "проверка доступа к классу",
@@ -425,7 +427,7 @@ async function handleSession(session) {
     state.accessRequestStatus = "APPROVED";
     if (dom.googleLoginButton) dom.googleLoginButton.textContent = "Войти или зарегистрироваться";
     setProtectedAccess(true);
-    showNotice("Вход выполнен. Загружаем данные класса…", "info", 0);
+    showNotice(`${APP_VERSION}: вход выполнен. Проверяем роль…`, "info", 0);
 
     // Роль влияет только на кнопки редактирования. Если ответ задержался,
     // не задерживаем сам бюджет: сначала открываем режим просмотра, затем
@@ -537,7 +539,7 @@ const OPTIONAL_DATA_TIMEOUT_MS = 7_000;
 
 async function loadAllData({ silent = false } = {}) {
   const loadRunId = ++state.loadRunId;
-  if (!silent) showNotice("Загружаем данные бюджета…", "info", 0);
+  if (!silent) showNotice(`${APP_VERSION}: загружаем основные данные бюджета…`, "info", 0);
 
   // Сначала запрашиваем только то, без чего нельзя показать бюджет.
   // Чат, заявки и резервные копии не должны удерживать всю страницу на слабой мобильной сети.
@@ -646,6 +648,7 @@ async function loadStep(label, operation, fallback, timeoutMs = CORE_DATA_TIMEOU
     return { label, result, error: null };
   } catch (error) {
     console.warn(`[Бюджет 2А] ${label}: ${friendlyError(error)}`);
+    if (state.session) showNotice(`${APP_VERSION}: не ответил раздел «${label}». Показываем остальные данные…`, "error", 12_000);
     return { label, result: fallback, error };
   }
 }
@@ -2416,7 +2419,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=17", window.location.href);
+  const workerUrl = new URL("./sw.js?v=18", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
