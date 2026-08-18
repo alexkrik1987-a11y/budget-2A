@@ -1,0 +1,32 @@
+name: Deploy Budget 2A website
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Publish to production server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure restricted SSH access
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          cat > "$HOME/.ssh/known_hosts" <<'EOF'
+          185.250.45.254 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAsX+sgvRUgo6aLWtOCqYOfWqhS3ymvxsrTMPvEgA+co
+          EOF
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Publish static files
+        run: |
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            site-deploy@185.250.45.254
