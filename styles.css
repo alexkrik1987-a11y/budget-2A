@@ -485,8 +485,12 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 .section-heading h2 { margin: 8px 0 0; font-size: clamp(1.9rem, 4vw, 2.6rem); line-height: 1.08; letter-spacing: -.025em; }
 .last-updated { margin: 0; padding: 7px 11px; color: var(--ink-soft); font-size: .8rem; font-weight: 800; background: rgba(255, 255, 255, .58); border-radius: 999px; }
 
-.totals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 26px; }
-.metric-card { position: relative; min-height: 176px; padding: 25px 26px; overflow: hidden; border-width: 6px; border-radius: 13px; transition: transform .2s ease, box-shadow .2s ease; animation: metric-reveal .52s cubic-bezier(.2, .8, .25, 1) backwards; }
+.totals-grid { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+.metric-card { position: relative; display: flex; min-height: 188px; padding: 25px 26px; overflow: hidden; flex-direction: column; border-width: 6px; border-radius: 13px; transition: transform .2s ease, box-shadow .2s ease; animation: metric-reveal .52s cubic-bezier(.2, .8, .25, 1) backwards; }
+/* Цвет помогает быстро считать финансовую сводку, а подпись на карточке сохраняет смысл без опоры только на цвет. */
+.metric-card.chalk-blue { background-color: #1f5273; background-image: radial-gradient(ellipse at 18% 20%, rgba(255, 255, 255, .09), transparent 28%), linear-gradient(135deg, #2a7099, #174764); }
+.metric-card.chalk-pink { background-color: #95445a; background-image: radial-gradient(ellipse at 18% 20%, rgba(255, 255, 255, .08), transparent 28%), linear-gradient(135deg, #b3536a, #80374e); }
+.metric-card.chalk-green { background-color: #2d7c56; background-image: radial-gradient(ellipse at 18% 20%, rgba(255, 255, 255, .09), transparent 28%), linear-gradient(135deg, #3f9b6c, #246445); }
 .metric-card:nth-child(2) { animation-delay: .08s; }
 .metric-card:nth-child(3) { animation-delay: .16s; }
 @keyframes metric-reveal {
@@ -498,18 +502,27 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 .metric-card:nth-child(3) { transform: rotate(-.25deg); }
 .metric-card:hover { z-index: 2; transform: translateY(-5px) rotate(0); box-shadow: var(--shadow-raised); }
 .metric-card::after { position: absolute; right: -38px; bottom: -62px; width: 145px; height: 145px; content: ""; border: 18px solid rgba(255, 255, 255, .045); border-radius: 50%; }
-.metric-card p { margin: 31px 0 3px; color: rgba(255, 255, 255, .78); font-weight: 800; }
-.metric-card strong { display: block; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.1; letter-spacing: -.025em; }
-.metric-icon { position: absolute; top: 14px; right: 17px; display: grid; width: 49px; height: 49px; font-size: 1.8rem; background: rgba(255, 253, 245, .13); border: 1px dashed rgba(255, 255, 255, .34); border-radius: 15px 18px 14px 17px; filter: drop-shadow(0 3px 0 rgba(0, 0, 0, .15)); place-items: center; transform: rotate(3deg); }
+.metric-card p { margin: 31px 0 7px; color: rgba(255, 255, 255, .86); font-size: .9rem; font-weight: 900; letter-spacing: .01em; }
+.metric-card strong { display: block; margin-top: auto; font-size: clamp(2.25rem, 4.4vw, 3.35rem); line-height: 1; letter-spacing: -.035em; text-shadow: 0 3px 0 rgba(0, 0, 0, .12); }
+.metric-card strong::after { display: block; margin-top: 9px; color: rgba(255, 255, 255, .7); font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-shadow: none; text-transform: uppercase; content: "Актуальные данные"; }
+.metric-icon { position: absolute; top: 14px; right: 17px; display: grid; width: 49px; height: 49px; font-size: 1.8rem; background: rgba(255, 253, 245, .16); border: 1px dashed rgba(255, 255, 255, .45); border-radius: 15px 18px 14px 17px; filter: drop-shadow(0 3px 0 rgba(0, 0, 0, .15)); place-items: center; transform: rotate(3deg); }
 .metric-icon-pink { transform: rotate(-3deg); }
 .metric-icon-green { transform: rotate(2deg); }
 .summary-status { display: flex; align-items: center; justify-content: flex-end; gap: 9px; flex-wrap: wrap; }
 .mascot-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px 5px 6px; color: var(--board-dark); font-size: .72rem; font-weight: 900; white-space: nowrap; background: var(--yellow-soft); border: 1px solid #e4c85f; border-radius: 999px; box-shadow: 0 3px 0 rgba(24, 48, 68, .08); transform: rotate(-1deg); }
 .mascot-owl { display: grid; width: 27px; height: 27px; font-size: 1.25rem; background: #fffdf5; border-radius: 50%; place-items: center; transition: transform .2s ease; }
 .mascot-chip:hover .mascot-owl { transform: rotate(-10deg) scale(1.08); }
-.chalk-blue strong { color: #92dcff; }
-.chalk-pink strong { color: #ffb0c9; }
-.chalk-green strong { color: #a8efbd; }
+.chalk-blue strong { color: #d1f1ff; }
+.chalk-pink strong { color: #ffe2ea; }
+.chalk-green strong { color: #dcffe5; }
+
+.dashboard-grid > .paper-card:first-child { border-top: 5px solid var(--green); }
+.dashboard-grid > .paper-card:last-child { border-top: 5px solid var(--orange); }
+.dashboard-grid .card-title-row h3 { font-size: 1.34rem; }
+.dashboard-grid .empty-state { min-height: 176px; display: grid; align-content: center; }
+
+.summary-status { padding: 7px; background: rgba(255, 253, 245, .58); border: 1px solid rgba(177, 164, 130, .48); border-radius: 14px; box-shadow: 0 3px 0 rgba(24, 48, 68, .05); }
+.summary-status .last-updated { background: transparent; }
 
 .card-title-row { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 21px; }
 .card-title-row h3 { margin: 8px 0 0; font-size: 1.5rem; line-height: 1.15; }
@@ -733,8 +746,11 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
 
 @media (max-width: 820px) {
   .totals-grid { grid-template-columns: 1fr; gap: 16px; }
-  .metric-card { min-height: 142px; }
+  .metric-card { min-height: 150px; transform: none !important; }
   .metric-card p { margin-top: 14px; }
+  .metric-card strong { font-size: clamp(2.35rem, 9vw, 3.1rem); }
+  .metric-card strong::after { margin-top: 6px; }
+  .summary-status { align-self: stretch; justify-content: flex-start; }
   .fund-grid,
   .dashboard-grid { grid-template-columns: 1fr; }
   .fund-card:last-child { grid-column: auto; }
