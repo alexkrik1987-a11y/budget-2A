@@ -350,6 +350,11 @@ async function loginWithGoogle() {
 }
 
 function getOAuthRedirectUrl() {
+  // На старой GitHub Pages-ссылке могли остаться ярлыки и кэш на телефонах.
+  // В рабочей версии всегда возвращаем Google-вход на единственный актуальный домен.
+  const isLocalPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  if (!isLocalPreview) return "https://rodcomitet.budget2a.kriknexus.pro/";
+
   const redirectUrl = new URL(`${window.location.origin}${window.location.pathname}`);
   redirectUrl.search = "";
   redirectUrl.hash = "";
