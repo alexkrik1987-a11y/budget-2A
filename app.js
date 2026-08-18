@@ -5,7 +5,7 @@
    ========================================================= */
 const SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
-const APP_VERSION = "v24";
+const APP_VERSION = "v25";
 
 const isSupabaseConfigured =
   SUPABASE_URL.startsWith("https://") &&
@@ -108,7 +108,8 @@ const state = {
   loadedSessionUserId: null,
   loadedSessionRunId: 0,
   loadRunId: 0,
-  sessionRunId: 0
+  sessionRunId: 0,
+  emailOtpEmail: null
 };
 
 const dom = {};
@@ -201,7 +202,7 @@ function clearOAuthCallbackFromUrl() {
 
 function cacheDom() {
   const ids = [
-    "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "logoutButton", "configWarning", "authError",
+    "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "emailOtpRequestForm", "emailOtpVerifyForm", "emailOtpEmailInput", "emailOtpCodeInput", "sendEmailOtpButton", "verifyEmailOtpButton", "emailOtpStatus", "logoutButton", "configWarning", "authError",
     "globalNotice", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated",
     "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions",
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "currentCampaignSummary",
@@ -251,6 +252,11 @@ function setSelectOptions(select, options) {
 
 function bindEvents() {
   if (dom.googleLoginButton) dom.googleLoginButton.addEventListener("click", loginWithGoogle);
+  if (dom.emailOtpRequestForm) dom.emailOtpRequestForm.addEventListener("submit", sendEmailOtp);
+  if (dom.emailOtpVerifyForm) dom.emailOtpVerifyForm.addEventListener("submit", verifyEmailOtp);
+  if (dom.emailOtpCodeInput) dom.emailOtpCodeInput.addEventListener("input", () => {
+    dom.emailOtpCodeInput.value = dom.emailOtpCodeInput.value.replace(/\D/g, "").slice(0, 6);
+  });
   if (dom.logoutButton) dom.logoutButton.addEventListener("click", logout);
   if (dom.campaignSelect) {
     dom.campaignSelect.addEventListener("change", () => {
@@ -343,6 +349,71 @@ function bindEvents() {
 /* =========================================================
    4. АВТОРИЗАЦИЯ И РОЛИ
    ========================================================= */
+function showEmailOtpStatus(message) {
+  if (!dom.emailOtpStatus) return;
+  dom.emailOtpStatus.textContent = message;
+  dom.emailOtpStatus.classList.remove("hidden");
+}
+
+async function sendEmailOtp(event) {
+  event.preventDefault();
+  if (!db) return showConfigWarning();
+
+  const email = (dom.emailOtpEmailInput?.value || "").trim().toLowerCase();
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    showAuthError("Введите корректный адрес электронной почты.");
+    return;
+  }
+
+  hideElement(dom.authError);
+  if (dom.sendEmailOtpButton) setButtonLoading(dom.sendEmailOtpButton, true, "Отправляем…");
+  const { error } = await db.auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: false }
+  });
+  if (dom.sendEmailOtpButton) setButtonLoading(dom.sendEmailOtpButton, false);
+
+  if (error) {
+    showAuthError("Не удалось отправить код. Проверьте адрес или воспользуйтесь входом через Google.");
+    return;
+  }
+
+  state.emailOtpEmail = email;
+  dom.emailOtpRequestForm?.classList.add("hidden");
+  dom.emailOtpVerifyForm?.classList.remove("hidden");
+  if (dom.emailOtpCodeInput) dom.emailOtpCodeInput.value = "";
+  showEmailOtpStatus(`Код отправлен на ${email}. Введите 6 цифр из письма.`);
+  dom.emailOtpCodeInput?.focus();
+}
+
+async function verifyEmailOtp(event) {
+  event.preventDefault();
+  if (!db) return showConfigWarning();
+
+  const token = (dom.emailOtpCodeInput?.value || "").replace(/\D/g, "");
+  if (!state.emailOtpEmail || token.length !== 6) {
+    showAuthError("Введите все 6 цифр из письма.");
+    return;
+  }
+
+  hideElement(dom.authError);
+  if (dom.verifyEmailOtpButton) setButtonLoading(dom.verifyEmailOtpButton, true, "Проверяем…");
+  const { data, error } = await db.auth.verifyOtp({
+    email: state.emailOtpEmail,
+    token,
+    type: "email"
+  });
+  if (dom.verifyEmailOtpButton) setButtonLoading(dom.verifyEmailOtpButton, false);
+
+  if (error || !data?.session) {
+    showAuthError("Код не подошёл или истёк. Запросите новый код.");
+    return;
+  }
+
+  showEmailOtpStatus("Код подтверждён. Открываем бюджет…");
+  await queueSessionHandling(data.session);
+}
+
 async function loginWithGoogle() {
   if (!db) return showConfigWarning();
 
@@ -2450,7 +2521,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=24", window.location.href);
+  const workerUrl = new URL("./sw.js?v=25", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }

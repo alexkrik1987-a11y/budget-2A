@@ -368,7 +368,20 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 .auth-card .auth-load-note { display: flex; align-items: center; gap: 8px; margin: 19px 0 0; padding: 10px 12px; color: #fff3bd; font-size: .79rem; font-weight: 700; line-height: 1.35; text-align: left; background: rgba(255, 231, 131, .1); border: 1px dashed rgba(255, 231, 131, .42); border-radius: 10px; }
 .auth-load-note span { flex: 0 0 auto; font-size: 1.15rem; }
 .auth-card .auth-note { margin: 12px 0 0; font-size: .76rem; }
+.email-otp-form { margin: 0 0 12px; text-align: left; }
+.email-otp-form label { display: block; margin: 0 0 7px; color: #fff3bd; font-size: .82rem; font-weight: 900; }
+.email-otp-row { display: flex; gap: 9px; }
+.email-otp-row input { width: 100%; min-width: 0; min-height: 46px; padding: 10px 12px; color: var(--ink); background: #fff; border: 2px solid rgba(255, 255, 255, .6); border-radius: 13px; }
+.email-otp-row input::placeholder { color: #78909b; }
+.email-otp-row .button { flex: 0 0 auto; white-space: nowrap; }
+.auth-divider { display: flex; align-items: center; gap: 10px; margin: 17px 0 14px; color: rgba(255, 255, 255, .64); font-size: .78rem; font-weight: 900; }
+.auth-divider::before, .auth-divider::after { flex: 1; height: 1px; content: ""; background: rgba(255, 255, 255, .25); }
 .auth-card .notice { margin-top: 19px; text-align: left; }
+
+@media (max-width: 520px) {
+  .email-otp-row { flex-direction: column; }
+  .email-otp-row .button { width: 100%; }
+}
 .auth-emblem { display: inline-block; width: 118px; height: 118px; filter: drop-shadow(0 8px 0 rgba(0, 0, 0, .16)); transform: rotate(-3deg); }
 .chalk-doodle { position: absolute; top: 20px; right: 25px; color: #ffe783; font-weight: 900; transform: rotate(4deg); }
 

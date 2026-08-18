@@ -58,11 +58,27 @@
         <img src="images/parent-committee.webp" alt="Шуточная иллюстрация родительского комитета, который считает бюджет класса" width="1100" height="466" loading="lazy" decoding="async">
         <figcaption>Когда «соберём по чуть-чуть» превратилось в отдельную науку 😄</figcaption>
       </figure>
+      <form id="emailOtpRequestForm" class="email-otp-form" novalidate>
+        <label for="emailOtpEmailInput">Вход по коду из письма</label>
+        <div class="email-otp-row">
+          <input id="emailOtpEmailInput" type="email" inputmode="email" autocomplete="email" placeholder="Ваша почта" required>
+          <button id="sendEmailOtpButton" class="button button-primary" type="submit">Получить код</button>
+        </div>
+      </form>
+      <form id="emailOtpVerifyForm" class="email-otp-form hidden" novalidate>
+        <label for="emailOtpCodeInput">Введите код из письма</label>
+        <div class="email-otp-row">
+          <input id="emailOtpCodeInput" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="6 цифр" required>
+          <button id="verifyEmailOtpButton" class="button button-primary" type="submit">Войти</button>
+        </div>
+      </form>
+      <p id="emailOtpStatus" class="auth-note hidden" aria-live="polite"></p>
+      <div class="auth-divider" aria-hidden="true"><span>или</span></div>
       <button id="googleLoginButton" class="button button-google" type="button">
-        <span aria-hidden="true">G</span> Войти или зарегистрироваться
+        <span aria-hidden="true">G</span> Войти через Google
       </button>
       <p class="auth-load-note"><span aria-hidden="true">⏳</span> Первый вход может занять немного больше времени — проверяем доступ к классу.</p>
-      <p class="auth-note">Отдельная регистрация не нужна: вход выполняется через Google. Если приём заявок открыт, администратор сможет подтвердить ваш доступ.</p>
+      <p class="auth-note">Для кода используйте почту, к которой у вас есть доступ. Если приём заявок открыт, администратор сможет подтвердить ваш доступ.</p>
       <div id="configWarning" class="notice notice-warning hidden" role="alert"></div>
       <div id="authError" class="notice notice-error hidden" role="alert"></div>
     </section>
@@ -598,6 +614,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=24" defer></script>
+  <script src="app.js?v=25" defer></script>
 </body>
 </html>
