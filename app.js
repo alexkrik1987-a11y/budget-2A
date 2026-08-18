@@ -98,6 +98,10 @@ const state = {
   noticeTimer: null,
   installPrompt: null,
   authStateConfirmed: false,
+  accessRequestStatus: null,
+  enrollmentReady: false,
+  enrollmentOpen: false,
+  accessRequests: [],
   loadedSessionUserId: null
 };
 
@@ -123,17 +127,21 @@ async function init() {
       return;
     }
 
-    // getSession is the single source of truth after an OAuth redirect.
-    // Subscribing before it returns can race with INITIAL_SESSION on mobile browsers.
-    const { data, error } = await getSessionWithTimeout();
-    if (error) {
-      showAuthError(`Не удалось проверить авторизацию: ${error.message}`);
-      return;
+    // После OAuth мобильный браузер иногда восстанавливает сессию дольше обычного.
+    // В этом случае продолжаем ждать ответ и не оставляем родителя на бесконечной загрузке.
+    try {
+      const initialSession = await getSessionWithSoftTimeout();
+      if (initialSession.timedOut) {
+        showAuthMessage("Проверка входа занимает больше обычного. Подождите: сайт продолжит вход автоматически.", "info");
+        initialSession.pending.then(finishInitialSession).catch((error) => {
+          showAuthError(`Не удалось завершить вход: ${friendlyError(error)}`);
+        });
+      } else {
+        await finishInitialSession(initialSession.result);
+      }
+    } catch (error) {
+      showAuthError(`Не удалось проверить авторизацию: ${friendlyError(error)}`);
     }
-
-    state.authStateConfirmed = true;
-    await handleSession(data.session);
-    clearOAuthCallbackFromUrl();
 
     db.auth.onAuthStateChange((event, session) => {
       if (event === "INITIAL_SESSION") return;
@@ -149,21 +157,25 @@ async function init() {
   }
 }
 
-async function getSessionWithTimeout() {
-  const timeoutMs = 12000;
+async function getSessionWithSoftTimeout() {
+  const pending = db.auth.getSession();
   let timeoutId;
   const timeout = new Promise((resolve) => {
-    timeoutId = window.setTimeout(() => resolve({
-      data: { session: null },
-      error: new Error("проверка входа заняла более 12 секунд")
-    }), timeoutMs);
+    timeoutId = window.setTimeout(() => resolve({ timedOut: true }), 12000);
   });
+  const first = await Promise.race([pending, timeout]);
+  window.clearTimeout(timeoutId);
+  return first?.timedOut ? { timedOut: true, pending } : { timedOut: false, result: first };
+}
 
-  try {
-    return await Promise.race([db.auth.getSession(), timeout]);
-  } finally {
-    window.clearTimeout(timeoutId);
+async function finishInitialSession(result) {
+  if (result?.error) {
+    showAuthError(`Не удалось проверить авторизацию: ${friendlyError(result.error)}`);
+    return;
   }
+  state.authStateConfirmed = true;
+  await handleSession(result?.data?.session ?? null);
+  clearOAuthCallbackFromUrl();
 }
 
 function clearOAuthCallbackFromUrl() {
@@ -199,7 +211,8 @@ function cacheDom() {
     "studentFormError", "saveStudentButton", "startSchoolYearForm", "nextClassName", "nextSchoolYear",
     "schoolYearFormError", "startSchoolYearButton", "expenseCampaign",
     "chatToggleButton", "chatBackdrop", "classChatPanel", "closeChatButton", "chatStatus",
-    "chatMessageList", "chatForm", "chatMessageInput", "chatCharacterCount", "sendChatButton"
+    "chatMessageList", "chatForm", "chatMessageInput", "chatCharacterCount", "sendChatButton",
+    "accessEnrollmentStatus", "toggleAccessEnrollmentButton", "accessEnrollmentHint", "accessRequestError", "accessRequestList"
   ];
 
   ids.forEach((id) => { dom[id] = document.getElementById(id); });
@@ -242,6 +255,8 @@ function bindEvents() {
   if (dom.chatForm) dom.chatForm.addEventListener("submit", sendChatMessage);
   if (dom.chatMessageInput) dom.chatMessageInput.addEventListener("input", updateChatCharacterCount);
   if (dom.chatMessageList) dom.chatMessageList.addEventListener("click", handleChatAction);
+  if (dom.toggleAccessEnrollmentButton) dom.toggleAccessEnrollmentButton.addEventListener("click", toggleAccessEnrollment);
+  if (dom.accessRequestList) dom.accessRequestList.addEventListener("click", handleAccessRequestAction);
 
   if (dom.expenseFilters) {
     dom.expenseFilters.addEventListener("click", (event) => {
@@ -321,8 +336,10 @@ async function loginWithGoogle() {
   const { error } = await db.auth.signInWithOAuth({
     provider: "google",
     options: {
-      // Preserve the GitHub Pages path but never send stale OAuth query/hash values back.
-      redirectTo: getOAuthRedirectUrl()
+      // Preserve the deployed path but never send stale OAuth query/hash values back.
+      redirectTo: getOAuthRedirectUrl(),
+      // Позволяет родителю выбрать нужный аккаунт, если в браузере их несколько.
+      queryParams: { prompt: "select_account" }
     }
   });
 
@@ -357,9 +374,11 @@ async function handleSession(session) {
 
   if (!session) {
     state.isAdmin = false;
+    state.accessRequestStatus = null;
     state.loadedSessionUserId = null;
     state.chatMessages = [];
     state.chatReady = false;
+    state.accessRequests = [];
     window.clearTimeout(state.chatExpiryTimer);
     closeChatPanel();
     setProtectedAccess(false);
@@ -370,15 +389,39 @@ async function handleSession(session) {
   renderUser();
   state.isAdmin = false;
   applyRoleToUi();
-  setProtectedAccess(true);
-  showNotice("Вход выполнен. Загружаем данные класса…", "info", 0);
+  setProtectedAccess(false);
 
   try {
-    const { data: isAdminData } = await db.rpc("is_admin");
+    const { data: canAccess, error: accessError } = await db.rpc("can_access_budget");
+    if (accessError) throw accessError;
+
+    if (canAccess !== true) {
+      state.loadedSessionUserId = null;
+      closeChatPanel();
+      const requestResult = await db.rpc("request_class_access");
+      if (requestResult.error) throw requestResult.error;
+      const request = Array.isArray(requestResult.data) ? requestResult.data[0] : requestResult.data;
+      state.accessRequestStatus = request?.request_status || "CLOSED";
+      setProtectedAccess(false);
+      renderAccessRequestStatus(request);
+      return;
+    }
+
+    hideElement(dom.authError);
+    state.accessRequestStatus = "APPROVED";
+    if (dom.googleLoginButton) dom.googleLoginButton.textContent = "Войти или зарегистрироваться";
+    setProtectedAccess(true);
+    showNotice("Вход выполнен. Загружаем данные класса…", "info", 0);
+
+    const { data: isAdminData, error: adminError } = await db.rpc("is_admin");
+    if (adminError) throw adminError;
     state.isAdmin = isAdminData === true;
   } catch (error) {
     console.error(error);
     state.isAdmin = false;
+    setProtectedAccess(false);
+    showAuthError(`Не удалось проверить доступ: ${friendlyError(error)}. Обновите страницу или попробуйте позже.`);
+    return;
   }
 
   try {
@@ -465,16 +508,17 @@ function applyRoleToUi() {
 async function loadAllData({ silent = false } = {}) {
   if (!silent) showNotice("Загружаем свежие данные…", "info", 0);
 
-  const [activeStudentsResult, allStudentsResult, contributionsResult, expensesResult, archiveData, chatResult] = await Promise.all([
+  const [activeStudentsResult, allStudentsResult, contributionsResult, expensesResult, archiveData, chatResult, accessData] = await Promise.all([
     db.from("students").select("id, full_name, sort_order, is_active, created_at, updated_at").eq("is_active", true).order("sort_order"),
     db.from("students").select("id, full_name, sort_order, is_active, created_at, updated_at").order("is_active", { ascending: false }).order("sort_order"),
     db.from("contributions").select("id, student_id, campaign_id, amount, created_at, updated_at"),
     fetchExpenses(),
     fetchArchiveAwareData(),
-    fetchChatMessages()
+    fetchChatMessages(),
+    state.isAdmin ? fetchAccessAdministration() : Promise.resolve({ ready: false, enrollmentOpen: false, accessRequests: [], error: null })
   ]);
 
-  const failed = [activeStudentsResult, allStudentsResult, contributionsResult, expensesResult, archiveData, chatResult].find((result) => result.error);
+  const failed = [activeStudentsResult, allStudentsResult, contributionsResult, expensesResult, archiveData, chatResult, accessData].find((result) => result.error);
   if (failed) throw failed.error;
 
   state.students = activeStudentsResult.data ?? [];
@@ -487,6 +531,9 @@ async function loadAllData({ silent = false } = {}) {
   state.expenses = expensesResult.data ?? [];
   state.chatMessages = chatResult.data ?? [];
   state.chatReady = chatResult.ready === true;
+  state.enrollmentReady = accessData.ready === true;
+  state.enrollmentOpen = accessData.enrollmentOpen === true;
+  state.accessRequests = accessData.accessRequests ?? [];
 
   if (state.isAdmin) {
     const { data: backups, error: backupsError } = await fetchBackups();
@@ -546,6 +593,27 @@ async function fetchBackups() {
   return result;
 }
 
+async function fetchAccessAdministration() {
+  const [settingsResult, requestsResult] = await Promise.all([
+    db.from("access_enrollment_settings").select("enrollment_open, updated_at").eq("id", true).maybeSingle(),
+    db.from("access_requests").select("id, user_id, email, display_name, avatar_url, request_status, requested_at, reviewed_at").order("requested_at", { ascending: false }).limit(60)
+  ]);
+
+  const error = settingsResult.error || requestsResult.error;
+  if (!error) {
+    return {
+      ready: true,
+      enrollmentOpen: settingsResult.data?.enrollment_open === true,
+      accessRequests: requestsResult.data ?? [],
+      error: null
+    };
+  }
+  if (/access_enrollment_settings|access_requests|does not exist|relation .* does not exist/i.test(error.message || "")) {
+    return { ready: false, enrollmentOpen: false, accessRequests: [], error: null };
+  }
+  return { ready: false, enrollmentOpen: false, accessRequests: [], error };
+}
+
 async function fetchChatMessages() {
   const result = await db
     .from("chat_messages")
@@ -587,6 +655,12 @@ function subscribeRealtime() {
     .on("postgres_changes", { event: "*", schema: "public", table: "expenses" }, scheduleRealtimeRefresh)
     .on("postgres_changes", { event: "*", schema: "public", table: "campaigns" }, scheduleRealtimeRefresh)
     .on("postgres_changes", { event: "*", schema: "public", table: "students" }, scheduleRealtimeRefresh);
+
+  if (state.isAdmin && state.enrollmentReady) {
+    state.realtimeChannel
+      .on("postgres_changes", { event: "*", schema: "public", table: "access_enrollment_settings" }, scheduleRealtimeRefresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "access_requests" }, scheduleRealtimeRefresh);
+  }
 
   if (state.chatReady) {
     state.realtimeChannel.on("postgres_changes", { event: "*", schema: "public", table: "chat_messages" }, scheduleChatRefresh);
@@ -638,6 +712,7 @@ function renderAll() {
   renderCampaignSettings();
   renderArchivedCampaigns();
   renderStudentManagement();
+  renderAccessManagement();
   renderChat();
   renderBackupList();
   renderReportMonthOptions();
@@ -883,6 +958,154 @@ function getArchivedCampaignStudents(campaign) {
   // Для архивов, созданных до обновления, показываем только тех, у кого есть сохранённый взнос.
   const ids = new Set(getCampaignContributions(campaign.id).map((item) => item.student_id));
   return state.allStudents.filter((student) => ids.has(student.id));
+}
+
+function renderAccessManagement() {
+  if (!dom.accessRequestList || !state.isAdmin) return;
+  hideElement(dom.accessRequestError);
+  dom.accessRequestList.replaceChildren();
+
+  if (!state.enrollmentReady) {
+    if (dom.accessEnrollmentStatus) dom.accessEnrollmentStatus.textContent = "Раздел заявок появится после обновления базы данных.";
+    if (dom.accessEnrollmentHint) dom.accessEnrollmentHint.textContent = "После запуска parent-access-requests.sql здесь можно будет открыть приём родителей.";
+    if (dom.toggleAccessEnrollmentButton) dom.toggleAccessEnrollmentButton.disabled = true;
+    dom.accessRequestList.append(createEmptyContent("🔐", "Приём заявок ещё не настроен", "Сначала обновите базу данных безопасным скриптом."));
+    return;
+  }
+
+  if (dom.accessEnrollmentStatus) {
+    dom.accessEnrollmentStatus.textContent = state.enrollmentOpen ? "Приём заявок открыт" : "Приём заявок закрыт";
+    dom.accessEnrollmentStatus.className = `access-enrollment-status ${state.enrollmentOpen ? "is-open" : "is-closed"}`;
+  }
+  if (dom.accessEnrollmentHint) {
+    dom.accessEnrollmentHint.textContent = state.enrollmentOpen
+      ? "По ссылке можно оставить заявку, но бюджет и чат останутся закрыты до вашего одобрения."
+      : "Новые люди не могут оставить заявку. Уже одобренные родители продолжают пользоваться сайтом.";
+  }
+  if (dom.toggleAccessEnrollmentButton) {
+    dom.toggleAccessEnrollmentButton.disabled = false;
+    dom.toggleAccessEnrollmentButton.textContent = state.enrollmentOpen ? "Закрыть приём заявок" : "Открыть приём заявок";
+    dom.toggleAccessEnrollmentButton.classList.toggle("button-secondary", state.enrollmentOpen);
+    dom.toggleAccessEnrollmentButton.classList.toggle("button-primary", !state.enrollmentOpen);
+  }
+
+  if (!state.accessRequests.length) {
+    dom.accessRequestList.append(createEmptyContent("👪", "Заявок пока нет", "Откройте приём, затем отправьте ссылку в родительский чат."));
+    return;
+  }
+
+  const order = { PENDING: 0, REJECTED: 1, APPROVED: 2 };
+  [...state.accessRequests]
+    .sort((a, b) => (order[a.request_status] ?? 9) - (order[b.request_status] ?? 9) || new Date(b.requested_at) - new Date(a.requested_at))
+    .forEach((request) => dom.accessRequestList.append(createAccessRequestElement(request)));
+}
+
+function createAccessRequestElement(request) {
+  const item = el("article", `access-request-item is-${String(request.request_status || "PENDING").toLowerCase()}`);
+  const person = el("div", "access-request-person");
+  const avatarUrl = safeHttpsUrl(request.avatar_url);
+  if (avatarUrl) {
+    const avatar = document.createElement("img");
+    avatar.className = "access-request-avatar";
+    avatar.src = avatarUrl;
+    avatar.alt = "";
+    avatar.referrerPolicy = "no-referrer";
+    person.append(avatar);
+  } else {
+    person.append(el("span", "access-request-initial", initials(request.display_name || request.email)));
+  }
+  const copy = el("div", "access-request-copy");
+  copy.append(
+    el("strong", "", request.display_name || "Родитель"),
+    el("small", "", request.email),
+    el("small", "", `Заявка: ${formatDateTime(request.requested_at)}`)
+  );
+  person.append(copy);
+
+  const right = el("div", "access-request-actions");
+  right.append(el("span", `access-request-status status-${String(request.request_status || "PENDING").toLowerCase()}`, accessRequestStatusLabel(request.request_status)));
+  if (request.request_status !== "APPROVED") {
+    const approve = el("button", "button button-primary button-small", request.request_status === "REJECTED" ? "Одобрить всё же" : "Одобрить");
+    approve.type = "button";
+    approve.dataset.accessAction = "approve";
+    approve.dataset.id = request.id;
+    right.append(approve);
+  }
+  if (request.request_status === "PENDING") {
+    const reject = el("button", "button button-danger button-small", "Отклонить");
+    reject.type = "button";
+    reject.dataset.accessAction = "reject";
+    reject.dataset.id = request.id;
+    right.append(reject);
+  }
+  item.append(person, right);
+  return item;
+}
+
+function accessRequestStatusLabel(status) {
+  return ({ PENDING: "Ожидает решения", APPROVED: "Одобрено", REJECTED: "Отклонено" })[status] || "Ожидает решения";
+}
+
+async function refreshAccessAdministration() {
+  const result = await fetchAccessAdministration();
+  if (result.error) throw result.error;
+  state.enrollmentReady = result.ready === true;
+  state.enrollmentOpen = result.enrollmentOpen === true;
+  state.accessRequests = result.accessRequests ?? [];
+  renderAccessManagement();
+}
+
+async function toggleAccessEnrollment() {
+  if (!state.isAdmin || !state.enrollmentReady) return;
+  const next = !state.enrollmentOpen;
+  const warning = next
+    ? "Открыть приём заявок? Любой человек со ссылкой сможет оставить заявку, но не увидит бюджет и чат, пока вы лично его не одобрите."
+    : "Закрыть приём заявок? Новые люди не смогут оставлять заявки, а уже одобренные родители продолжат пользоваться сайтом.";
+  if (!window.confirm(warning)) return;
+
+  setButtonLoading(dom.toggleAccessEnrollmentButton, true, next ? "Открываем…" : "Закрываем…");
+  const { error } = await db.rpc("set_access_enrollment", { p_open: next });
+  setButtonLoading(dom.toggleAccessEnrollmentButton, false);
+  if (error) return showElementError(dom.accessRequestError, `Не удалось изменить приём заявок: ${friendlyError(error)}`);
+  await refreshAccessAdministration();
+  showNotice(next ? "Приём заявок открыт. Отправьте ссылку родителям. ✓" : "Приём заявок закрыт. ✓", "info", 5000);
+}
+
+async function handleAccessRequestAction(event) {
+  if (!state.isAdmin) return;
+  const button = event.target.closest("[data-access-action]");
+  if (!button) return;
+  const request = state.accessRequests.find((item) => item.id === button.dataset.id);
+  if (!request) return;
+  const isApproval = button.dataset.accessAction === "approve";
+  const question = isApproval
+    ? `Одобрить ${request.display_name} (${request.email})? После этого родитель увидит бюджет и чат при следующем обновлении страницы.`
+    : `Отклонить заявку ${request.display_name} (${request.email})? Бюджет и чат останутся закрыты.`;
+  if (!window.confirm(question)) return;
+
+  button.disabled = true;
+  const rpcName = isApproval ? "approve_access_request" : "reject_access_request";
+  const { error } = await db.rpc(rpcName, { p_request_id: request.id });
+  if (error) {
+    button.disabled = false;
+    return showElementError(dom.accessRequestError, `Не удалось обработать заявку: ${friendlyError(error)}`);
+  }
+  await refreshAccessAdministration();
+  showNotice(isApproval ? "Доступ родителя одобрен ✓" : "Заявка отклонена", "info");
+}
+
+function renderAccessRequestStatus(request) {
+  const status = request?.request_status || "CLOSED";
+  if (status === "PENDING") {
+    showAuthMessage("Заявка отправлена администратору. После одобрения обновите страницу — бюджет и чат откроются автоматически.", "info");
+  } else if (status === "REJECTED") {
+    showAuthError("Эта заявка пока не одобрена. Если это ошибка, обратитесь к администратору класса.");
+  } else if (status === "CLOSED") {
+    showAuthError("Приём заявок сейчас закрыт. Попросите администратора временно открыть его и отправьте заявку ещё раз.");
+  } else {
+    showAuthMessage("Ваш доступ уже одобрен. Обновите страницу, чтобы открыть бюджет и чат.", "info");
+  }
+  if (dom.googleLoginButton) dom.googleLoginButton.textContent = "Войти с другим Google-аккаунтом";
 }
 
 function renderStudentManagement() {
@@ -2181,6 +2404,11 @@ function normalizeSearch(value) {
   return String(value || "").toLocaleLowerCase("ru-RU").replace(/ё/g, "е").trim();
 }
 
+function initials(value) {
+  const parts = String(value || "").trim().split(/\s+/).filter(Boolean);
+  return (parts.slice(0, 2).map((part) => part[0]).join("") || "Р").toLocaleUpperCase("ru-RU");
+}
+
 function csvCell(value) {
   const text = String(value ?? "").replace(/"/g, '""');
   return `"${text}"`;
@@ -2264,11 +2492,15 @@ function hideNotice() {
   if (dom.globalNotice) dom.globalNotice.classList.add("hidden");
 }
 
+function showAuthMessage(message, type = "info") {
+  if (!dom.authError) return;
+  dom.authError.textContent = message;
+  dom.authError.className = `notice notice-${type}`;
+  dom.authError.classList.remove("hidden");
+}
+
 function showAuthError(message) {
-  if (dom.authError) {
-    dom.authError.textContent = message;
-    dom.authError.classList.remove("hidden");
-  }
+  showAuthMessage(message, "error");
 }
 
 function showConfigWarning() {

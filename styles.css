@@ -238,6 +238,7 @@ select:focus-visible {
 .global-notice.notice-error { color: #8d3028; background: var(--red-soft); border-color: #e6a097; }
 .notice-warning,
 .global-notice.notice-warning { color: #745514; background: var(--yellow-soft); border-color: #dbbd5a; }
+.notice-info,
 .global-notice.notice-info { color: #245a75; background: var(--blue-soft); border-color: #91bfd6; }
 .empty-state { padding: 28px 14px; color: var(--ink-soft); text-align: center; }
 .empty-content { display: grid; justify-items: center; gap: 5px; width: 100%; }
@@ -957,6 +958,43 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
   .student-management-item .row-actions { flex-wrap: wrap; }
   .school-year-form { grid-template-columns: 1fr; }
   .school-year-form .button { width: 100%; }
+}
+
+/* =========================================================
+   ДОСТУП РОДИТЕЛЕЙ И ЗАЯВКИ
+   ========================================================= */
+.access-management-card { margin-top: 24px; }
+.access-management-card .card-title-row p { max-width: 680px; margin: 8px 0 0; color: var(--ink-soft); line-height: 1.4; }
+.access-enrollment-controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 19px 0 8px; padding: 14px; background: rgba(220, 239, 248, .52); border: 1px solid #b8d7e3; border-radius: 14px; }
+.access-enrollment-status { display: inline-flex; align-items: center; gap: 8px; font-weight: 900; color: var(--ink-soft); }
+.access-enrollment-status::before { content: "●"; font-size: 1rem; }
+.access-enrollment-status.is-open { color: #1b7654; }
+.access-enrollment-status.is-closed { color: #806424; }
+.access-request-list { display: grid; gap: 9px; margin-top: 15px; }
+.access-request-item { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 14px; background: rgba(255, 253, 245, .88); border: 1px solid #d8d1bd; border-radius: 14px; }
+.access-request-item.is-pending { background: rgba(255, 244, 199, .58); border-color: #e4c85b; }
+.access-request-item.is-approved { background: rgba(223, 244, 234, .6); border-color: #a9d1ba; }
+.access-request-item.is-rejected { background: rgba(249, 230, 229, .58); border-color: #dfb1b4; }
+.access-request-person { display: flex; align-items: center; min-width: 0; gap: 11px; }
+.access-request-avatar,
+.access-request-initial { flex: 0 0 auto; width: 42px; height: 42px; border: 2px solid #fffdf4; border-radius: 50%; box-shadow: 0 1px 4px rgba(35, 72, 62, .18); }
+.access-request-avatar { object-fit: cover; }
+.access-request-initial { display: grid; place-items: center; color: #fffdf4; background: #3e8b6d; font-size: .82rem; font-weight: 900; }
+.access-request-copy { display: grid; min-width: 0; gap: 2px; }
+.access-request-copy strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.access-request-copy small { overflow: hidden; color: var(--ink-soft); font-size: .74rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.access-request-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.access-request-status { padding: 5px 8px; border-radius: 999px; font-size: .7rem; font-weight: 900; white-space: nowrap; }
+.status-pending { color: #71550b; background: #fff0b3; }
+.status-approved { color: #1b684d; background: #d7f0e2; }
+.status-rejected { color: #8a3440; background: #f6dfe0; }
+
+@media (max-width: 700px) {
+  .access-enrollment-controls,
+  .access-request-item { align-items: stretch; flex-direction: column; }
+  .access-enrollment-controls .button { width: 100%; }
+  .access-request-actions { justify-content: flex-start; }
+  .access-request-actions .button { flex: 1 1 auto; }
 }
 
 /* =========================================================
