@@ -5,7 +5,7 @@
    ========================================================= */
 const SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
-const APP_VERSION = "v18";
+const APP_VERSION = "v19";
 
 const isSupabaseConfigured =
   SUPABASE_URL.startsWith("https://") &&
@@ -17,7 +17,9 @@ const db = isSupabaseConfigured && window.supabase
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: true
+        // Обмен кода выполняем сами ниже: так при сбое на мобильном браузере
+        // можно показать точную ошибку, а не молча вернуться на экран входа.
+        detectSessionInUrl: false
       }
     })
   : null;
@@ -160,7 +162,7 @@ async function init() {
 }
 
 async function getSessionWithSoftTimeout() {
-  const pending = db.auth.getSession();
+  const pending = resolveInitialSession();
   let timeoutId;
   const timeout = new Promise((resolve) => {
     timeoutId = window.setTimeout(() => resolve({ timedOut: true }), 12000);
@@ -168,6 +170,31 @@ async function getSessionWithSoftTimeout() {
   const first = await Promise.race([pending, timeout]);
   window.clearTimeout(timeoutId);
   return first?.timedOut ? { timedOut: true, pending } : { timedOut: false, result: first };
+}
+
+async function resolveInitialSession() {
+  const callbackUrl = new URL(window.location.href);
+  const code = callbackUrl.searchParams.get("code");
+  const oauthError = callbackUrl.searchParams.get("error");
+  const oauthErrorDescription = callbackUrl.searchParams.get("error_description");
+
+  if (oauthError) {
+    clearOAuthCallbackFromUrl();
+    throw new Error(`Google не завершил вход: ${oauthErrorDescription || oauthError}`);
+  }
+
+  if (!code) return db.auth.getSession();
+
+  showAuthMessage(`${APP_VERSION}: подтверждаем вход Google…`, "info");
+  const exchange = await db.auth.exchangeCodeForSession(code);
+  clearOAuthCallbackFromUrl();
+  if (exchange.error) {
+    throw new Error(`Google подтвердил аккаунт, но браузер не сохранил сессию: ${friendlyError(exchange.error)}`);
+  }
+  if (!exchange.data?.session) {
+    throw new Error("Google не вернул сессию после подтверждения аккаунта.");
+  }
+  return exchange;
 }
 
 async function finishInitialSession(result) {
@@ -2419,7 +2446,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=18", window.location.href);
+  const workerUrl = new URL("./sw.js?v=19", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
