@@ -5,7 +5,7 @@
    ========================================================= */
 const SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
-const APP_VERSION = "v22";
+const APP_VERSION = "v23";
 
 const isSupabaseConfigured =
   SUPABASE_URL.startsWith("https://") &&
@@ -106,7 +106,9 @@ const state = {
   enrollmentOpen: false,
   accessRequests: [],
   loadedSessionUserId: null,
-  loadRunId: 0
+  loadedSessionRunId: 0,
+  loadRunId: 0,
+  sessionRunId: 0
 };
 
 const dom = {};
@@ -154,7 +156,7 @@ async function init() {
         return;
       }
       // Deferring leaves Supabase's internal auth lock before data requests begin.
-      window.setTimeout(() => handleSession(session), 0);
+      window.setTimeout(() => queueSessionHandling(session), 0);
     });
   } finally {
     hideLoadingScreen();
@@ -202,7 +204,7 @@ async function finishInitialSession(result) {
     clearOAuthCallbackFromUrl();
   }
   state.authStateConfirmed = true;
-  await handleSession(session);
+  await queueSessionHandling(session);
 }
 
 function clearOAuthCallbackFromUrl() {
@@ -400,7 +402,17 @@ async function logout() {
   if (error) showNotice(`Не удалось выйти: ${error.message}`, "error");
 }
 
-async function handleSession(session) {
+async function queueSessionHandling(session) {
+  const runId = ++state.sessionRunId;
+  return handleSession(session, runId);
+}
+
+function isCurrentSessionRun(runId, session) {
+  return runId === state.sessionRunId && state.user?.id === session?.user?.id;
+}
+
+async function handleSession(session, runId) {
+  if (runId !== state.sessionRunId) return;
   state.session = session;
   state.user = session?.user ?? null;
 
@@ -408,6 +420,7 @@ async function handleSession(session) {
     state.isAdmin = false;
     state.accessRequestStatus = null;
     state.loadedSessionUserId = null;
+    state.loadedSessionRunId = 0;
     state.chatMessages = [];
     state.chatReady = false;
     state.accessRequests = [];
@@ -431,6 +444,7 @@ async function handleSession(session) {
       CORE_DATA_TIMEOUT_MS
     );
     if (accessResult.error) throw accessResult.error;
+    if (!isCurrentSessionRun(runId, session)) return;
     const canAccess = accessResult.data;
 
     if (canAccess !== true) {
@@ -438,6 +452,7 @@ async function handleSession(session) {
       closeChatPanel();
       const requestResult = await db.rpc("request_class_access");
       if (requestResult.error) throw requestResult.error;
+      if (!isCurrentSessionRun(runId, session)) return;
       const request = Array.isArray(requestResult.data) ? requestResult.data[0] : requestResult.data;
       state.accessRequestStatus = request?.request_status || "CLOSED";
       setProtectedAccess(false);
@@ -461,13 +476,16 @@ async function handleSession(session) {
         OPTIONAL_DATA_TIMEOUT_MS
       );
       if (adminResult.error) throw adminResult.error;
+      if (!isCurrentSessionRun(runId, session)) return;
       state.isAdmin = adminResult.data === true;
     } catch (adminError) {
+      if (!isCurrentSessionRun(runId, session)) return;
       console.warn("Admin role check delayed:", adminError);
       state.isAdmin = false;
       showNotice("Проверка роли администратора задержалась. Бюджет откроется в режиме просмотра.", "info", 7000);
     }
   } catch (error) {
+    if (!isCurrentSessionRun(runId, session)) return;
     console.error(error);
     state.isAdmin = false;
     setProtectedAccess(false);
@@ -476,16 +494,22 @@ async function handleSession(session) {
   }
 
   try {
+    if (!isCurrentSessionRun(runId, session)) return;
     applyRoleToUi();
-    if (state.loadedSessionUserId !== session.user.id) {
+    if (state.loadedSessionUserId !== session.user.id || state.loadedSessionRunId !== runId) {
       state.loadedSessionUserId = session.user.id;
+      state.loadedSessionRunId = runId;
       await loadAllData();
+      if (!isCurrentSessionRun(runId, session)) return;
       subscribeRealtime();
     }
+    if (!isCurrentSessionRun(runId, session)) return;
     setProtectedAccess(true);
   } catch (error) {
+    if (!isCurrentSessionRun(runId, session)) return;
     console.error(error);
     state.loadedSessionUserId = null;
+    state.loadedSessionRunId = 0;
     setProtectedAccess(true);
     showNotice(`Вход выполнен, но данные пока не загрузились: ${friendlyError(error)}. Проверьте интернет и обновите страницу.`, "error", 0);
   }
@@ -2441,7 +2465,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=22", window.location.href);
+  const workerUrl = new URL("./sw.js?v=23", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
