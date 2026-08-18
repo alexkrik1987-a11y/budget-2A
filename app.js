@@ -5,7 +5,7 @@
    ========================================================= */
 const SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
-const APP_VERSION = "v21";
+const APP_VERSION = "v22";
 
 const isSupabaseConfigured =
   SUPABASE_URL.startsWith("https://") &&
@@ -162,9 +162,7 @@ async function init() {
 }
 
 async function getSessionWithSoftTimeout() {
-  // Supabase сам распознаёт корректный OAuth-ответ (токены или код), сохраняет
-  // сессию и возвращает её через getSession(). Не ограничиваем формат ответа.
-  const pending = db.auth.getSession();
+  const pending = restoreOAuthSessionBeforeUrlCleanup();
   let timeoutId;
   const timeout = new Promise((resolve) => {
     timeoutId = window.setTimeout(() => resolve({ timedOut: true }), 12000);
@@ -174,17 +172,37 @@ async function getSessionWithSoftTimeout() {
   return first?.timedOut ? { timedOut: true, pending } : { timedOut: false, result: first };
 }
 
+async function restoreOAuthSessionBeforeUrlCleanup() {
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const accessToken = hash.get("access_token");
+  const refreshToken = hash.get("refresh_token");
+
+  // В браузерном OAuth-потоке Supabase может вернуть готовые токены во
+  // фрагменте URL. Сохраняем их явно до history.replaceState(), иначе на
+  // медленном устройстве автоматический обработчик может не успеть это сделать.
+  if (accessToken && refreshToken) {
+    showAuthMessage(`${APP_VERSION}: сохраняем вход Google…`, "info");
+    return db.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+  }
+
+  // Если провайдер вернул код, стандартная библиотека Supabase обработает его.
+  return db.auth.getSession();
+}
+
 async function finishInitialSession(result) {
-  // Код OAuth одноразовый. Удаляем его сразу после того, как Supabase получил
-  // результат входа, а не после загрузки таблиц: иначе обновление страницы во
-  // время медленного запроса пытается использовать тот же код повторно.
-  clearOAuthCallbackFromUrl();
   if (result?.error) {
+    // Не оставляем OAuth-токены в адресе, но показываем конкретную ошибку.
+    clearOAuthCallbackFromUrl();
     showAuthError(`Не удалось проверить авторизацию: ${friendlyError(result.error)}`);
     return;
   }
+  const session = result?.data?.session ?? null;
+  if (session) {
+    // URL очищается только после того, как Supabase вернул уже сохранённую сессию.
+    clearOAuthCallbackFromUrl();
+  }
   state.authStateConfirmed = true;
-  await handleSession(result?.data?.session ?? null);
+  await handleSession(session);
 }
 
 function clearOAuthCallbackFromUrl() {
@@ -2423,7 +2441,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=21", window.location.href);
+  const workerUrl = new URL("./sw.js?v=22", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
