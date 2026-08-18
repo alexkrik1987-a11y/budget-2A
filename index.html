@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="ru">
 <head>
+  <script>
+    // Единственный постоянный адрес сайта. Старые закладки GitHub Pages не должны
+    // запускать ещё одну PWA-копию или получать OAuth-ответ на устаревший адрес.
+    (() => {
+      if (window.location.hostname === "alexkrik1987-a11y.github.io" && window.location.pathname.startsWith("/budget-2A")) {
+        window.location.replace("https://rodcomitet.budget2a.kriknexus.pro/");
+      }
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Онлайн-бюджет класса: взносы, расходы, остатки и чеки.">
@@ -589,6 +598,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=15" defer></script>
+  <script src="app.js?v=16" defer></script>
 </body>
 </html>

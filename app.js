@@ -102,7 +102,8 @@ const state = {
   enrollmentReady: false,
   enrollmentOpen: false,
   accessRequests: [],
-  loadedSessionUserId: null
+  loadedSessionUserId: null,
+  loadRunId: 0
 };
 
 const dom = {};
@@ -119,7 +120,7 @@ async function init() {
   bindEvents();
   applySeasonalTheme();
   setupInstallExperience();
-  removeLegacyServiceWorker();
+  activateServiceWorker();
 
   try {
     if (!db) {
@@ -510,71 +511,160 @@ function applyRoleToUi() {
 /* =========================================================
    5. ЗАГРУЗКА И REALTIME-ОБНОВЛЕНИЯ
    ========================================================= */
-async function loadAllData({ silent = false } = {}) {
-  if (!silent) showNotice("Загружаем свежие данные…", "info", 0);
+const CORE_DATA_TIMEOUT_MS = 10_000;
+const OPTIONAL_DATA_TIMEOUT_MS = 7_000;
 
-  const [activeStudentsResult, allStudentsResult, contributionsResult, expensesResult, archiveData, chatResult, accessData] = await Promise.all([
-    db.from("students").select("id, full_name, sort_order, is_active, created_at, updated_at").eq("is_active", true).order("sort_order"),
-    db.from("students").select("id, full_name, sort_order, is_active, created_at, updated_at").order("is_active", { ascending: false }).order("sort_order"),
-    db.from("contributions").select("id, student_id, campaign_id, amount, created_at, updated_at"),
-    fetchExpenses(),
-    fetchArchiveAwareData(),
-    fetchChatMessages(),
-    state.isAdmin ? fetchAccessAdministration() : Promise.resolve({ ready: false, enrollmentOpen: false, accessRequests: [], error: null })
+async function loadAllData({ silent = false } = {}) {
+  const loadRunId = ++state.loadRunId;
+  if (!silent) showNotice("Загружаем данные бюджета…", "info", 0);
+
+  // Сначала запрашиваем только то, без чего нельзя показать бюджет.
+  // Чат, заявки и резервные копии не должны удерживать всю страницу на слабой мобильной сети.
+  const [studentsStep, contributionsStep, expensesStep, archiveStep] = await Promise.all([
+    loadStep("список учеников", fetchStudents, { data: state.allStudents ?? [] }),
+    loadStep("взносы", () => db.from("contributions").select("id, student_id, campaign_id, amount, created_at, updated_at"), { data: state.contributions ?? [] }),
+    loadStep("расходы", fetchExpenses, { data: state.expenses ?? [] }),
+    loadStep("сборы", fetchArchiveAwareData, {
+      campaigns: state.campaigns ?? [],
+      archivedCampaigns: state.archivedCampaigns ?? [],
+      classProfile: state.classProfile,
+      ready: state.archiveFeaturesReady,
+      error: null
+    })
   ]);
 
-  const failed = [activeStudentsResult, allStudentsResult, contributionsResult, expensesResult, archiveData, chatResult, accessData].find((result) => result.error);
-  if (failed) throw failed.error;
+  if (loadRunId !== state.loadRunId || !state.session) return;
 
-  state.students = activeStudentsResult.data ?? [];
-  state.allStudents = allStudentsResult.data ?? state.students;
-  state.campaigns = archiveData.campaigns ?? [];
-  state.archivedCampaigns = archiveData.archivedCampaigns ?? [];
-  state.classProfile = archiveData.classProfile ?? state.classProfile;
-  state.archiveFeaturesReady = archiveData.ready === true;
-  state.contributions = contributionsResult.data ?? [];
-  state.expenses = expensesResult.data ?? [];
-  state.chatMessages = chatResult.data ?? [];
-  state.chatReady = chatResult.ready === true;
-  state.enrollmentReady = accessData.ready === true;
-  state.enrollmentOpen = accessData.enrollmentOpen === true;
-  state.accessRequests = accessData.accessRequests ?? [];
-
-  if (state.isAdmin) {
-    const { data: backups, error: backupsError } = await fetchBackups();
-    if (backupsError) throw backupsError;
-    state.backups = backups ?? [];
-  } else {
-    state.backups = [];
-  }
+  const allStudents = studentsStep.result?.data ?? state.allStudents ?? [];
+  state.allStudents = allStudents;
+  state.students = allStudents.filter((student) => student.is_active !== false);
+  state.contributions = contributionsStep.result?.data ?? state.contributions ?? [];
+  state.expenses = expensesStep.result?.data ?? state.expenses ?? [];
+  state.campaigns = archiveStep.result?.campaigns ?? state.campaigns ?? [];
+  state.archivedCampaigns = archiveStep.result?.archivedCampaigns ?? state.archivedCampaigns ?? [];
+  state.classProfile = archiveStep.result?.classProfile ?? state.classProfile;
+  state.archiveFeaturesReady = archiveStep.result?.ready === true;
 
   if (!state.campaigns.some((item) => item.id === state.selectedCampaignId)) {
     state.selectedCampaignId = state.campaigns.find((item) => item.is_open)?.id ?? state.campaigns[0]?.id ?? null;
   }
 
   renderAll();
-  if (!silent) hideNotice();
+
+  const coreWarnings = [studentsStep, contributionsStep, expensesStep, archiveStep]
+    .filter((step) => step.error)
+    .map((step) => step.label);
+  if (!silent) {
+    if (coreWarnings.length) {
+      showNotice(`Бюджет показан частично. Пока не ответили: ${coreWarnings.join(", ")}. Попробуйте обновить страницу.`, "error", 12_000);
+    } else {
+      hideNotice();
+    }
+  }
+
+  // Дополнительные данные догружаются отдельно. Они не могут вернуть нули в уже показанный бюджет.
+  void loadSupplementaryData(loadRunId, { silent });
+}
+
+async function loadSupplementaryData(loadRunId, { silent = false } = {}) {
+  const steps = [
+    loadStep("профиль класса", fetchClassProfile, { data: state.classProfile, error: null }, OPTIONAL_DATA_TIMEOUT_MS),
+    loadStep("чат класса", fetchChatMessages, { data: [], ready: false, error: null }, OPTIONAL_DATA_TIMEOUT_MS)
+  ];
+
+  if (state.isAdmin) {
+    steps.push(
+      loadStep("настройки заявок", fetchAccessAdministration, {
+        ready: false,
+        enrollmentOpen: false,
+        accessRequests: [],
+        error: null
+      }, OPTIONAL_DATA_TIMEOUT_MS),
+      loadStep("список резервных копий", fetchBackups, { data: [], error: null }, OPTIONAL_DATA_TIMEOUT_MS)
+    );
+  }
+
+  const results = await Promise.all(steps);
+  if (loadRunId !== state.loadRunId || !state.session) return;
+
+  const profileStep = results[0];
+  const chatStep = results[1];
+  state.classProfile = profileStep.result?.data ?? state.classProfile;
+  state.chatMessages = chatStep.result?.data ?? [];
+  state.chatReady = chatStep.result?.ready === true;
+
+  let warnings = [profileStep, chatStep].filter((step) => step.error).map((step) => step.label);
+  if (state.isAdmin) {
+    const accessStep = results[2];
+    const backupsStep = results[3];
+    state.enrollmentReady = accessStep.result?.ready === true;
+    state.enrollmentOpen = accessStep.result?.enrollmentOpen === true;
+    state.accessRequests = accessStep.result?.accessRequests ?? [];
+    state.backups = backupsStep.result?.data ?? [];
+    warnings = warnings.concat([accessStep, backupsStep].filter((step) => step.error).map((step) => step.label));
+  } else {
+    state.enrollmentReady = false;
+    state.enrollmentOpen = false;
+    state.accessRequests = [];
+    state.backups = [];
+  }
+
+  renderAll();
+  subscribeRealtime();
+  if (!silent && warnings.length) {
+    showNotice(`Бюджет загружен. Пока недоступно: ${warnings.join(", ")}. Это не влияет на суммы и историю взносов.`, "error", 12_000);
+  }
+}
+
+async function loadStep(label, operation, fallback, timeoutMs = CORE_DATA_TIMEOUT_MS) {
+  const startedAt = performance.now();
+  try {
+    const result = await withTimeout(operation, label, timeoutMs);
+    if (result?.error) throw result.error;
+    console.info(`[Бюджет 2А] ${label}: готово за ${Math.round(performance.now() - startedAt)} мс`);
+    return { label, result, error: null };
+  } catch (error) {
+    console.warn(`[Бюджет 2А] ${label}: ${friendlyError(error)}`);
+    return { label, result: fallback, error };
+  }
+}
+
+async function withTimeout(operation, label, timeoutMs) {
+  let timeoutId;
+  const task = Promise.resolve().then(() => typeof operation === "function" ? operation() : operation);
+  const timeout = new Promise((_, reject) => {
+    timeoutId = window.setTimeout(() => reject(new Error(`Раздел «${label}» не ответил за ${Math.round(timeoutMs / 1000)} сек.`)), timeoutMs);
+  });
+  try {
+    return await Promise.race([task, timeout]);
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
+async function fetchStudents() {
+  return db.from("students")
+    .select("id, full_name, sort_order, is_active, created_at, updated_at")
+    .order("is_active", { ascending: false })
+    .order("sort_order");
 }
 
 async function fetchArchiveAwareData() {
   const fields = "id, name, campaign_type, fund, expected_amount, is_open, sort_order, archived_at, archived_by, school_year, archived_students, created_at, updated_at";
-  const [activeResult, archivedResult, profileResult] = await Promise.all([
-    db.from("campaigns").select(fields).is("archived_at", null).order("sort_order"),
-    db.from("campaigns").select(fields).not("archived_at", "is", null).order("archived_at", { ascending: false }),
-    db.from("class_profile").select("class_name, school_year, updated_at").eq("id", true).maybeSingle()
-  ]);
+  const campaignsResult = await db.from("campaigns").select(fields).order("sort_order");
 
-  if (!activeResult.error && !archivedResult.error && !profileResult.error) {
+  if (!campaignsResult.error) {
+    const campaigns = campaignsResult.data ?? [];
     return {
-      campaigns: activeResult.data ?? [],
-      archivedCampaigns: archivedResult.data ?? [],
-      classProfile: profileResult.data ?? { class_name: "2 «А»", school_year: "" },
+      campaigns: campaigns.filter((item) => !item.archived_at),
+      archivedCampaigns: campaigns.filter((item) => item.archived_at).sort((a, b) => new Date(b.archived_at) - new Date(a.archived_at)),
+      classProfile: state.classProfile,
       ready: true,
       error: null
     };
   }
 
-  // До запуска миграции сайт остаётся доступным в прежнем режиме.
+  // Совместимость со старой схемой до запуска миграции архива.
   const fallback = await db.from("campaigns")
     .select("id, name, campaign_type, fund, expected_amount, is_open, sort_order, created_at, updated_at")
     .order("sort_order");
@@ -586,6 +676,17 @@ async function fetchArchiveAwareData() {
     ready: false,
     error: null
   };
+}
+
+async function fetchClassProfile() {
+  const result = await db.from("class_profile")
+    .select("class_name, school_year, updated_at")
+    .eq("id", true)
+    .maybeSingle();
+  if (result.error && /class_profile|does not exist|relation .* does not exist/i.test(result.error.message || "")) {
+    return { data: state.classProfile, error: null };
+  }
+  return result;
 }
 
 async function fetchBackups() {
@@ -646,7 +747,6 @@ async function fetchExpenses() {
   if (!/receipt_path|campaign_id|column .* does not exist/i.test(result.error.message || "")) return result;
   state.advancedFeaturesReady = false;
 
-  // До запуска миграций сохраняем режим просмотра старых расходов без новых полей.
   const fallback = await db.from("expenses").select("id, expense_date, description, category, fund, amount, receipt_url, created_at, updated_at").order("expense_date", { ascending: false }).order("created_at", { ascending: false });
   return { ...fallback, data: (fallback.data || []).map((expense) => ({ ...expense, receipt_path: null, campaign_id: null })) };
 }
@@ -2293,16 +2393,11 @@ function isStandalone() {
   return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
 
-function removeLegacyServiceWorker() {
+function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  navigator.serviceWorker.getRegistrations()
-    .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
-    .then(() => ("caches" in window ? window.caches.keys() : []))
-    .then((keys) => {
-      if (!keys) return;
-      return Promise.all(keys.filter((key) => key.startsWith("budget-2a-")).map((key) => caches.delete(key)));
-    })
-    .catch((error) => console.warn("Legacy cache cleanup failed:", error));
+  const workerUrl = new URL("./sw.js?v=16", window.location.href);
+  navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
+    .catch((error) => console.warn("Service worker registration failed:", error));
 }
 
 function hideLoadingScreen() {
