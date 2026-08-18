@@ -5,7 +5,7 @@
    ========================================================= */
 const SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
-const APP_VERSION = "v23";
+const APP_VERSION = "v24";
 
 const isSupabaseConfigured =
   SUPABASE_URL.startsWith("https://") &&
@@ -164,7 +164,9 @@ async function init() {
 }
 
 async function getSessionWithSoftTimeout() {
-  const pending = restoreOAuthSessionBeforeUrlCleanup();
+  // Используем штатное восстановление сессии Supabase. Оно уже корректно
+  // обрабатывает фактический OAuth-ответ и не конфликтует со своим auth lock.
+  const pending = db.auth.getSession();
   let timeoutId;
   const timeout = new Promise((resolve) => {
     timeoutId = window.setTimeout(() => resolve({ timedOut: true }), 12000);
@@ -172,23 +174,6 @@ async function getSessionWithSoftTimeout() {
   const first = await Promise.race([pending, timeout]);
   window.clearTimeout(timeoutId);
   return first?.timedOut ? { timedOut: true, pending } : { timedOut: false, result: first };
-}
-
-async function restoreOAuthSessionBeforeUrlCleanup() {
-  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-  const accessToken = hash.get("access_token");
-  const refreshToken = hash.get("refresh_token");
-
-  // В браузерном OAuth-потоке Supabase может вернуть готовые токены во
-  // фрагменте URL. Сохраняем их явно до history.replaceState(), иначе на
-  // медленном устройстве автоматический обработчик может не успеть это сделать.
-  if (accessToken && refreshToken) {
-    showAuthMessage(`${APP_VERSION}: сохраняем вход Google…`, "info");
-    return db.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-  }
-
-  // Если провайдер вернул код, стандартная библиотека Supabase обработает его.
-  return db.auth.getSession();
 }
 
 async function finishInitialSession(result) {
@@ -2465,7 +2450,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=23", window.location.href);
+  const workerUrl = new URL("./sw.js?v=24", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
