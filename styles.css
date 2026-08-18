@@ -381,6 +381,66 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 .auth-emblem { display: inline-block; width: 118px; height: 118px; filter: drop-shadow(0 8px 0 rgba(0, 0, 0, .16)); transform: rotate(-3deg); }
 .chalk-doodle { position: absolute; top: 20px; right: 25px; color: #ffe783; font-weight: 900; transform: rotate(4deg); }
 
+/* Светлый тетрадный вход: адаптация предоставленного референса. */
+.auth-screen:has(.notebook-login) { position: relative; padding: 20px; background: #fffdf5; }
+.notebook-login {
+  isolation: isolate;
+  width: min(100%, 650px);
+  padding: 32px clamp(22px, 5vw, 48px) 30px;
+  color: #172737;
+  background-color: #fffdf5;
+  background-image:
+    linear-gradient(rgba(72, 151, 188, .19) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(72, 151, 188, .19) 1px, transparent 1px),
+    linear-gradient(90deg, transparent 0 9%, rgba(213, 75, 79, .36) 9% calc(9% + 2px), transparent calc(9% + 2px));
+  background-size: 24px 24px, 24px 24px, 100% 100%;
+  border: 2px solid rgba(43, 67, 90, .22);
+  border-radius: 4px;
+  box-shadow: 0 18px 44px rgba(28, 47, 65, .16);
+  transform: none;
+}
+.notebook-login::after { display: none; }
+.notebook-login > * { position: relative; z-index: 1; }
+.notebook-header { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 0 13px; color: #172737; font-size: clamp(.98rem, 3vw, 1.35rem); letter-spacing: .04em; }
+.notebook-header span { font-size: 1.45em; filter: saturate(.85); }
+.notebook-login .auth-emblem { width: 88px; height: 88px; margin-top: 4px; filter: drop-shadow(0 5px 0 rgba(26, 52, 70, .16)); transform: rotate(-2deg); }
+.notebook-login h1 { margin: 9px 0 3px; color: #0d1925; font-size: clamp(2rem, 6vw, 3rem); font-weight: 950; letter-spacing: -.025em; }
+.notebook-login > p:not(.notebook-note):not(.auth-note):not(.auth-load-note) { margin: 0 0 18px; color: #344a5a; font-size: .88rem; }
+.notebook-login .auth-illustration { margin-bottom: 18px; border: 3px solid #293d4e; border-radius: 5px; box-shadow: 4px 5px 0 rgba(41, 61, 78, .36); transform: rotate(-.3deg); }
+.notebook-login .auth-illustration figcaption { color: #182a38; background: #fff3bd; }
+.notebook-login .email-password-form { gap: 8px; max-width: 440px; margin: 0 auto 9px; text-align: left; }
+.notebook-login .email-password-form label { color: #172737; font-size: .83rem; }
+.notebook-login .email-password-form input { min-height: 40px; padding: 8px 11px; background: rgba(255, 255, 255, .88); border: 2px solid #263f52; border-radius: 5px; box-shadow: inset 0 1px 0 rgba(0,0,0,.04); }
+.notebook-login .email-password-form .button { width: 138px; min-height: 40px; justify-self: center; padding: 8px 16px; color: #162b22; background: #bad588; border-color: #638549; box-shadow: 0 4px 0 #638549; }
+.notebook-login .auth-link-button { display: block; max-width: 440px; margin: 0 auto; color: #263f52; font-size: .76rem; text-align: center; }
+.notebook-login .auth-divider { margin: 13px auto 11px; max-width: 440px; color: #526777; }
+.notebook-login .auth-divider::before, .notebook-login .auth-divider::after { background: rgba(38, 63, 82, .28); }
+.notebook-login .button-google { max-width: 440px; min-height: 43px; color: #1c3443; background: linear-gradient(100deg, #cce8ef, #f8dfec 54%, #f5dfa7); border-color: #456174; box-shadow: 0 4px 0 rgba(40, 65, 83, .28); }
+.notebook-login .auth-load-note { max-width: 440px; margin: 16px auto 0; color: #263f52; background: rgba(255, 253, 245, .77); border-color: rgba(38, 63, 82, .42); }
+.notebook-login .auth-load-note span { color: #bd7f1d; }
+.notebook-login .auth-note { max-width: 440px; margin: 11px auto 0; color: #344a5a; }
+.notebook-login .notice { max-width: 440px; margin-right: auto; margin-left: auto; }
+.notebook-note { position: absolute !important; z-index: 2 !important; margin: 0 !important; color: #1e2b39 !important; font-family: "Comic Sans MS", "Bradley Hand", cursive; font-size: clamp(.68rem, 2vw, .93rem) !important; font-weight: 800; line-height: 1.12; transform: rotate(-7deg); }
+.note-money { top: 56px; right: 18px; text-align: right; }
+.note-calm { top: 120px; right: 20px; transform: rotate(7deg); }
+.notebook-doodle { position: absolute; z-index: 0; color: #37337d; font-family: "Comic Sans MS", cursive; font-weight: 900; pointer-events: none; opacity: .86; }
+.doodle-plane { top: 25px; left: 22px; font-size: 2.7rem; transform: rotate(-22deg); }
+.doodle-splatter-left { top: 315px; left: 18px; color: #42236f; font-size: 2.8rem; }
+.doodle-splatter-right { top: 276px; right: 18px; color: #42236f; font-size: 3.2rem; }
+.doodle-compass { right: 24px; bottom: 168px; color: #273d68; font-size: 3rem; transform: rotate(-20deg); }
+.doodle-pencil { right: 14px; bottom: 68px; color: #b76e2a; font-size: 3.3rem; transform: rotate(-26deg); }
+
+@media (max-width: 560px) {
+  .auth-screen:has(.notebook-login) { padding: 0; place-items: start center; }
+  .notebook-login { min-height: 100dvh; padding: 20px 27px 30px; border-width: 0; box-shadow: none; }
+  .notebook-header { padding: 0 36px; font-size: .9rem; }
+  .notebook-login .auth-emblem { width: 78px; height: 78px; }
+  .notebook-note { display: none; }
+  .doodle-splatter-left { top: 340px; left: 8px; font-size: 2rem; }
+  .doodle-splatter-right { top: 300px; right: 8px; font-size: 2.3rem; }
+  .doodle-compass, .doodle-pencil { opacity: .58; }
+}
+
 /* =========================================================
    ШАПКА И НАВИГАЦИЯ
    ========================================================= */
