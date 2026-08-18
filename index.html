@@ -23,7 +23,7 @@
     #protectedContent { display: none; }
     #protectedContent.is-authenticated { display: block; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="stylesheet" href="styles.css?v=13">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -428,6 +428,33 @@
         <span aria-hidden="true">📲</span> Установить на телефон
       </button>
     </footer>
+
+    <button id="chatToggleButton" class="chat-toggle" type="button" aria-controls="classChatPanel" aria-expanded="false">
+      <span class="chat-toggle-icon" aria-hidden="true">💬</span>
+      <span>Чат класса</span>
+    </button>
+
+    <div id="chatBackdrop" class="chat-backdrop hidden" aria-hidden="true"></div>
+    <aside id="classChatPanel" class="class-chat-panel" aria-labelledby="chatTitle" aria-hidden="true">
+      <header class="chat-header">
+        <div>
+          <span class="sticker sticker-green">Только для нашего класса</span>
+          <h2 id="chatTitle">Чат класса</h2>
+          <p id="chatStatus" class="chat-status">Подготавливаем чат…</p>
+        </div>
+        <button id="closeChatButton" class="icon-button" type="button" aria-label="Закрыть чат">×</button>
+      </header>
+      <div id="chatMessageList" class="chat-message-list" role="log" aria-live="polite" aria-relevant="additions text"></div>
+      <form id="chatForm" class="chat-form">
+        <label class="sr-only" for="chatMessageInput">Новое сообщение</label>
+        <textarea id="chatMessageInput" rows="3" maxlength="1000" placeholder="Напишите сообщение родителям…" disabled required></textarea>
+        <div class="chat-form-footer">
+          <small id="chatCharacterCount">0 / 1000</small>
+          <button id="sendChatButton" class="button button-primary" type="submit" disabled>Отправить</button>
+        </div>
+      </form>
+      <p class="chat-rules">Только текст. Автор может удалить своё сообщение в течение 15 минут; администратор — в любое время.</p>
+    </aside>
   </div>
 
   <dialog id="expenseModal" class="modal">
@@ -544,6 +571,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=12" defer></script>
+  <script src="app.js?v=13" defer></script>
 </body>
 </html>

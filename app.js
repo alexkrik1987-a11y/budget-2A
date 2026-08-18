@@ -77,6 +77,11 @@ const state = {
   contributions: [],
   expenses: [],
   backups: [],
+  chatMessages: [],
+  chatReady: false,
+  chatPanelOpen: false,
+  chatRefreshTimer: null,
+  chatExpiryTimer: null,
   classProfile: { class_name: "2 «А»", school_year: "" },
   archiveFeaturesReady: false,
   selectedCampaignId: null,
@@ -192,7 +197,9 @@ function cacheDom() {
     "archiveCampaigns", "studentManagementList", "openStudentModalButton",
     "studentModal", "studentForm", "studentModalTitle", "studentId", "studentFullName", "studentSortOrder",
     "studentFormError", "saveStudentButton", "startSchoolYearForm", "nextClassName", "nextSchoolYear",
-    "schoolYearFormError", "startSchoolYearButton", "expenseCampaign"
+    "schoolYearFormError", "startSchoolYearButton", "expenseCampaign",
+    "chatToggleButton", "chatBackdrop", "classChatPanel", "closeChatButton", "chatStatus",
+    "chatMessageList", "chatForm", "chatMessageInput", "chatCharacterCount", "sendChatButton"
   ];
 
   ids.forEach((id) => { dom[id] = document.getElementById(id); });
@@ -228,6 +235,13 @@ function bindEvents() {
   dom.navButtons.forEach((button) => {
     button.addEventListener("click", () => switchView(button.dataset.view));
   });
+
+  if (dom.chatToggleButton) dom.chatToggleButton.addEventListener("click", openChatPanel);
+  if (dom.closeChatButton) dom.closeChatButton.addEventListener("click", closeChatPanel);
+  if (dom.chatBackdrop) dom.chatBackdrop.addEventListener("click", closeChatPanel);
+  if (dom.chatForm) dom.chatForm.addEventListener("submit", sendChatMessage);
+  if (dom.chatMessageInput) dom.chatMessageInput.addEventListener("input", updateChatCharacterCount);
+  if (dom.chatMessageList) dom.chatMessageList.addEventListener("click", handleChatAction);
 
   if (dom.expenseFilters) {
     dom.expenseFilters.addEventListener("click", (event) => {
@@ -344,6 +358,10 @@ async function handleSession(session) {
   if (!session) {
     state.isAdmin = false;
     state.loadedSessionUserId = null;
+    state.chatMessages = [];
+    state.chatReady = false;
+    window.clearTimeout(state.chatExpiryTimer);
+    closeChatPanel();
     setProtectedAccess(false);
     renderUser();
     return;
@@ -447,15 +465,16 @@ function applyRoleToUi() {
 async function loadAllData({ silent = false } = {}) {
   if (!silent) showNotice("Загружаем свежие данные…", "info", 0);
 
-  const [activeStudentsResult, allStudentsResult, contributionsResult, expensesResult, archiveData] = await Promise.all([
+  const [activeStudentsResult, allStudentsResult, contributionsResult, expensesResult, archiveData, chatResult] = await Promise.all([
     db.from("students").select("id, full_name, sort_order, is_active, created_at, updated_at").eq("is_active", true).order("sort_order"),
     db.from("students").select("id, full_name, sort_order, is_active, created_at, updated_at").order("is_active", { ascending: false }).order("sort_order"),
     db.from("contributions").select("id, student_id, campaign_id, amount, created_at, updated_at"),
     fetchExpenses(),
-    fetchArchiveAwareData()
+    fetchArchiveAwareData(),
+    fetchChatMessages()
   ]);
 
-  const failed = [activeStudentsResult, allStudentsResult, contributionsResult, expensesResult, archiveData].find((result) => result.error);
+  const failed = [activeStudentsResult, allStudentsResult, contributionsResult, expensesResult, archiveData, chatResult].find((result) => result.error);
   if (failed) throw failed.error;
 
   state.students = activeStudentsResult.data ?? [];
@@ -466,6 +485,8 @@ async function loadAllData({ silent = false } = {}) {
   state.archiveFeaturesReady = archiveData.ready === true;
   state.contributions = contributionsResult.data ?? [];
   state.expenses = expensesResult.data ?? [];
+  state.chatMessages = chatResult.data ?? [];
+  state.chatReady = chatResult.ready === true;
 
   if (state.isAdmin) {
     const { data: backups, error: backupsError } = await fetchBackups();
@@ -525,6 +546,23 @@ async function fetchBackups() {
   return result;
 }
 
+async function fetchChatMessages() {
+  const result = await db
+    .from("chat_messages")
+    .select("id, author_id, author_name, body, created_at")
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(120);
+
+  if (!result.error) {
+    return { data: [...(result.data ?? [])].reverse(), ready: true, error: null };
+  }
+  if (/chat_messages|does not exist|relation .* does not exist/i.test(result.error.message || "")) {
+    return { data: [], ready: false, error: null };
+  }
+  return { data: [], ready: false, error: result.error };
+}
+
 async function fetchExpenses() {
   const fields = "id, expense_date, description, category, fund, amount, receipt_url, receipt_path, campaign_id, created_at, updated_at";
   const result = await db.from("expenses").select(fields).order("expense_date", { ascending: false }).order("created_at", { ascending: false });
@@ -548,13 +586,32 @@ function subscribeRealtime() {
     .on("postgres_changes", { event: "*", schema: "public", table: "contributions" }, scheduleRealtimeRefresh)
     .on("postgres_changes", { event: "*", schema: "public", table: "expenses" }, scheduleRealtimeRefresh)
     .on("postgres_changes", { event: "*", schema: "public", table: "campaigns" }, scheduleRealtimeRefresh)
-    .on("postgres_changes", { event: "*", schema: "public", table: "students" }, scheduleRealtimeRefresh)
-    .subscribe();
+    .on("postgres_changes", { event: "*", schema: "public", table: "students" }, scheduleRealtimeRefresh);
+
+  if (state.chatReady) {
+    state.realtimeChannel.on("postgres_changes", { event: "*", schema: "public", table: "chat_messages" }, scheduleChatRefresh);
+  }
+  state.realtimeChannel.subscribe();
 }
 
 function unsubscribeRealtime() {
   if (db && state.realtimeChannel) db.removeChannel(state.realtimeChannel);
   state.realtimeChannel = null;
+}
+
+function scheduleChatRefresh() {
+  window.clearTimeout(state.chatRefreshTimer);
+  state.chatRefreshTimer = window.setTimeout(async () => {
+    try {
+      const result = await fetchChatMessages();
+      if (result.error) throw result.error;
+      state.chatMessages = result.data ?? [];
+      state.chatReady = result.ready === true;
+      renderChat();
+    } catch (error) {
+      console.error("Chat refresh error:", error);
+    }
+  }, 180);
 }
 
 function scheduleRealtimeRefresh() {
@@ -581,6 +638,7 @@ function renderAll() {
   renderCampaignSettings();
   renderArchivedCampaigns();
   renderStudentManagement();
+  renderChat();
   renderBackupList();
   renderReportMonthOptions();
   renderPrintableReport();
@@ -597,6 +655,158 @@ function renderClassProfile() {
   document.title = `Бюджет ${className} класса`;
   if (dom.nextClassName && document.activeElement !== dom.nextClassName) dom.nextClassName.value = className;
   if (dom.nextSchoolYear && document.activeElement !== dom.nextSchoolYear) dom.nextSchoolYear.value = nextSchoolYearLabel(schoolYear);
+}
+
+function renderChat() {
+  if (!dom.chatMessageList) return;
+  const chatAvailable = Boolean(state.session && state.chatReady);
+
+  if (dom.chatToggleButton) {
+    dom.chatToggleButton.disabled = !state.session;
+    dom.chatToggleButton.title = chatAvailable ? "Открыть чат класса" : "Чат будет доступен после обновления базы";
+  }
+  if (dom.chatStatus) {
+    dom.chatStatus.textContent = chatAvailable
+      ? "Сообщения видят только родители и администраторы класса."
+      : "Чат станет доступен после обновления базы данных.";
+  }
+  if (dom.chatMessageInput) dom.chatMessageInput.disabled = !chatAvailable;
+  if (dom.sendChatButton) dom.sendChatButton.disabled = !chatAvailable;
+  updateChatCharacterCount();
+
+  dom.chatMessageList.replaceChildren();
+  if (!chatAvailable) {
+    dom.chatMessageList.append(createEmptyContent("💬", "Чат пока готовится", "После обновления базы можно будет общаться прямо на сайте."));
+    syncChatPanelState();
+    return;
+  }
+  if (!state.chatMessages.length) {
+    dom.chatMessageList.append(createEmptyContent("👋", "Начните разговор", "Первое текстовое сообщение увидят все родители класса."));
+  } else {
+    state.chatMessages.forEach((message) => dom.chatMessageList.append(createChatMessageElement(message)));
+  }
+  scheduleChatDeleteExpiry();
+  syncChatPanelState();
+}
+
+function createChatMessageElement(message) {
+  const isOwn = message.author_id === state.user?.id;
+  const item = el("article", `chat-message${isOwn ? " is-own" : ""}`);
+  const header = el("div", "chat-message-header");
+  const identity = el("div", "chat-message-author");
+  identity.append(el("strong", "", isOwn ? "Вы" : message.author_name), el("time", "", formatDateTime(message.created_at)));
+  header.append(identity);
+
+  if (canDeleteChatMessage(message)) {
+    const deleteButton = el("button", "chat-delete-button", "Удалить");
+    deleteButton.type = "button";
+    deleteButton.dataset.chatAction = "delete";
+    deleteButton.dataset.id = message.id;
+    deleteButton.setAttribute("aria-label", "Удалить сообщение");
+    header.append(deleteButton);
+  }
+
+  item.append(header, el("p", "chat-message-body", message.body));
+  return item;
+}
+
+function scheduleChatDeleteExpiry() {
+  window.clearTimeout(state.chatExpiryTimer);
+  if (state.isAdmin || !state.session) return;
+  const now = Date.now();
+  const nextExpiry = state.chatMessages
+    .filter((message) => message.author_id === state.user?.id)
+    .map((message) => new Date(message.created_at).getTime() + 15 * 60 * 1000 - now)
+    .filter((remaining) => Number.isFinite(remaining) && remaining > 0)
+    .sort((a, b) => a - b)[0];
+  if (nextExpiry) {
+    state.chatExpiryTimer = window.setTimeout(renderChat, nextExpiry + 300);
+  }
+}
+
+function canDeleteChatMessage(message) {
+  if (state.isAdmin) return true;
+  if (message.author_id !== state.user?.id) return false;
+  const createdAt = new Date(message.created_at).getTime();
+  return Number.isFinite(createdAt) && createdAt >= Date.now() - 15 * 60 * 1000;
+}
+
+function syncChatPanelState() {
+  const isOpen = state.chatPanelOpen && Boolean(state.session);
+  if (dom.classChatPanel) {
+    dom.classChatPanel.classList.toggle("is-open", isOpen);
+    dom.classChatPanel.setAttribute("aria-hidden", String(!isOpen));
+  }
+  if (dom.chatBackdrop) {
+    dom.chatBackdrop.classList.toggle("hidden", !isOpen);
+    dom.chatBackdrop.setAttribute("aria-hidden", String(!isOpen));
+  }
+  if (dom.chatToggleButton) dom.chatToggleButton.setAttribute("aria-expanded", String(isOpen));
+  document.body.classList.toggle("chat-is-open", isOpen);
+
+  if (isOpen && dom.chatMessageList) {
+    window.requestAnimationFrame(() => {
+      dom.chatMessageList.scrollTop = dom.chatMessageList.scrollHeight;
+    });
+  }
+}
+
+function openChatPanel() {
+  if (!state.session) return;
+  state.chatPanelOpen = true;
+  renderChat();
+  if (state.chatReady && dom.chatMessageInput) window.setTimeout(() => dom.chatMessageInput.focus(), 120);
+}
+
+function closeChatPanel() {
+  state.chatPanelOpen = false;
+  syncChatPanelState();
+}
+
+function updateChatCharacterCount() {
+  const length = dom.chatMessageInput?.value.length ?? 0;
+  if (dom.chatCharacterCount) dom.chatCharacterCount.textContent = `${length} / 1000`;
+  if (dom.sendChatButton) dom.sendChatButton.disabled = !(state.session && state.chatReady && length > 0);
+}
+
+async function sendChatMessage(event) {
+  event.preventDefault();
+  if (!state.chatReady || !state.session || !dom.chatMessageInput) return;
+  const body = dom.chatMessageInput.value.trim();
+  if (!body) return;
+  if (body.length > 1000) return showNotice("Сообщение должно быть не длиннее 1000 символов.", "error");
+
+  setButtonLoading(dom.sendChatButton, true, "Отправляем…");
+  const { data, error } = await db.rpc("send_class_chat_message", { p_body: body });
+  setButtonLoading(dom.sendChatButton, false);
+  if (error) return showNotice(`Сообщение не отправлено: ${friendlyError(error)}`, "error");
+
+  const message = Array.isArray(data) ? data[0] : data;
+  if (message?.id) {
+    state.chatMessages = [...state.chatMessages.filter((item) => item.id !== message.id), message]
+      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  }
+  dom.chatMessageInput.value = "";
+  updateChatCharacterCount();
+  renderChat();
+}
+
+async function handleChatAction(event) {
+  const button = event.target.closest('[data-chat-action="delete"]');
+  if (!button || !state.chatReady) return;
+  const message = state.chatMessages.find((item) => item.id === button.dataset.id);
+  if (!message || !canDeleteChatMessage(message)) return;
+  if (!window.confirm("Удалить это сообщение? Восстановить его будет нельзя.")) return;
+
+  button.disabled = true;
+  const { error } = await db.rpc("delete_class_chat_message", { p_message_id: message.id });
+  if (error) {
+    button.disabled = false;
+    return showNotice(`Сообщение не удалено: ${friendlyError(error)}`, "error");
+  }
+  state.chatMessages = state.chatMessages.filter((item) => item.id !== message.id);
+  renderChat();
+  showNotice("Сообщение удалено", "info");
 }
 
 function renderArchivedCampaigns() {
