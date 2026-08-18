@@ -5,7 +5,7 @@
    ========================================================= */
 const SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
-const APP_VERSION = "v20";
+const APP_VERSION = "v21";
 
 const isSupabaseConfigured =
   SUPABASE_URL.startsWith("https://") &&
@@ -17,10 +17,9 @@ const db = isSupabaseConfigured && window.supabase
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        // Этот сайт использует браузерный implicit flow: Supabase получает
-        // access_token и refresh_token во фрагменте URL и сохраняет сессию сам.
-        detectSessionInUrl: true,
-        flowType: "implicit"
+        // Используем штатную обработку OAuth библиотеки Supabase. Она
+        // поддерживает фактический ответ провайдера и безопасно сохраняет сессию.
+        detectSessionInUrl: true
       }
     })
   : null;
@@ -163,14 +162,8 @@ async function init() {
 }
 
 async function getSessionWithSoftTimeout() {
-  const oauthError = getOAuthCallbackError();
-  if (oauthError) {
-    clearOAuthCallbackFromUrl();
-    return { timedOut: false, result: { data: { session: null }, error: new Error(`Google не завершил вход: ${oauthError}`) } };
-  }
-
-  // В implicit flow Supabase сам извлекает токены из #access_token в URL,
-  // сохраняет их и возвращает готовую сессию из getSession().
+  // Supabase сам распознаёт корректный OAuth-ответ (токены или код), сохраняет
+  // сессию и возвращает её через getSession(). Не ограничиваем формат ответа.
   const pending = db.auth.getSession();
   let timeoutId;
   const timeout = new Promise((resolve) => {
@@ -179,12 +172,6 @@ async function getSessionWithSoftTimeout() {
   const first = await Promise.race([pending, timeout]);
   window.clearTimeout(timeoutId);
   return first?.timedOut ? { timedOut: true, pending } : { timedOut: false, result: first };
-}
-
-function getOAuthCallbackError() {
-  const query = new URLSearchParams(window.location.search);
-  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-  return query.get("error_description") || query.get("error") || hash.get("error_description") || hash.get("error") || null;
 }
 
 async function finishInitialSession(result) {
@@ -2436,7 +2423,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=20", window.location.href);
+  const workerUrl = new URL("./sw.js?v=21", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
