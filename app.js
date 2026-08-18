@@ -170,13 +170,16 @@ async function getSessionWithSoftTimeout() {
 }
 
 async function finishInitialSession(result) {
+  // Код OAuth одноразовый. Удаляем его сразу после того, как Supabase получил
+  // результат входа, а не после загрузки таблиц: иначе обновление страницы во
+  // время медленного запроса пытается использовать тот же код повторно.
+  clearOAuthCallbackFromUrl();
   if (result?.error) {
     showAuthError(`Не удалось проверить авторизацию: ${friendlyError(result.error)}`);
     return;
   }
   state.authStateConfirmed = true;
   await handleSession(result?.data?.session ?? null);
-  clearOAuthCallbackFromUrl();
 }
 
 function clearOAuthCallbackFromUrl() {
@@ -398,8 +401,13 @@ async function handleSession(session) {
   setProtectedAccess(false);
 
   try {
-    const { data: canAccess, error: accessError } = await db.rpc("can_access_budget");
-    if (accessError) throw accessError;
+    const accessResult = await withTimeout(
+      () => db.rpc("can_access_budget"),
+      "проверка доступа к классу",
+      CORE_DATA_TIMEOUT_MS
+    );
+    if (accessResult.error) throw accessResult.error;
+    const canAccess = accessResult.data;
 
     if (canAccess !== true) {
       state.loadedSessionUserId = null;
@@ -419,9 +427,22 @@ async function handleSession(session) {
     setProtectedAccess(true);
     showNotice("Вход выполнен. Загружаем данные класса…", "info", 0);
 
-    const { data: isAdminData, error: adminError } = await db.rpc("is_admin");
-    if (adminError) throw adminError;
-    state.isAdmin = isAdminData === true;
+    // Роль влияет только на кнопки редактирования. Если ответ задержался,
+    // не задерживаем сам бюджет: сначала открываем режим просмотра, затем
+    // роль можно безопасно проверить повторно при следующем обновлении.
+    try {
+      const adminResult = await withTimeout(
+        () => db.rpc("is_admin"),
+        "проверка роли администратора",
+        OPTIONAL_DATA_TIMEOUT_MS
+      );
+      if (adminResult.error) throw adminResult.error;
+      state.isAdmin = adminResult.data === true;
+    } catch (adminError) {
+      console.warn("Admin role check delayed:", adminError);
+      state.isAdmin = false;
+      showNotice("Проверка роли администратора задержалась. Бюджет откроется в режиме просмотра.", "info", 7000);
+    }
   } catch (error) {
     console.error(error);
     state.isAdmin = false;
@@ -2395,7 +2416,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=16", window.location.href);
+  const workerUrl = new URL("./sw.js?v=17", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
