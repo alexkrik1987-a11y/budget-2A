@@ -32,7 +32,7 @@
     #protectedContent { display: none; }
     #protectedContent.is-authenticated { display: block; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=17">
+  <link rel="stylesheet" href="styles.css?v=18">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -55,40 +55,49 @@
       <div class="notebook-doodle doodle-splatter-right" aria-hidden="true">✦</div>
       <div class="notebook-doodle doodle-compass" aria-hidden="true">⌁</div>
       <div class="notebook-doodle doodle-pencil" aria-hidden="true">✎</div>
-      <div class="notebook-header"><span aria-hidden="true">🌍</span><strong>БЮДЖЕТ 2 «А» КЛАССА</strong></div>
+      <header class="notebook-topbar">
+        <div class="notebook-header"><img class="topbar-emblem" src="icons/class-2a.svg" alt=""><strong>БЮДЖЕТ <span>2 «А»</span> КЛАССА</strong></div>
+        <p class="topbar-copy">Взносы и чеки — прозрачно для родителей</p>
+      </header>
       <p class="notebook-note note-money">Где деньги, Зин?<br><b>А + Б = ♥</b></p>
-      <p class="notebook-note note-calm">Тихо!<br>Не паниксь!</p>
-      <img class="auth-emblem" src="icons/class-2a.svg" alt="Эмблема 2 А класса">
-      <h1 id="authTitle">Бюджет нашего класса</h1>
-      <p>Взносы, расходы и чеки — понятно и всегда под рукой.</p>
-      <figure class="auth-illustration clean-parent-art">
-        <picture>
-          <source srcset="images/parents-piggybank-illustration.webp?v=1" type="image/webp">
-          <img src="images/parents-piggybank-illustration.png?v=2" alt="Родительский комитет с котом-казначеем обсуждает бюджет за столом с копилкой" width="1600" height="1067" decoding="async">
-        </picture>
-      </figure>
-      <form id="emailPasswordForm" class="email-password-form" novalidate>
-        <label for="emailPasswordEmailInput">Вход по почте и паролю</label>
-        <input id="emailPasswordEmailInput" type="email" inputmode="email" autocomplete="email" placeholder="Ваша почта" required>
-        <input id="emailPasswordInput" type="password" autocomplete="current-password" minlength="6" placeholder="Пароль" required>
-        <button id="emailPasswordLoginButton" class="button button-primary" type="submit">Войти</button>
-      </form>
-      <button id="requestPasswordSetupButton" class="auth-link-button" type="button">Первый вход или забыли пароль? Задать пароль по ссылке из письма</button>
-      <p id="emailPasswordStatus" class="auth-note hidden" aria-live="polite"></p>
-      <form id="passwordResetForm" class="email-password-form hidden" novalidate>
-        <label for="newPasswordInput">Придумайте постоянный пароль</label>
-        <input id="newPasswordInput" type="password" autocomplete="new-password" minlength="6" placeholder="Не менее 6 символов" required>
-        <input id="confirmPasswordInput" type="password" autocomplete="new-password" minlength="6" placeholder="Повторите пароль" required>
-        <button id="saveNewPasswordButton" class="button button-primary" type="submit">Сохранить пароль</button>
-      </form>
-      <div class="auth-divider" aria-hidden="true"><span>или</span></div>
-      <button id="googleLoginButton" class="button button-google" type="button">
-        <span aria-hidden="true">G</span> Войти через Google
-      </button>
+      <p class="notebook-note note-calm">Тихо!<br>Не пались!</p>
+      <div class="login-showcase">
+        <div class="login-title-block">
+          <img class="auth-emblem" src="icons/class-2a.svg" alt="Эмблема 2 А класса">
+          <h1 id="authTitle">Бюджет нашего класса</h1>
+          <p>Взносы, расходы и чеки — понятно и всегда под рукой.</p>
+        </div>
+        <figure class="auth-illustration clean-parent-art">
+          <picture>
+            <source srcset="images/parents-piggybank-illustration.webp?v=1" type="image/webp">
+            <img src="images/parents-piggybank-illustration.png?v=2" alt="Родительский комитет с котом-казначеем обсуждает бюджет за столом с копилкой" width="1600" height="1067" decoding="async">
+          </picture>
+        </figure>
+      </div>
+      <section class="login-panel" aria-label="Вход в бюджет класса">
+        <form id="emailPasswordForm" class="email-password-form" novalidate>
+          <label for="emailPasswordEmailInput">Вход по почте и паролю</label>
+          <input id="emailPasswordEmailInput" type="email" inputmode="email" autocomplete="email" placeholder="Ваша почта" required>
+          <input id="emailPasswordInput" type="password" autocomplete="current-password" minlength="6" placeholder="Пароль" required>
+          <button id="emailPasswordLoginButton" class="button button-primary" type="submit">Войти</button>
+        </form>
+        <button id="requestPasswordSetupButton" class="auth-link-button" type="button">Первый вход или забыли пароль?<br>Задать пароль по ссылке из письма</button>
+        <p id="emailPasswordStatus" class="auth-note hidden" aria-live="polite"></p>
+        <form id="passwordResetForm" class="email-password-form hidden" novalidate>
+          <label for="newPasswordInput">Придумайте постоянный пароль</label>
+          <input id="newPasswordInput" type="password" autocomplete="new-password" minlength="6" placeholder="Не менее 6 символов" required>
+          <input id="confirmPasswordInput" type="password" autocomplete="new-password" minlength="6" placeholder="Повторите пароль" required>
+          <button id="saveNewPasswordButton" class="button button-primary" type="submit">Сохранить пароль</button>
+        </form>
+        <div class="auth-divider" aria-hidden="true"><span>или</span></div>
+        <button id="googleLoginButton" class="button button-google" type="button">
+          <span aria-hidden="true">G</span> Войти через Google
+        </button>
+        <div id="configWarning" class="notice notice-warning hidden" role="alert"></div>
+        <div id="authError" class="notice notice-error hidden" role="alert"></div>
+      </section>
       <p class="auth-load-note"><span aria-hidden="true">⏳</span> Первый вход может занять немного больше времени — проверяем доступ к классу.</p>
-      <p class="auth-note">Для первого пароля введите свою почту и нажмите ссылку ниже. Если приём заявок открыт, администратор сможет подтвердить ваш доступ.</p>
-      <div id="configWarning" class="notice notice-warning hidden" role="alert"></div>
-      <div id="authError" class="notice notice-error hidden" role="alert"></div>
+      <p class="auth-note login-footnote">Для первого пароля введите свою почту и нажмите ссылку выше. Если приём заявок открыт, администратор сможет подтвердить ваш доступ.</p>
     </section>
   </main>
 
@@ -622,6 +631,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=30" defer></script>
+  <script src="app.js?v=31" defer></script>
 </body>
 </html>

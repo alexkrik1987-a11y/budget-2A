@@ -381,74 +381,91 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 .auth-emblem { display: inline-block; width: 118px; height: 118px; filter: drop-shadow(0 8px 0 rgba(0, 0, 0, .16)); transform: rotate(-3deg); }
 .chalk-doodle { position: absolute; top: 20px; right: 25px; color: #ffe783; font-weight: 900; transform: rotate(4deg); }
 
-/* Светлый тетрадный вход: адаптация предоставленного референса. */
-.auth-screen:has(.notebook-login) { position: relative; padding: 20px; background: #fffdf5; }
+/* Светлый тетрадный вход: широкая композиция с отдельной карточкой авторизации. */
+.auth-screen:has(.notebook-login) { position: relative; padding: clamp(14px, 2vw, 32px); background: #f8f5ec; }
 .notebook-login {
   isolation: isolate;
-  width: min(100%, 650px);
-  padding: 32px clamp(22px, 5vw, 48px) 30px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(292px, 348px);
+  grid-template-areas:
+    "top top"
+    "showcase panel"
+    "notice notice";
+  gap: 0 clamp(28px, 5.5vw, 74px);
+  width: min(100%, 1280px);
+  padding: 20px clamp(24px, 4vw, 52px) 28px;
   color: #172737;
-  background-color: #fffdf5;
+  background-color: #fffdf6;
   background-image:
-    linear-gradient(rgba(72, 151, 188, .19) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(72, 151, 188, .19) 1px, transparent 1px),
-    linear-gradient(90deg, transparent 0 9%, rgba(213, 75, 79, .36) 9% calc(9% + 2px), transparent calc(9% + 2px));
-  background-size: 24px 24px, 24px 24px, 100% 100%;
-  border: 2px solid rgba(43, 67, 90, .22);
-  border-radius: 4px;
-  box-shadow: 0 18px 44px rgba(28, 47, 65, .16);
+    linear-gradient(rgba(72, 151, 188, .16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(72, 151, 188, .16) 1px, transparent 1px),
+    linear-gradient(90deg, transparent 0 7%, rgba(213, 75, 79, .33) 7% calc(7% + 2px), transparent calc(7% + 2px));
+  background-size: 27px 27px, 27px 27px, 100% 100%;
+  border: 2px solid rgba(43, 67, 90, .2);
+  border-radius: 18px;
+  box-shadow: 0 18px 44px rgba(28, 47, 65, .14);
   transform: none;
 }
 .notebook-login::after { display: none; }
 .notebook-login > * { position: relative; z-index: 1; }
-.notebook-header { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 0 13px; color: #172737; font-size: clamp(.98rem, 3vw, 1.35rem); letter-spacing: .04em; }
-.notebook-header span { font-size: 1.45em; filter: saturate(.85); }
-.notebook-login .auth-emblem { width: 88px; height: 88px; margin-top: 4px; filter: drop-shadow(0 5px 0 rgba(26, 52, 70, .16)); transform: rotate(-2deg); }
-.notebook-login h1 { margin: 9px 0 3px; color: #0d1925; font-size: clamp(2rem, 6vw, 3rem); font-weight: 950; letter-spacing: -.025em; }
-.notebook-login > p:not(.notebook-note):not(.auth-note):not(.auth-load-note) { margin: 0 0 18px; color: #344a5a; font-size: .88rem; }
-.notebook-login .auth-illustration { margin-bottom: 18px; border: 3px solid #293d4e; border-radius: 5px; box-shadow: 4px 5px 0 rgba(41, 61, 78, .36); transform: rotate(-.3deg); }
-.notebook-login .auth-illustration figcaption { color: #182a38; background: #fff3bd; }
-/* Чистая центральная иллюстрация: настоящий вход расположен только ниже неё. */
-.notebook-login .clean-parent-art { max-width: 560px; margin: 17px auto 20px; overflow: hidden; border: 3px solid #293d4e; border-radius: 8px; box-shadow: 5px 6px 0 rgba(41, 61, 78, .28); transform: rotate(-.25deg); }
+.notebook-topbar { grid-area: top; display: flex; align-items: center; justify-content: space-between; min-height: 70px; padding: 0 4px 14px; border-bottom: 1px solid rgba(31, 49, 68, .11); }
+.notebook-header { display: flex; align-items: center; justify-content: flex-start; gap: 12px; margin: 0; color: #172737; font-size: clamp(.95rem, 2vw, 1.25rem); letter-spacing: .025em; }
+.notebook-header span { color: #4c9859; }
+.topbar-emblem { width: 45px; height: 45px; filter: drop-shadow(0 3px 0 rgba(26, 52, 70, .14)); }
+.topbar-copy { margin: 0; color: #526777; font-size: .78rem; font-weight: 800; }
+.login-showcase { grid-area: showcase; display: flex; flex-direction: column; align-items: center; min-width: 0; padding: clamp(28px, 4vw, 55px) clamp(14px, 2.5vw, 30px) 12px max(27px, 4.5vw); text-align: center; }
+.login-title-block { max-width: 710px; }
+.notebook-login .auth-emblem { width: 86px; height: 86px; margin: 0; filter: drop-shadow(0 5px 0 rgba(26, 52, 70, .16)); transform: rotate(-2deg); }
+.notebook-login h1 { margin: 10px 0 4px; color: #0d1925; font-size: clamp(2.25rem, 4.4vw, 4rem); font-weight: 950; letter-spacing: -.045em; line-height: 1.02; }
+.login-title-block > p { margin: 0; color: #344a5a; font-size: clamp(.88rem, 1.4vw, 1rem); }
+.notebook-login .auth-illustration { margin: clamp(20px, 3vw, 32px) auto 0; }
+.notebook-login .clean-parent-art { width: min(100%, 660px); overflow: hidden; border: 3px solid #293d4e; border-radius: 10px; box-shadow: 7px 8px 0 rgba(41, 61, 78, .26); transform: rotate(-.25deg); }
+.notebook-login .clean-parent-art picture,
 .notebook-login .clean-parent-art img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; }
-.notebook-login .auth-load-note { color: #42586a; background: transparent; border: 1px dashed rgba(38, 63, 82, .36); box-shadow: none; }
-.notebook-login .auth-load-note span { color: #637b8f; }
-.notebook-login .email-password-form { gap: 8px; max-width: 440px; margin: 0 auto 9px; text-align: left; }
-.notebook-login .email-password-form label { color: #172737; font-size: .83rem; }
-.notebook-login .email-password-form input { min-height: 40px; padding: 8px 11px; background: rgba(255, 255, 255, .88); border: 2px solid #263f52; border-radius: 5px; box-shadow: inset 0 1px 0 rgba(0,0,0,.04); }
-.notebook-login .email-password-form .button { width: 138px; min-height: 40px; justify-self: center; padding: 8px 16px; color: #162b22; background: #bad588; border-color: #638549; box-shadow: 0 4px 0 #638549; }
-.notebook-login .auth-link-button { display: block; max-width: 440px; margin: 0 auto; color: #263f52; font-size: .76rem; text-align: center; }
-.notebook-login .auth-divider { margin: 13px auto 11px; max-width: 440px; color: #526777; }
-.notebook-login .auth-divider::before, .notebook-login .auth-divider::after { background: rgba(38, 63, 82, .28); }
-.notebook-login .button-google { max-width: 440px; min-height: 43px; color: #1c3443; background: linear-gradient(100deg, #cce8ef, #f8dfec 54%, #f5dfa7); border-color: #456174; box-shadow: 0 4px 0 rgba(40, 65, 83, .28); }
-.notebook-login .auth-load-note { max-width: 440px; margin: 16px auto 0; color: #263f52; background: rgba(255, 253, 245, .77); border-color: rgba(38, 63, 82, .42); }
+.login-panel { grid-area: panel; align-self: center; width: 100%; padding: 27px 24px 25px; background: rgba(255, 255, 255, .95); border: 1px solid rgba(35, 57, 76, .17); border-radius: 16px; box-shadow: 0 14px 28px rgba(27, 49, 68, .16); }
+.notebook-login .email-password-form { display: grid; gap: 10px; margin: 0 0 10px; text-align: left; }
+.notebook-login .email-password-form label { color: #172737; font-size: .92rem; font-weight: 950; }
+.notebook-login .email-password-form input { width: 100%; min-height: 47px; padding: 10px 12px; color: #172737; background: #fff; border: 1px solid #cbd4dc; border-radius: 9px; box-shadow: inset 0 1px 0 rgba(0,0,0,.03); }
+.notebook-login .email-password-form .button { width: 100%; min-height: 46px; margin-top: 4px; padding: 10px 16px; color: #fff; background: linear-gradient(105deg, #4f994c, #70b959); border-color: #4f8c47; border-radius: 8px; box-shadow: 0 3px 0 #3d7639; }
+.notebook-login .auth-link-button { display: block; width: 100%; margin: 2px auto 0; color: #2160ad; font-size: .78rem; font-weight: 800; line-height: 1.45; text-align: center; text-decoration: underline; }
+.notebook-login .auth-divider { margin: 16px auto 13px; color: #6a7c8b; font-size: .78rem; }
+.notebook-login .auth-divider::before, .notebook-login .auth-divider::after { background: rgba(38, 63, 82, .2); }
+.notebook-login .button-google { width: 100%; min-height: 46px; color: #1c3443; background: #fff; border-color: #8ea0af; border-radius: 8px; box-shadow: none; }
+.notebook-login .auth-load-note { grid-area: notice; width: min(100%, 680px); margin: 22px 0 0; padding: 13px 16px; color: #263f52; background: rgba(255, 248, 218, .74); border: 1px dashed rgba(184, 138, 44, .45); border-radius: 8px; box-shadow: none; }
 .notebook-login .auth-load-note span { color: #bd7f1d; }
-.notebook-login .auth-note { max-width: 440px; margin: 11px auto 0; color: #344a5a; }
-.notebook-login .notice { max-width: 440px; margin-right: auto; margin-left: auto; }
-.notebook-note { position: absolute !important; z-index: 2 !important; margin: 0 !important; color: #1e2b39 !important; font-family: "Comic Sans MS", "Bradley Hand", cursive; font-size: clamp(.68rem, 2vw, .93rem) !important; font-weight: 800; line-height: 1.12; transform: rotate(-7deg); }
-.note-money { top: 56px; right: 18px; text-align: right; }
-.note-calm { top: 120px; right: 20px; transform: rotate(7deg); }
-.notebook-doodle { position: absolute; z-index: 0; color: #37337d; font-family: "Comic Sans MS", cursive; font-weight: 900; pointer-events: none; opacity: .86; }
-.doodle-plane { top: 25px; left: 22px; font-size: 2.7rem; transform: rotate(-22deg); }
-.doodle-splatter-left { top: 315px; left: 18px; color: #42236f; font-size: 2.8rem; }
-.doodle-splatter-right { top: 276px; right: 18px; color: #42236f; font-size: 3.2rem; }
-.doodle-compass { right: 24px; bottom: 168px; color: #273d68; font-size: 3rem; transform: rotate(-20deg); }
-.doodle-pencil { right: 14px; bottom: 68px; color: #b76e2a; font-size: 3.3rem; transform: rotate(-26deg); }
+.notebook-login .auth-note { margin: 11px 0 0; color: #465b6a; font-size: .78rem; text-align: center; }
+.notebook-login .login-footnote { display: none; }
+.notebook-login .notice { margin-top: 13px; }
+.notebook-note { position: absolute !important; z-index: 2 !important; margin: 0 !important; padding: 9px 13px 8px !important; color: #1e2b39 !important; background: rgba(255, 254, 246, .96); border: 1px solid rgba(38, 63, 82, .12); border-radius: 3px; box-shadow: 2px 4px 7px rgba(31, 46, 62, .16); font-family: "Comic Sans MS", "Bradley Hand", cursive; font-size: clamp(.68rem, 1.3vw, .9rem) !important; font-weight: 800; line-height: 1.12; transform: rotate(-7deg); }
+.notebook-note::before { position: absolute; top: -7px; left: 50%; width: 13px; height: 13px; content: ""; background: #df4d3b; border: 1px solid rgba(93, 33, 28, .26); border-radius: 50%; box-shadow: 0 2px 2px rgba(40, 38, 31, .22); transform: translateX(-50%); }
+.note-money { top: 25px; right: 29px; text-align: right; }
+.note-calm { top: 88px; right: 42px; transform: rotate(7deg); }
+.note-calm::before { background: #267ab2; }
+.notebook-doodle { position: absolute; z-index: 0; color: #37337d; font-family: "Comic Sans MS", cursive; font-weight: 900; pointer-events: none; opacity: .82; }
+.doodle-plane { top: 120px; left: 38px; font-size: 3.3rem; transform: rotate(-22deg); }
+.doodle-splatter-left { top: 335px; left: 29px; color: #42236f; font-size: 2.8rem; }
+.doodle-splatter-right { top: 300px; right: 27px; color: #42236f; font-size: 3.2rem; }
+.doodle-compass { right: 32px; bottom: 108px; color: #273d68; font-size: 3rem; transform: rotate(-20deg); }
+.doodle-pencil { left: 40px; bottom: 74px; color: #b76e2a; font-size: 3.3rem; transform: rotate(-26deg); }
 
-@media (max-width: 560px) {
+@media (max-width: 760px) {
   .auth-screen:has(.notebook-login) { padding: 0; place-items: start center; }
-  .notebook-login { min-height: 100dvh; padding: 18px 18px 30px; border-width: 0; box-shadow: none; }
-  .notebook-header { padding: 0 34px; font-size: .88rem; }
+  .notebook-login { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "showcase" "panel" "notice"; min-height: 100dvh; padding: 16px 18px 28px; border-width: 0; border-radius: 0; box-shadow: none; }
+  .notebook-topbar { min-height: 52px; padding-bottom: 10px; }
+  .notebook-header { gap: 8px; font-size: .85rem; }
+  .topbar-emblem { width: 37px; height: 37px; }
+  .topbar-copy { display: none; }
+  .login-showcase { padding: 24px 6px 19px 10px; }
   .notebook-login .auth-emblem { width: 74px; height: 74px; }
-  .notebook-login h1 { font-size: clamp(1.85rem, 8vw, 2.45rem); }
-  .notebook-login .clean-parent-art { width: 100%; margin: 14px auto 19px; border-width: 2px; border-radius: 6px; box-shadow: 3px 4px 0 rgba(41, 61, 78, .23); }
-  .notebook-login .email-password-form { max-width: none; }
+  .notebook-login h1 { font-size: clamp(2rem, 9vw, 2.7rem); }
+  .notebook-login .clean-parent-art { width: 100%; margin-top: 19px; border-width: 2px; border-radius: 7px; box-shadow: 3px 4px 0 rgba(41, 61, 78, .23); }
+  .login-panel { max-width: 520px; padding: 22px 18px 20px; }
   .notebook-login .email-password-form input,
   .notebook-login .email-password-form .button,
-  .notebook-login .button-google { width: 100%; min-height: 49px; }
-  .notebook-login .email-password-form .button { justify-self: stretch; }
+  .notebook-login .button-google { min-height: 49px; }
+  .notebook-login .auth-load-note { width: 100%; margin-top: 17px; font-size: .78rem; }
   .notebook-note, .notebook-doodle:not(.doodle-plane) { display: none; }
-  .doodle-plane { top: 15px; left: 13px; font-size: 1.8rem; opacity: .72; }
+  .doodle-plane { top: 77px; left: 13px; font-size: 1.9rem; opacity: .72; }
 }
 
 /* =========================================================
