@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "v35";
+const APP_VERSION = "v36";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
 
@@ -115,7 +115,8 @@ const state = {
   loadedSessionUserId: null,
   loadedSessionRunId: 0,
   loadRunId: 0,
-  sessionRunId: 0
+  sessionRunId: 0,
+  handledSessionIdentity: null
 };
 
 const dom = {};
@@ -598,7 +599,30 @@ async function logout() {
   if (error) showNotice(`Не удалось выйти: ${error.message}`, "error");
 }
 
-async function queueSessionHandling(session) {
+function sessionIdentity(session) {
+  // Для интерфейса важен именно пользователь, а не служебные повторные
+  // события той же сессии. Выход переводит ключ в «гость», поэтому новый
+  // вход даже под тем же аккаунтом будет обработан заново.
+  return session?.user?.id || "guest";
+}
+
+function queueSessionHandling(session) {
+  const identity = sessionIdentity(session);
+
+  // getSession(), INITIAL_SESSION и SIGNED_IN могут сообщить одну и ту же
+  // авторизацию. Не запускаем заново проверку прав и полную загрузку бюджета,
+  // если пользователь не изменился. Это исключает мерцание и нулевые суммы
+  // при обновлении страницы и после повторного входа.
+  if (identity === state.handledSessionIdentity) {
+    if (session?.user) {
+      state.session = session;
+      state.user = session.user;
+      renderUser();
+    }
+    return Promise.resolve();
+  }
+
+  state.handledSessionIdentity = identity;
   const runId = ++state.sessionRunId;
   return handleSession(session, runId);
 }
