@@ -521,13 +521,14 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
   .monitor-showcase .auth-emblem { width: 74px; height: 74px; }
   .monitor-showcase h1 { font-size: clamp(2rem, 9vw, 2.65rem); }
   .monitor-assembly { min-width: 0; max-width: 520px; width: 100%; margin-inline: auto; filter: none; }
-  .monitor-shell { padding: 7px; background: #28323c; border-width: 3px; border-radius: 15px; }
-  .monitor-screen { min-height: 0; padding: 20px 16px 18px; border-radius: 9px; }
+  .monitor-shell { padding: 0; background: rgba(255, 255, 255, .90); border: 1px solid #dce4ea; border-radius: 18px; box-shadow: 0 8px 20px rgba(38, 62, 79, .14); }
+  .monitor-screen { min-height: 0; padding: clamp(16px, 5vw, 24px); background-color: rgba(255, 255, 255, .94); background-image: none; border: 0; border-radius: 17px; }
   .monitor-showcase .login-panel { width: 100%; }
   .monitor-showcase .email-password-form .button { width: 100%; justify-self: stretch; }
+  .monitor-showcase .auth-input-shell input, .monitor-showcase .email-password-form .button, .monitor-showcase .google-id-login, .monitor-showcase .auth-request-access { min-height: 50px; }
   .monitor-neck, .monitor-base { display: none; }
   .note-masha { display: none !important; }
-  .mobile-masha-note { display: block; margin: -2px 0 0; color: #3f3b8e; font-family: "Comic Sans MS", "Bradley Hand", cursive; font-size: 1rem; font-weight: 900; text-align: center; transform: rotate(-2deg); }
+  .monitor-showcase > .mobile-masha-note { display: block !important; position: relative; z-index: 5; width: max-content; min-height: 1.2em; max-width: calc(100% - 22px); margin: 14px auto 2px; padding: 6px 12px; color: #3f3b8e; font-family: "Comic Sans MS", "Bradley Hand", cursive; font-size: 1rem; font-weight: 900; line-height: 1.2; text-align: center; background: rgba(255, 254, 246, .96); border: 1px solid rgba(81, 77, 145, .25); border-radius: 7px; box-shadow: 0 3px 7px rgba(35, 46, 65, .12); transform: rotate(-2deg); }
   .monitor-showcase .auth-link-button { font-size: .82rem; }
   .notebook-login .auth-load-note { margin-top: 15px; }
 }
