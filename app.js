@@ -5,7 +5,7 @@
    ========================================================= */
 const SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
-const APP_VERSION = "v31";
+const APP_VERSION = "v32";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
 
@@ -367,6 +367,8 @@ function validEmail(value) {
   return /^\S+@\S+\.\S+$/.test(value);
 }
 
+const AUTH_REQUEST_TIMEOUT_MS = 15_000;
+
 async function loginWithEmailPassword(event) {
   event.preventDefault();
   if (!db) return showConfigWarning();
@@ -380,8 +382,21 @@ async function loginWithEmailPassword(event) {
 
   hideElement(dom.authError);
   if (dom.emailPasswordLoginButton) setButtonLoading(dom.emailPasswordLoginButton, true, "Входим…");
-  const { data, error } = await db.auth.signInWithPassword({ email, password });
-  if (dom.emailPasswordLoginButton) setButtonLoading(dom.emailPasswordLoginButton, false);
+
+  let data;
+  let error;
+  try {
+    ({ data, error } = await withTimeout(
+      () => db.auth.signInWithPassword({ email, password }),
+      "вход по почте и паролю",
+      AUTH_REQUEST_TIMEOUT_MS
+    ));
+  } catch (requestError) {
+    showAuthError("Сервер входа не ответил за 15 секунд. Обновите страницу и попробуйте ещё раз.");
+    return;
+  } finally {
+    if (dom.emailPasswordLoginButton) setButtonLoading(dom.emailPasswordLoginButton, false);
+  }
 
   if (error || !data?.session) {
     showAuthError("Не удалось войти. Проверьте почту и пароль или задайте пароль по ссылке из письма.");
@@ -404,8 +419,20 @@ async function requestPasswordSetup() {
 
   hideElement(dom.authError);
   if (dom.requestPasswordSetupButton) setButtonLoading(dom.requestPasswordSetupButton, true, "Отправляем…");
-  const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo: getPasswordResetUrl() });
-  if (dom.requestPasswordSetupButton) setButtonLoading(dom.requestPasswordSetupButton, false);
+
+  let error;
+  try {
+    ({ error } = await withTimeout(
+      () => db.auth.resetPasswordForEmail(email, { redirectTo: getPasswordResetUrl() }),
+      "отправка письма для пароля",
+      AUTH_REQUEST_TIMEOUT_MS
+    ));
+  } catch (requestError) {
+    showAuthError("Сервер не ответил за 15 секунд. Обновите страницу и попробуйте отправить письмо ещё раз.");
+    return;
+  } finally {
+    if (dom.requestPasswordSetupButton) setButtonLoading(dom.requestPasswordSetupButton, false);
+  }
 
   if (error) {
     showAuthError("Не удалось отправить письмо. Попробуйте позже или воспользуйтесь входом через Google.");
@@ -447,8 +474,20 @@ async function savePasswordReset(event) {
 
   hideElement(dom.authError);
   if (dom.saveNewPasswordButton) setButtonLoading(dom.saveNewPasswordButton, true, "Сохраняем…");
-  const { error } = await db.auth.updateUser({ password });
-  if (dom.saveNewPasswordButton) setButtonLoading(dom.saveNewPasswordButton, false);
+
+  let error;
+  try {
+    ({ error } = await withTimeout(
+      () => db.auth.updateUser({ password }),
+      "сохранение пароля",
+      AUTH_REQUEST_TIMEOUT_MS
+    ));
+  } catch (requestError) {
+    showAuthError("Сервер не ответил за 15 секунд. Откройте новую ссылку из письма и попробуйте ещё раз.");
+    return;
+  } finally {
+    if (dom.saveNewPasswordButton) setButtonLoading(dom.saveNewPasswordButton, false);
+  }
 
   if (error) {
     showAuthError("Не удалось сохранить пароль. Откройте новую ссылку из письма и попробуйте ещё раз.");
@@ -2568,7 +2607,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=31", window.location.href);
+  const workerUrl = new URL("./sw.js?v=32", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
