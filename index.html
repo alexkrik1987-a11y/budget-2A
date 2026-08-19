@@ -49,7 +49,7 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=24">
+  <link rel="stylesheet" href="styles.css?v=25">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -82,48 +82,51 @@
       <p class="notebook-note note-soda">soda + mentos = ?</p>
       <p class="notebook-note note-zone">ЗАПРЕТНАЯ<br>зона!</p>
       <p class="notebook-note note-masha">Маша + Паша = ?</p>
-      <div class="login-showcase">
+      <div class="login-showcase monitor-showcase">
         <div class="login-title-block">
           <img class="auth-emblem" src="icons/class-2a.svg" alt="Эмблема 2 А класса">
           <h1 id="authTitle">Бюджет нашего класса</h1>
           <p>Взносы, расходы и чеки — понятно и всегда под рукой.</p>
         </div>
-        <figure class="auth-illustration clean-parent-art">
-          <picture>
-            <source srcset="images/parents-piggybank-illustration.webp?v=1" type="image/webp">
-            <img src="images/parents-piggybank-illustration.png?v=2" alt="Родительский комитет с котом-казначеем обсуждает бюджет за столом с копилкой" width="1600" height="1067" decoding="async">
-          </picture>
-        </figure>
+        <div class="monitor-assembly" aria-label="Экран входа в бюджет класса">
+          <div class="monitor-shell">
+            <div class="monitor-screen">
+              <section class="login-panel" aria-label="Вход в бюджет класса">
+                <form id="emailPasswordForm" class="email-password-form" novalidate>
+                  <label for="emailPasswordEmailInput">Вход по почте и паролю</label>
+                  <div class="auth-input-shell">
+                    <span class="auth-input-icon" aria-hidden="true">✉</span>
+                    <input id="emailPasswordEmailInput" type="email" inputmode="email" autocomplete="email" placeholder="Ваша почта" required>
+                  </div>
+                  <div class="auth-input-shell">
+                    <span class="auth-input-icon" aria-hidden="true">🔒</span>
+                    <input id="emailPasswordInput" type="password" autocomplete="current-password" minlength="6" placeholder="Пароль" required>
+                    <button id="togglePasswordVisibility" class="auth-password-toggle" type="button" aria-label="Показать пароль" aria-pressed="false">◉</button>
+                  </div>
+                  <label class="auth-remember"><input id="rememberSessionInput" type="checkbox" checked><span>Запомнить меня на этом устройстве</span></label>
+                  <button id="emailPasswordLoginButton" class="button button-primary" type="submit">Войти</button>
+                  <p class="mobile-masha-note">Маша + Паша = ?</p>
+                </form>
+                <button id="requestPasswordSetupButton" class="auth-link-button" type="button">Первый вход или забыли пароль?<br>Задать пароль по ссылке из письма</button>
+                <p id="emailPasswordStatus" class="auth-note hidden" aria-live="polite"></p>
+                <form id="passwordResetForm" class="email-password-form hidden" novalidate>
+                  <label for="newPasswordInput">Придумайте постоянный пароль</label>
+                  <input id="newPasswordInput" type="password" autocomplete="new-password" minlength="6" placeholder="Не менее 6 символов" required>
+                  <input id="confirmPasswordInput" type="password" autocomplete="new-password" minlength="6" placeholder="Повторите пароль" required>
+                  <button id="saveNewPasswordButton" class="button button-primary" type="submit">Сохранить пароль</button>
+                </form>
+                <div class="auth-divider" aria-hidden="true"><span>или</span></div>
+                <div id="googleLoginButton" class="google-id-login" aria-label="Войти через Google"></div>
+                <button id="authRequestAccessButton" class="auth-request-access" type="button">Войти или подать заявку</button>
+                <div id="configWarning" class="notice notice-warning hidden" role="alert"></div>
+                <div id="authError" class="notice notice-error hidden" role="alert"></div>
+              </section>
+            </div>
+          </div>
+          <span class="monitor-neck" aria-hidden="true"></span>
+          <span class="monitor-base" aria-hidden="true"></span>
+        </div>
       </div>
-      <section class="login-panel" aria-label="Вход в бюджет класса">
-        <form id="emailPasswordForm" class="email-password-form" novalidate>
-          <label for="emailPasswordEmailInput">Вход по почте и паролю</label>
-          <div class="auth-input-shell">
-            <span class="auth-input-icon" aria-hidden="true">✉</span>
-            <input id="emailPasswordEmailInput" type="email" inputmode="email" autocomplete="email" placeholder="Ваша почта" required>
-          </div>
-          <div class="auth-input-shell">
-            <span class="auth-input-icon" aria-hidden="true">🔒</span>
-            <input id="emailPasswordInput" type="password" autocomplete="current-password" minlength="6" placeholder="Пароль" required>
-            <button id="togglePasswordVisibility" class="auth-password-toggle" type="button" aria-label="Показать пароль" aria-pressed="false">◉</button>
-          </div>
-          <label class="auth-remember"><input id="rememberSessionInput" type="checkbox" checked><span>Запомнить меня на этом устройстве</span></label>
-          <button id="emailPasswordLoginButton" class="button button-primary" type="submit">Войти</button>
-        </form>
-        <button id="requestPasswordSetupButton" class="auth-link-button" type="button">Первый вход или забыли пароль?<br>Задать пароль по ссылке из письма</button>
-        <p id="emailPasswordStatus" class="auth-note hidden" aria-live="polite"></p>
-        <form id="passwordResetForm" class="email-password-form hidden" novalidate>
-          <label for="newPasswordInput">Придумайте постоянный пароль</label>
-          <input id="newPasswordInput" type="password" autocomplete="new-password" minlength="6" placeholder="Не менее 6 символов" required>
-          <input id="confirmPasswordInput" type="password" autocomplete="new-password" minlength="6" placeholder="Повторите пароль" required>
-          <button id="saveNewPasswordButton" class="button button-primary" type="submit">Сохранить пароль</button>
-        </form>
-        <div class="auth-divider" aria-hidden="true"><span>или</span></div>
-        <div id="googleLoginButton" class="google-id-login" aria-label="Войти через Google"></div>
-        <button id="authRequestAccessButton" class="auth-request-access" type="button">Войти или подать заявку</button>
-        <div id="configWarning" class="notice notice-warning hidden" role="alert"></div>
-        <div id="authError" class="notice notice-error hidden" role="alert"></div>
-      </section>
       <p class="auth-load-note"><span aria-hidden="true">⏳</span> Первый вход может занять немного больше времени — проверяем доступ к классу.</p>
       <p class="auth-note login-footnote">Почта и пароль — для уже зарегистрированных пользователей. Новый родитель: при открытом приёме заявок войдите через Google, и заявка сразу появится у администратора.</p>
     </section>
@@ -688,6 +691,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=43" defer></script>
+  <script src="app.js?v=44" defer></script>
 </body>
 </html>

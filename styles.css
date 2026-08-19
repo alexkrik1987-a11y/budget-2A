@@ -489,6 +489,50 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 }
 
 /* =========================================================
+   ВХОД V44: ЖИВОЙ ЭКРАН-МОНИТОР
+   ========================================================= */
+.notebook-login { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "showcase" "notice"; min-height: min(100dvh, 1040px); }
+.monitor-showcase { display: flex; grid-area: showcase; align-items: center; justify-content: center; width: 100%; padding: clamp(26px, 4vw, 48px) clamp(10px, 3vw, 36px) 5px; flex-direction: column; }
+.monitor-showcase .login-title-block { max-width: 720px; padding: 0 16px 22px; text-align: center; }
+.monitor-showcase .auth-emblem { width: clamp(80px, 9vw, 122px); height: clamp(80px, 9vw, 122px); }
+.monitor-showcase h1 { font-size: clamp(2.2rem, 4.5vw, 4.55rem); }
+.monitor-assembly { display: flex; width: min(100%, 560px); max-width: 560px; flex-direction: column; align-items: center; filter: drop-shadow(0 18px 15px rgba(33, 42, 51, .2)); }
+.monitor-shell { width: 100%; padding: clamp(10px, 1.4vw, 15px); background: linear-gradient(145deg, #191a1d 0 62%, #35383e 63% 100%); border: 4px solid #0a0b0c; border-radius: 22px 22px 12px 12px; box-shadow: inset 0 2px 0 rgba(255,255,255,.16), inset 0 -5px 0 rgba(0,0,0,.55); }
+.monitor-screen { min-height: 430px; padding: clamp(17px, 2.2vw, 28px); overflow: hidden; background-color: #fffdf6; background-image: linear-gradient(to right, transparent 0 43px, rgba(218, 81, 80, .28) 44px 46px, transparent 47px), linear-gradient(rgba(85, 152, 190, .2) 1px, transparent 1px), linear-gradient(90deg, rgba(85, 152, 190, .2) 1px, transparent 1px); background-size: auto, 25px 25px, 25px 25px; border: 2px solid #171a1e; border-radius: 7px; }
+.monitor-showcase .login-panel { width: min(100%, 360px); min-height: 0; margin: 0 auto; padding: 0; background: transparent; border: 0; border-radius: 0; box-shadow: none; }
+.monitor-showcase .email-password-form { gap: 9px; }
+.monitor-showcase .email-password-form label { color: #182330; font-family: "Comic Sans MS", "Bradley Hand", cursive; font-size: 1.18rem; font-weight: 900; text-align: center; }
+.monitor-showcase .auth-input-shell input { background: rgba(255,255,255,.93); border: 2px solid #5a5792; border-radius: 5px; box-shadow: inset 0 0 0 2px rgba(235, 230, 255, .65); }
+.monitor-showcase .email-password-form .button { width: 58%; min-width: 132px; justify-self: end; color: #29255e; background: repeating-linear-gradient(-45deg, rgba(84, 79, 146, .12) 0 4px, transparent 4px 8px), #f7e7cd; border: 2px solid #4d478e; border-radius: 13px; box-shadow: 0 4px 0 rgba(52, 46, 111, .25); }
+.monitor-showcase .auth-remember { justify-content: center; color: #485867; }
+.monitor-showcase .auth-link-button { margin: 10px auto 0; color: #24204d; font-family: "Comic Sans MS", "Bradley Hand", cursive; font-size: .94rem; }
+.monitor-showcase .auth-divider { margin: 16px auto 12px; color: #302c67; }
+.monitor-showcase .google-id-login { border-color: #73719d; border-radius: 5px; }
+.monitor-showcase .auth-request-access { color: #27235c; background: repeating-linear-gradient(-45deg, rgba(84, 79, 146, .10) 0 5px, transparent 5px 10px), #f2f0ff; border: 2px solid #514d91; border-radius: 6px; }
+.monitor-neck { width: 82px; height: 45px; margin-top: -1px; background: linear-gradient(90deg, #777b84, #e3e4e6 48%, #777b84); border: 2px solid #62666e; border-top: 0; clip-path: polygon(16% 0, 84% 0, 100% 100%, 0 100%); }
+.monitor-base { width: min(72%, 330px); height: 20px; margin-top: -1px; background: linear-gradient(#e9eaec, #aeb2ba); border: 2px solid #70747b; border-radius: 50% 50% 10px 10px; box-shadow: 0 5px 0 rgba(45, 48, 52, .18); }
+.mobile-masha-note { display: none; }
+.notebook-login .auth-load-note { width: min(100%, 760px); justify-self: center; margin-top: 19px; }
+
+@media (max-width: 760px) {
+  .notebook-login { grid-template-areas: "top" "showcase" "notice"; padding-inline: 14px; }
+  .monitor-showcase { display: block; padding: 20px 0 0; }
+  .monitor-showcase .login-title-block { max-width: 520px; padding: 0 10px 18px; margin-inline: auto; }
+  .monitor-showcase .auth-emblem { width: 74px; height: 74px; }
+  .monitor-showcase h1 { font-size: clamp(2rem, 9vw, 2.65rem); }
+  .monitor-assembly { min-width: 0; max-width: 520px; width: 100%; margin-inline: auto; filter: none; }
+  .monitor-shell { padding: 7px; background: #28323c; border-width: 3px; border-radius: 15px; }
+  .monitor-screen { min-height: 0; padding: 20px 16px 18px; border-radius: 9px; }
+  .monitor-showcase .login-panel { width: 100%; }
+  .monitor-showcase .email-password-form .button { width: 100%; justify-self: stretch; }
+  .monitor-neck, .monitor-base { display: none; }
+  .note-masha { display: none !important; }
+  .mobile-masha-note { display: block; margin: -2px 0 0; color: #3f3b8e; font-family: "Comic Sans MS", "Bradley Hand", cursive; font-size: 1rem; font-weight: 900; text-align: center; transform: rotate(-2deg); }
+  .monitor-showcase .auth-link-button { font-size: .82rem; }
+  .notebook-login .auth-load-note { margin-top: 15px; }
+}
+
+/* =========================================================
    ШАПКА И НАВИГАЦИЯ
    ========================================================= */
 .site-header {
