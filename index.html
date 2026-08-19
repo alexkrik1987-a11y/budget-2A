@@ -49,7 +49,7 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=22">
+  <link rel="stylesheet" href="styles.css?v=23">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -647,10 +647,30 @@
     </section>
   </dialog>
 
+  <dialog id="parentChildOnboardingModal" class="modal parent-child-onboarding-modal" aria-labelledby="parentChildOnboardingTitle">
+    <section class="modal-card parent-child-onboarding-card">
+      <div class="parent-child-onboarding-icon" aria-hidden="true">👋</div>
+      <span class="sticker sticker-yellow">Первый шаг</span>
+      <h2 id="parentChildOnboardingTitle">Выберите своего ребёнка</h2>
+      <p>Так сайт сможет показывать только Ваш личный остаток по текущему сбору. Выбор можно изменить позже в блоке «Мой взнос».</p>
+      <form id="parentChildOnboardingForm" class="parent-child-onboarding-form">
+        <label class="field">
+          <span>Ребёнок в классе</span>
+          <select id="parentChildOnboardingSelect" required aria-describedby="parentChildOnboardingHint">
+            <option value="">Выберите имя…</option>
+          </select>
+        </label>
+        <small id="parentChildOnboardingHint">Выбор сохраняется только на этом устройстве и не изменяет данные класса.</small>
+        <p id="parentChildOnboardingError" class="notice notice-error hidden" role="alert"></p>
+        <button id="parentChildOnboardingSaveButton" class="button button-primary button-wide" type="submit">Продолжить к бюджету</button>
+      </form>
+    </section>
+  </dialog>
+
   <section id="printReport" class="print-report" aria-hidden="true"></section>
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=41" defer></script>
+  <script src="app.js?v=42" defer></script>
 </body>
 </html>

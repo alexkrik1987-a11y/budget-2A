@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "v41";
+const APP_VERSION = "v42";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -233,7 +233,7 @@ function cacheDom() {
   const ids = [
     "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "emailPasswordForm", "emailPasswordEmailInput", "emailPasswordInput", "emailPasswordLoginButton", "requestPasswordSetupButton", "emailPasswordStatus", "passwordResetForm", "newPasswordInput", "confirmPasswordInput", "saveNewPasswordButton", "logoutButton", "configWarning", "authError",
     "globalNotice", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated",
-    "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions",
+    "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions", "parentChildOnboardingModal", "parentChildOnboardingForm", "parentChildOnboardingSelect", "parentChildOnboardingError", "parentChildOnboardingSaveButton",
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary",
     "fundExpenseChart", "categoryExpenseChart", "reportMonthSelect", "downloadCsvButton", "printReportButton", "printReport",
     "recentExpenses", "campaignSelect", "campaignTypeTag", "selectedCampaignName",
@@ -305,6 +305,7 @@ function bindEvents() {
   if (dom.chatPinnedAnnouncement) dom.chatPinnedAnnouncement.addEventListener("click", handleChatAction);
   if (dom.toggleAccessEnrollmentButton) dom.toggleAccessEnrollmentButton.addEventListener("click", toggleAccessEnrollment);
   if (dom.accessRequestList) dom.accessRequestList.addEventListener("click", handleAccessRequestAction);
+  if (dom.parentChildOnboardingForm) dom.parentChildOnboardingForm.addEventListener("submit", saveParentChildOnboarding);
 
   if (dom.expenseFilters) {
     dom.expenseFilters.addEventListener("click", (event) => {
@@ -372,6 +373,10 @@ function bindEvents() {
       });
     }
   });
+
+  if (dom.parentChildOnboardingModal) {
+    dom.parentChildOnboardingModal.addEventListener("cancel", (event) => event.preventDefault());
+  }
 }
 
 /* =========================================================
@@ -663,6 +668,7 @@ async function handleSession(session, runId) {
     state.accessRequests = [];
     window.clearTimeout(state.chatExpiryTimer);
     closeChatPanel();
+    if (dom.parentChildOnboardingModal?.open) dom.parentChildOnboardingModal.close();
     setProtectedAccess(false);
     renderUser();
     return;
@@ -886,6 +892,7 @@ async function loadAllData({ silent = false } = {}) {
   }
 
   renderAll();
+  openParentChildOnboardingIfNeeded();
   if (!silent) {
     if (snapshotStep.error) {
       showNotice("Бюджет пока не загрузился. Проверьте интернет и попробуйте обновить страницу.", "error", 12_000);
@@ -1825,6 +1832,37 @@ function setReminderStudentId(studentId) {
   } catch (_) {
     // Приватный режим не должен мешать просмотру бюджета.
   }
+}
+
+function openParentChildOnboardingIfNeeded() {
+  const modal = dom.parentChildOnboardingModal;
+  if (!modal || modal.open || !state.session || state.isAdmin || !state.students.length || getReminderStudentId()) return;
+
+  if (dom.parentChildOnboardingSelect) {
+    dom.parentChildOnboardingSelect.replaceChildren();
+    const placeholder = el("option", "", "Выберите имя…");
+    placeholder.value = "";
+    dom.parentChildOnboardingSelect.append(placeholder);
+    state.students.forEach((student) => {
+      const option = el("option", "", student.full_name);
+      option.value = student.id;
+      dom.parentChildOnboardingSelect.append(option);
+    });
+  }
+  hideElement(dom.parentChildOnboardingError);
+  modal.showModal();
+}
+
+function saveParentChildOnboarding(event) {
+  event.preventDefault();
+  const studentId = dom.parentChildOnboardingSelect?.value || "";
+  const student = state.students.find((item) => item.id === studentId);
+  if (!student) return showElementError(dom.parentChildOnboardingError, "Выберите ребёнка из списка, чтобы продолжить.");
+
+  setReminderStudentId(student.id);
+  renderContributionReminder();
+  dom.parentChildOnboardingModal?.close();
+  showNotice(`Готово: будем показывать напоминание для «${student.full_name}».`, "info", 5000);
 }
 
 function renderContributionReminder() {
