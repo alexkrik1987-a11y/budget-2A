@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "v40";
+const APP_VERSION = "v41";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -1831,6 +1831,7 @@ function renderContributionReminder() {
   if (!dom.contributionReminder) return;
   dom.contributionReminder.replaceChildren();
   dom.contributionReminder.classList.add("hidden");
+  dom.contributionReminder.classList.remove("is-setup");
 
   const campaign = state.campaigns.find((item) => item.is_open) ?? null;
   const students = state.students ?? [];
@@ -1849,13 +1850,12 @@ function renderContributionReminder() {
     el("div", "", "")
   );
   const copy = intro.lastElementChild;
-  copy.append(el("strong", "", "Мой взнос"));
 
   const controls = el("div", "contribution-reminder-controls");
   const select = document.createElement("select");
   select.className = "contribution-reminder-select";
   select.setAttribute("aria-label", "Выберите ребёнка для личного напоминания");
-  select.append(el("option", "", "Выберите ребёнка…"));
+  select.append(el("option", "", "Выберите моего ребёнка…"));
   select.options[0].value = "";
   students.forEach((item) => {
     const option = el("option", "", item.full_name);
@@ -1869,9 +1869,17 @@ function renderContributionReminder() {
   });
 
   if (!student) {
-    copy.append(el("small", "", "Выберите ребёнка — сайт покажет только сумму его незакрытого взноса. Выбор сохраняется только на этом устройстве."));
-    controls.append(select);
+    dom.contributionReminder.classList.add("is-setup");
+    copy.append(
+      el("span", "contribution-reminder-step", "Шаг 1 из 1 · для Вашего удобства"),
+      el("strong", "", "Выберите своего ребёнка"),
+      el("small", "", "После выбора сайт покажет личный остаток по текущему сбору. Этот выбор сохраняется только на Вашем устройстве.")
+    );
+    const picker = el("label", "contribution-reminder-picker");
+    picker.append(el("span", "", "Кого показать?"), select, el("em", "", "↓ выберите имя"));
+    controls.append(picker);
   } else {
+    copy.append(el("strong", "", "Мой взнос"));
     const paid = toNumber(getContribution(student.id, campaign.id)?.amount);
     const expected = toNumber(campaign.expected_amount);
     const remaining = Math.max(0, expected - paid);
