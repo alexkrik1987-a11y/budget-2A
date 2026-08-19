@@ -10,7 +10,8 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "v36";
+const APP_VERSION = "v37";
+const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
 
@@ -104,6 +105,7 @@ const state = {
   undoNoticeUntil: 0,
   advancedFeaturesReady: false,
   realtimeChannel: null,
+  realtimeSubscriptionKey: null,
   realtimeRefreshTimer: null,
   noticeTimer: null,
   installPrompt: null,
@@ -149,12 +151,14 @@ async function init() {
       if (initialSession.timedOut) {
         showAuthMessage("Проверка входа занимает больше обычного. Подождите: сайт продолжит вход автоматически.", "info");
         initialSession.pending.then(finishInitialSession).catch((error) => {
+          hideLoadingScreen();
           showAuthError(`Не удалось завершить вход: ${friendlyError(error)}`);
         });
       } else {
         await finishInitialSession(initialSession.result);
       }
     } catch (error) {
+      hideLoadingScreen();
       showAuthError(`Не удалось проверить авторизацию: ${friendlyError(error)}`);
     }
 
@@ -174,7 +178,9 @@ async function init() {
       window.setTimeout(() => queueSessionHandling(session), event === "INITIAL_SESSION" ? 80 : 0);
     });
   } finally {
-    hideLoadingScreen();
+    // При медленном восстановлении сохранённой сессии нейтральный экран
+    // остаётся до результата, а не сменяется на форму входа.
+    if (!document.documentElement.classList.contains("session-restore-pending")) hideLoadingScreen();
   }
 }
 
@@ -637,6 +643,8 @@ async function handleSession(session, runId) {
   state.user = session?.user ?? null;
 
   if (!session) {
+    clearSessionRestoreHint();
+    hideLoadingScreen();
     state.isAdmin = false;
     state.accessRequestStatus = null;
     state.loadedSessionUserId = null;
@@ -668,6 +676,8 @@ async function handleSession(session, runId) {
     const canAccess = accessResult.data;
 
     if (canAccess !== true) {
+      clearSessionRestoreHint();
+      hideLoadingScreen();
       state.loadedSessionUserId = null;
       closeChatPanel();
       const requestResult = await db.rpc("request_class_access");
@@ -683,7 +693,8 @@ async function handleSession(session, runId) {
     hideElement(dom.authError);
     state.accessRequestStatus = "APPROVED";
     // Официальная кнопка Google остаётся внутри своего контейнера.
-    setProtectedAccess(true);
+    // Бюджет не открываем до готового снимка данных: так после обновления
+    // страницы пользователь не увидит нули и промежуточные суммы.
     showNotice(`${APP_VERSION}: вход выполнен. Проверяем роль…`, "info", 0);
 
     // Роль влияет только на кнопки редактирования. Если ответ задержался,
@@ -724,15 +735,36 @@ async function handleSession(session, runId) {
       subscribeRealtime();
     }
     if (!isCurrentSessionRun(runId, session)) return;
+    rememberSessionRestoreHint();
     setProtectedAccess(true);
+    hideLoadingScreen();
   } catch (error) {
     if (!isCurrentSessionRun(runId, session)) return;
     console.error(error);
     state.loadedSessionUserId = null;
     state.loadedSessionRunId = 0;
+    rememberSessionRestoreHint();
     setProtectedAccess(true);
+    hideLoadingScreen();
     showNotice(`Вход выполнен, но данные пока не загрузились: ${friendlyError(error)}. Проверьте интернет и обновите страницу.`, "error", 0);
   }
+}
+
+function rememberSessionRestoreHint() {
+  try {
+    window.localStorage.setItem(SESSION_RESTORE_HINT_KEY, "1");
+  } catch (_) {
+    // Приватный режим не должен мешать обычному входу.
+  }
+}
+
+function clearSessionRestoreHint() {
+  try {
+    window.localStorage.removeItem(SESSION_RESTORE_HINT_KEY);
+  } catch (_) {
+    // Приватный режим не должен мешать выходу.
+  }
+  document.documentElement.classList.remove("session-restore-pending");
 }
 
 function setProtectedAccess(hasSession) {
@@ -1027,8 +1059,15 @@ async function fetchExpenses() {
   return { ...fallback, data: (fallback.data || []).map((expense) => ({ ...expense, receipt_path: null, campaign_id: null })) };
 }
 
+function realtimeSubscriptionKey() {
+  return `${state.isAdmin ? "admin" : "parent"}:${state.enrollmentReady ? "enrollment" : "standard"}:${state.chatReady ? "chat" : "no-chat"}`;
+}
+
 function subscribeRealtime() {
+  const subscriptionKey = realtimeSubscriptionKey();
+  if (state.realtimeChannel && state.realtimeSubscriptionKey === subscriptionKey) return;
   unsubscribeRealtime();
+  state.realtimeSubscriptionKey = subscriptionKey;
 
   state.realtimeChannel = db
     .channel("class-budget-live")
@@ -1052,6 +1091,7 @@ function subscribeRealtime() {
 function unsubscribeRealtime() {
   if (db && state.realtimeChannel) db.removeChannel(state.realtimeChannel);
   state.realtimeChannel = null;
+  state.realtimeSubscriptionKey = null;
 }
 
 function scheduleChatRefresh() {
@@ -1106,8 +1146,10 @@ function renderAll() {
 function renderClassProfile() {
   const className = state.classProfile?.class_name || "2 «А»";
   const schoolYear = state.classProfile?.school_year || "";
+  // Меняем только надпись в шапке, без запуска нового учебного года в базе.
+  const displayedSchoolYear = /^2025\s*[–-]\s*2026$/.test(schoolYear) ? "2026–2027" : schoolYear;
   document.querySelectorAll("[data-class-name]").forEach((node) => { node.textContent = className; });
-  document.querySelectorAll("[data-school-year]").forEach((node) => { node.textContent = schoolYear; });
+  document.querySelectorAll("[data-school-year]").forEach((node) => { node.textContent = displayedSchoolYear; });
   document.title = `Бюджет ${className} класса`;
   if (dom.nextClassName && document.activeElement !== dom.nextClassName) dom.nextClassName.value = className;
   if (dom.nextSchoolYear && document.activeElement !== dom.nextSchoolYear) dom.nextSchoolYear.value = nextSchoolYearLabel(schoolYear);
@@ -2677,6 +2719,7 @@ function activateServiceWorker() {
 }
 
 function hideLoadingScreen() {
+  document.documentElement.classList.remove("session-restore-pending");
   document.body.classList.remove("is-loading");
   if (!dom.loadingScreen) return;
   dom.loadingScreen.classList.add("is-leaving");
@@ -2693,11 +2736,14 @@ function formatMoney(value) {
 
 function animateMoney(element, value) {
   const target = toNumber(value);
+  const hasPreviousValue = Object.hasOwn(element.dataset, "moneyValue");
   const start = toNumber(element.dataset.moneyValue ?? 0);
   element.dataset.moneyValue = String(target);
 
   if (element._moneyAnimationFrame) cancelAnimationFrame(element._moneyAnimationFrame);
-  if (start === target || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  // При первом снимке бюджета сразу показываем точную сумму, а не анимацию
+  // от нуля. Анимация остаётся для последующих настоящих обновлений.
+  if (!hasPreviousValue || start === target || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     element.textContent = formatMoney(target);
     return;
   }

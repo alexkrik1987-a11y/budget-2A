@@ -12,6 +12,19 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <script>
+    // При обновлении уже авторизованной страницы показываем нейтральный экран,
+    // пока Supabase восстанавливает сохранённую сессию. Здесь нет личных данных.
+    (() => {
+      try {
+        if (window.localStorage.getItem("budget-2a-session-hint") === "1") {
+          document.documentElement.classList.add("session-restore-pending");
+        }
+      } catch (_) {
+        // В приватном режиме обычная форма входа остаётся безопасным вариантом.
+      }
+    })();
+  </script>
   <meta name="description" content="Онлайн-бюджет класса: взносы, расходы, остатки и чеки.">
   <meta name="theme-color" content="#245b46">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -31,6 +44,10 @@
     #authGate { display: grid; }
     #protectedContent { display: none; }
     #protectedContent.is-authenticated { display: block; }
+    /* Не показываем форму входа на долю секунды при восстановлении сессии. */
+    html.session-restore-pending #authGate,
+    html.session-restore-pending #protectedContent { display: none !important; }
+    html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
   <link rel="stylesheet" href="styles.css?v=18">
 </head>
@@ -629,6 +646,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=36" defer></script>
+  <script src="app.js?v=37" defer></script>
 </body>
 </html>
