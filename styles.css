@@ -1105,6 +1105,8 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
 .chat-toggle:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 11px 26px rgba(18, 60, 47, .38); }
 .chat-toggle:disabled { opacity: .65; cursor: wait; }
 .chat-toggle-icon { font-size: 1.18rem; }
+.chat-unread-badge { display: inline-grid; min-width: 21px; height: 21px; padding: 0 5px; color: #fff; background: #d74755; border: 2px solid #fffdf4; border-radius: 999px; box-shadow: 0 2px 0 rgba(89, 31, 38, .28); font-size: .68rem; font-weight: 900; line-height: 1; place-items: center; }
+.chat-toggle .chat-unread-badge { margin-left: -4px; }
 .chat-backdrop { position: fixed; inset: 0; z-index: 70; background: rgba(22, 45, 39, .32); backdrop-filter: blur(2px); }
 .class-chat-panel { position: fixed; z-index: 71; right: max(15px, env(safe-area-inset-right)); bottom: max(15px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; width: min(420px, calc(100vw - 30px)); height: min(720px, calc(100dvh - 30px)); overflow: hidden; color: var(--ink); background: #fffdf5; border: 3px solid #d0a45b; border-radius: 23px 19px 24px 20px; box-shadow: 0 20px 55px rgba(24, 53, 46, .35); transform: translateX(calc(100% + 38px)); opacity: 0; pointer-events: none; transition: transform .24s ease, opacity .2s ease; }
 .class-chat-panel.is-open { transform: translateX(0); opacity: 1; pointer-events: auto; }

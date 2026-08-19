@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "v38";
+const APP_VERSION = "v39";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -93,6 +93,10 @@ const state = {
   chatPanelOpen: false,
   chatRefreshTimer: null,
   chatExpiryTimer: null,
+  chatLastReadAt: null,
+  chatUnreadCount: 0,
+  chatReadInitialized: false,
+  chatReadUserId: null,
   classProfile: { class_name: "2 «А»", school_year: "" },
   archiveFeaturesReady: false,
   selectedCampaignId: null,
@@ -250,7 +254,7 @@ function cacheDom() {
     "studentModal", "studentForm", "studentModalTitle", "studentId", "studentFullName", "studentSortOrder",
     "studentFormError", "saveStudentButton", "startSchoolYearForm", "nextClassName", "nextSchoolYear",
     "schoolYearFormError", "startSchoolYearButton", "expenseCampaign",
-    "chatToggleButton", "chatBackdrop", "classChatPanel", "closeChatButton", "chatStatus",
+    "chatToggleButton", "chatUnreadBadge", "chatBackdrop", "classChatPanel", "closeChatButton", "chatStatus",
     "chatMessageList", "chatForm", "chatMessageInput", "chatCharacterCount", "sendChatButton",
     "accessEnrollmentStatus", "toggleAccessEnrollmentButton", "accessEnrollmentHint", "accessRequestError", "accessRequestList"
   ];
@@ -651,6 +655,10 @@ async function handleSession(session, runId) {
     state.loadedSessionRunId = 0;
     state.chatMessages = [];
     state.chatReady = false;
+    state.chatLastReadAt = null;
+    state.chatUnreadCount = 0;
+    state.chatReadInitialized = false;
+    state.chatReadUserId = null;
     state.accessRequests = [];
     window.clearTimeout(state.chatExpiryTimer);
     closeChatPanel();
@@ -866,9 +874,10 @@ async function loadAllData({ silent = false } = {}) {
     .filter((item) => item.archived_at)
     .sort((a, b) => new Date(b.archived_at) - new Date(a.archived_at));
   state.classProfile = snapshot.class_profile?.class_name ? snapshot.class_profile : state.classProfile;
-  state.chatMessages = Array.isArray(snapshot.chat_messages) ? snapshot.chat_messages : [];
-  state.chatReady = true;
-  state.archiveFeaturesReady = true;
+    state.chatMessages = Array.isArray(snapshot.chat_messages) ? snapshot.chat_messages : [];
+    state.chatReady = true;
+    syncChatUnreadState();
+    state.archiveFeaturesReady = true;
   state.advancedFeaturesReady = true;
 
   if (!state.campaigns.some((item) => item.id === state.selectedCampaignId)) {
@@ -1059,6 +1068,93 @@ async function fetchExpenses() {
   return { ...fallback, data: (fallback.data || []).map((expense) => ({ ...expense, receipt_path: null, campaign_id: null })) };
 }
 
+function chatReadStorageKey() {
+  return state.user?.id ? `budget-2a-chat-read:${state.user.id}` : null;
+}
+
+function latestChatMessageTime() {
+  return state.chatMessages
+    .map((message) => new Date(message.created_at).getTime())
+    .filter(Number.isFinite)
+    .sort((a, b) => b - a)[0] || 0;
+}
+
+function loadStoredChatReadTime() {
+  const key = chatReadStorageKey();
+  if (!key) return 0;
+  try {
+    const value = Number(window.localStorage.getItem(key) || 0);
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  } catch (_) {
+    return 0;
+  }
+}
+
+function saveChatReadTime(timestamp) {
+  const key = chatReadStorageKey();
+  if (!key) return;
+  try {
+    window.localStorage.setItem(key, String(timestamp));
+  } catch (_) {
+    // Приватный режим не должен мешать использованию чата.
+  }
+}
+
+function markChatAsRead() {
+  if (!state.session || !state.chatReady) return;
+  const timestamp = latestChatMessageTime() || Date.now();
+  state.chatLastReadAt = timestamp;
+  state.chatUnreadCount = 0;
+  state.chatReadInitialized = true;
+  saveChatReadTime(timestamp);
+  renderChatUnreadBadge();
+}
+
+function syncChatUnreadState() {
+  if (!state.session || !state.chatReady) {
+    state.chatUnreadCount = 0;
+    renderChatUnreadBadge();
+    return;
+  }
+
+  if (state.chatReadUserId !== state.user?.id) {
+    state.chatReadUserId = state.user?.id ?? null;
+    state.chatLastReadAt = null;
+    state.chatUnreadCount = 0;
+    state.chatReadInitialized = false;
+  }
+
+  if (!state.chatReadInitialized) {
+    const storedTimestamp = loadStoredChatReadTime();
+    state.chatLastReadAt = storedTimestamp || latestChatMessageTime() || Date.now();
+    state.chatReadInitialized = true;
+    if (!storedTimestamp) saveChatReadTime(state.chatLastReadAt);
+  }
+
+  if (state.chatPanelOpen) {
+    markChatAsRead();
+    return;
+  }
+
+  state.chatUnreadCount = state.chatMessages.filter((message) => {
+    const createdAt = new Date(message.created_at).getTime();
+    return message.author_id !== state.user?.id && Number.isFinite(createdAt) && createdAt > state.chatLastReadAt;
+  }).length;
+  renderChatUnreadBadge();
+}
+
+function renderChatUnreadBadge() {
+  const count = state.session && state.chatReady ? state.chatUnreadCount : 0;
+  if (dom.chatUnreadBadge) {
+    dom.chatUnreadBadge.textContent = count > 99 ? "99+" : String(count);
+    dom.chatUnreadBadge.classList.toggle("hidden", count < 1);
+  }
+  if (dom.chatToggleButton) {
+    const suffix = count ? `: ${count > 99 ? "99+" : count} новых сообщений` : "";
+    dom.chatToggleButton.setAttribute("aria-label", `Чат класса${suffix}`);
+  }
+}
+
 function realtimeSubscriptionKey() {
   return `${state.isAdmin ? "admin" : "parent"}:${state.enrollmentReady ? "enrollment" : "standard"}:${state.chatReady ? "chat" : "no-chat"}`;
 }
@@ -1102,6 +1198,7 @@ function scheduleChatRefresh() {
       if (result.error) throw result.error;
       state.chatMessages = result.data ?? [];
       state.chatReady = result.ready === true;
+      syncChatUnreadState();
       renderChat();
     } catch (error) {
       console.error("Chat refresh error:", error);
@@ -1156,7 +1253,10 @@ function renderClassProfile() {
 }
 
 function renderChat() {
-  if (!dom.chatMessageList) return;
+  if (!dom.chatMessageList) {
+    renderChatUnreadBadge();
+    return;
+  }
   const chatAvailable = Boolean(state.session && state.chatReady);
 
   if (dom.chatToggleButton) {
@@ -1176,6 +1276,7 @@ function renderChat() {
   if (!chatAvailable) {
     dom.chatMessageList.append(createEmptyContent("💬", "Чат пока готовится", "После обновления базы можно будет общаться прямо на сайте."));
     syncChatPanelState();
+    renderChatUnreadBadge();
     return;
   }
   if (!state.chatMessages.length) {
@@ -1185,6 +1286,7 @@ function renderChat() {
   }
   scheduleChatDeleteExpiry();
   syncChatPanelState();
+  renderChatUnreadBadge();
 }
 
 function createChatMessageElement(message) {
@@ -1252,6 +1354,7 @@ function syncChatPanelState() {
 function openChatPanel() {
   if (!state.session) return;
   state.chatPanelOpen = true;
+  markChatAsRead();
   renderChat();
   if (state.chatReady && dom.chatMessageInput) window.setTimeout(() => dom.chatMessageInput.focus(), 120);
 }
@@ -1283,6 +1386,7 @@ async function sendChatMessage(event) {
   if (message?.id) {
     state.chatMessages = [...state.chatMessages.filter((item) => item.id !== message.id), message]
       .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    syncChatUnreadState();
   }
   dom.chatMessageInput.value = "";
   updateChatCharacterCount();
@@ -1303,6 +1407,7 @@ async function handleChatAction(event) {
     return showNotice(`Сообщение не удалено: ${friendlyError(error)}`, "error");
   }
   state.chatMessages = state.chatMessages.filter((item) => item.id !== message.id);
+  syncChatUnreadState();
   renderChat();
   showNotice("Сообщение удалено", "info");
 }
