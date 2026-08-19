@@ -5,7 +5,7 @@
    ========================================================= */
 const SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
-const APP_VERSION = "v33";
+const APP_VERSION = "v34";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
 
@@ -152,7 +152,6 @@ async function init() {
     }
 
     db.auth.onAuthStateChange((event, session) => {
-      if (event === "INITIAL_SESSION") return;
       if (event === "PASSWORD_RECOVERY" && session) {
         openPasswordResetMode();
         return;
@@ -161,8 +160,11 @@ async function init() {
         state.session = session;
         return;
       }
-      // Deferring leaves Supabase's internal auth lock before data requests begin.
-      window.setTimeout(() => queueSessionHandling(session), 0);
+      // INITIAL_SESSION особенно важен на мобильных: при медленном восстановлении
+      // getSession() может первым вернуть null, а библиотека чуть позже сообщит
+      // уже сохранённую сессию этим событием. Не отбрасываем его.
+      // Отложенный запуск освобождает внутреннюю auth-блокировку Supabase.
+      window.setTimeout(() => queueSessionHandling(session), event === "INITIAL_SESSION" ? 80 : 0);
     });
   } finally {
     hideLoadingScreen();
@@ -2593,7 +2595,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=33", window.location.href);
+  const workerUrl = new URL("./sw.js?v=34", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
