@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "v39";
+const APP_VERSION = "v40";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -234,7 +234,7 @@ function cacheDom() {
     "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "emailPasswordForm", "emailPasswordEmailInput", "emailPasswordInput", "emailPasswordLoginButton", "requestPasswordSetupButton", "emailPasswordStatus", "passwordResetForm", "newPasswordInput", "confirmPasswordInput", "saveNewPasswordButton", "logoutButton", "configWarning", "authError",
     "globalNotice", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated",
     "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions",
-    "totalCollected", "totalSpent", "totalBalance", "fundCards", "currentCampaignSummary",
+    "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary",
     "fundExpenseChart", "categoryExpenseChart", "reportMonthSelect", "downloadCsvButton", "printReportButton", "printReport",
     "recentExpenses", "campaignSelect", "campaignTypeTag", "selectedCampaignName",
     "selectedCampaignMeta", "campaignPlanTotal", "campaignCollectedTotal", "editModeText",
@@ -254,7 +254,7 @@ function cacheDom() {
     "studentModal", "studentForm", "studentModalTitle", "studentId", "studentFullName", "studentSortOrder",
     "studentFormError", "saveStudentButton", "startSchoolYearForm", "nextClassName", "nextSchoolYear",
     "schoolYearFormError", "startSchoolYearButton", "expenseCampaign",
-    "chatToggleButton", "chatUnreadBadge", "chatBackdrop", "classChatPanel", "closeChatButton", "chatStatus",
+    "chatToggleButton", "chatUnreadBadge", "chatBackdrop", "classChatPanel", "closeChatButton", "chatStatus", "chatPinnedAnnouncement",
     "chatMessageList", "chatForm", "chatMessageInput", "chatCharacterCount", "sendChatButton",
     "accessEnrollmentStatus", "toggleAccessEnrollmentButton", "accessEnrollmentHint", "accessRequestError", "accessRequestList"
   ];
@@ -302,6 +302,7 @@ function bindEvents() {
   if (dom.chatForm) dom.chatForm.addEventListener("submit", sendChatMessage);
   if (dom.chatMessageInput) dom.chatMessageInput.addEventListener("input", updateChatCharacterCount);
   if (dom.chatMessageList) dom.chatMessageList.addEventListener("click", handleChatAction);
+  if (dom.chatPinnedAnnouncement) dom.chatPinnedAnnouncement.addEventListener("click", handleChatAction);
   if (dom.toggleAccessEnrollmentButton) dom.toggleAccessEnrollmentButton.addEventListener("click", toggleAccessEnrollment);
   if (dom.accessRequestList) dom.accessRequestList.addEventListener("click", handleAccessRequestAction);
 
@@ -1040,7 +1041,7 @@ async function fetchAccessAdministration() {
 async function fetchChatMessages() {
   const result = await db
     .from("chat_messages")
-    .select("id, author_id, author_name, body, created_at")
+    .select("id, author_id, author_name, body, created_at, is_pinned, pinned_at")
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })
     .limit(120);
@@ -1225,6 +1226,7 @@ function renderAll() {
   renderClassProfile();
   renderCampaignSelect();
   renderSummary();
+  renderContributionReminder();
   renderContributions();
   renderExpenses();
   renderCampaignSettings();
@@ -1270,6 +1272,7 @@ function renderChat() {
   }
   if (dom.chatMessageInput) dom.chatMessageInput.disabled = !chatAvailable;
   if (dom.sendChatButton) dom.sendChatButton.disabled = !chatAvailable;
+  renderPinnedChatAnnouncement();
   updateChatCharacterCount();
 
   dom.chatMessageList.replaceChildren();
@@ -1289,13 +1292,49 @@ function renderChat() {
   renderChatUnreadBadge();
 }
 
+function renderPinnedChatAnnouncement() {
+  if (!dom.chatPinnedAnnouncement) return;
+  dom.chatPinnedAnnouncement.replaceChildren();
+  const pinned = state.chatMessages.find((message) => message.is_pinned) ?? null;
+  if (!pinned) {
+    dom.chatPinnedAnnouncement.classList.add("hidden");
+    return;
+  }
+
+  const copy = el("div", "chat-pinned-copy");
+  copy.append(
+    el("strong", "", "📌 Закреплённое объявление"),
+    el("p", "", pinned.body),
+    el("small", "", `${pinned.author_name} · ${formatDateTime(pinned.created_at)}`)
+  );
+  dom.chatPinnedAnnouncement.append(copy);
+
+  if (state.isAdmin) {
+    const unpin = el("button", "chat-pinned-unpin", "Снять");
+    unpin.type = "button";
+    unpin.dataset.chatAction = "unpin";
+    unpin.dataset.id = pinned.id;
+    dom.chatPinnedAnnouncement.append(unpin);
+  }
+  dom.chatPinnedAnnouncement.classList.remove("hidden");
+}
+
 function createChatMessageElement(message) {
   const isOwn = message.author_id === state.user?.id;
-  const item = el("article", `chat-message${isOwn ? " is-own" : ""}`);
+  const item = el("article", `chat-message${isOwn ? " is-own" : ""}${message.is_pinned ? " is-pinned" : ""}`);
   const header = el("div", "chat-message-header");
   const identity = el("div", "chat-message-author");
   identity.append(el("strong", "", isOwn ? "Вы" : message.author_name), el("time", "", formatDateTime(message.created_at)));
   header.append(identity);
+
+  if (message.is_pinned) header.append(el("span", "chat-pinned-label", "📌 Закреплено"));
+  if (state.isAdmin) {
+    const pinButton = el("button", "chat-pin-button", message.is_pinned ? "Снять" : "Закрепить");
+    pinButton.type = "button";
+    pinButton.dataset.chatAction = message.is_pinned ? "unpin" : "pin";
+    pinButton.dataset.id = message.id;
+    header.append(pinButton);
+  }
 
   if (canDeleteChatMessage(message)) {
     const deleteButton = el("button", "chat-delete-button", "Удалить");
@@ -1393,11 +1432,46 @@ async function sendChatMessage(event) {
   renderChat();
 }
 
+async function refreshChatMessagesNow() {
+  const result = await fetchChatMessages();
+  if (result.error) throw result.error;
+  state.chatMessages = result.data ?? [];
+  state.chatReady = result.ready === true;
+  syncChatUnreadState();
+  renderChat();
+}
+
 async function handleChatAction(event) {
-  const button = event.target.closest('[data-chat-action="delete"]');
+  const button = event.target.closest("[data-chat-action]");
   if (!button || !state.chatReady) return;
+  const action = button.dataset.chatAction;
   const message = state.chatMessages.find((item) => item.id === button.dataset.id);
-  if (!message || !canDeleteChatMessage(message)) return;
+
+  if (action === "pin" || action === "unpin") {
+    if (!state.isAdmin || !message) return;
+    const question = action === "pin"
+      ? `Закрепить сообщение ${message.author_name} сверху чата? Предыдущее закрепление будет заменено.`
+      : "Снять закреплённое объявление?";
+    if (!window.confirm(question)) return;
+
+    button.disabled = true;
+    const { error } = action === "pin"
+      ? await db.rpc("pin_class_chat_message", { p_message_id: message.id })
+      : await db.rpc("unpin_class_chat_message");
+    if (error) {
+      button.disabled = false;
+      return showNotice(`Не удалось изменить закрепление: ${friendlyError(error)}`, "error");
+    }
+    try {
+      await refreshChatMessagesNow();
+      showNotice(action === "pin" ? "Объявление закреплено ✓" : "Закрепление снято", "info");
+    } catch (error) {
+      showNotice(`Закрепление изменено, но чат пока не обновился: ${friendlyError(error)}`, "error");
+    }
+    return;
+  }
+
+  if (action !== "delete" || !message || !canDeleteChatMessage(message)) return;
   if (!window.confirm("Удалить это сообщение? Восстановить его будет нельзя.")) return;
 
   button.disabled = true;
@@ -1566,6 +1640,11 @@ function createAccessRequestElement(request) {
     reject.dataset.id = request.id;
     right.append(reject);
   }
+  const revoke = el("button", "button button-danger button-small", request.request_status === "APPROVED" ? "Удалить доступ" : "Удалить");
+  revoke.type = "button";
+  revoke.dataset.accessAction = "revoke";
+  revoke.dataset.id = request.id;
+  right.append(revoke);
   item.append(person, right);
   return item;
 }
@@ -1605,7 +1684,25 @@ async function handleAccessRequestAction(event) {
   if (!button) return;
   const request = state.accessRequests.find((item) => item.id === button.dataset.id);
   if (!request) return;
-  const isApproval = button.dataset.accessAction === "approve";
+  const action = button.dataset.accessAction;
+
+  if (action === "revoke") {
+    const question = request.request_status === "APPROVED"
+      ? `Удалить доступ ${request.display_name} (${request.email}) к бюджету и чату? Google-аккаунт человека не удаляется, но войти на этот сайт он больше не сможет.`
+      : `Удалить профиль-заявку ${request.display_name} (${request.email}) из списка?`;
+    if (!window.confirm(question)) return;
+    button.disabled = true;
+    const { error } = await db.rpc("revoke_class_access", { p_request_id: request.id });
+    if (error) {
+      button.disabled = false;
+      return showElementError(dom.accessRequestError, `Не удалось удалить доступ: ${friendlyError(error)}`);
+    }
+    await refreshAccessAdministration();
+    showNotice(request.request_status === "APPROVED" ? "Доступ к сайту удалён" : "Профиль-заявка удалён", "info");
+    return;
+  }
+
+  const isApproval = action === "approve";
   const question = isApproval
     ? `Одобрить ${request.display_name} (${request.email})? После этого родитель увидит бюджет и чат при следующем обновлении страницы.`
     : `Отклонить заявку ${request.display_name} (${request.email})? Бюджет и чат останутся закрыты.`;
@@ -1703,6 +1800,97 @@ function sumByFund(items) {
     if (fund in result) result[fund] += toNumber(item.amount);
   });
   return result;
+}
+
+function contributionReminderStorageKey() {
+  return state.user?.id ? `budget-2a-reminder-student:${state.user.id}` : null;
+}
+
+function getReminderStudentId() {
+  const key = contributionReminderStorageKey();
+  if (!key) return null;
+  try {
+    return window.localStorage.getItem(key) || null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function setReminderStudentId(studentId) {
+  const key = contributionReminderStorageKey();
+  if (!key) return;
+  try {
+    if (studentId) window.localStorage.setItem(key, studentId);
+    else window.localStorage.removeItem(key);
+  } catch (_) {
+    // Приватный режим не должен мешать просмотру бюджета.
+  }
+}
+
+function renderContributionReminder() {
+  if (!dom.contributionReminder) return;
+  dom.contributionReminder.replaceChildren();
+  dom.contributionReminder.classList.add("hidden");
+
+  const campaign = state.campaigns.find((item) => item.is_open) ?? null;
+  const students = state.students ?? [];
+  if (!state.session || !campaign || !students.length) return;
+
+  let studentId = getReminderStudentId();
+  let student = students.find((item) => item.id === studentId) ?? null;
+  if (studentId && !student) {
+    setReminderStudentId(null);
+    studentId = null;
+  }
+
+  const intro = el("div", "contribution-reminder-copy");
+  intro.append(
+    el("span", "contribution-reminder-icon", "🎯"),
+    el("div", "", "")
+  );
+  const copy = intro.lastElementChild;
+  copy.append(el("strong", "", "Мой взнос"));
+
+  const controls = el("div", "contribution-reminder-controls");
+  const select = document.createElement("select");
+  select.className = "contribution-reminder-select";
+  select.setAttribute("aria-label", "Выберите ребёнка для личного напоминания");
+  select.append(el("option", "", "Выберите ребёнка…"));
+  select.options[0].value = "";
+  students.forEach((item) => {
+    const option = el("option", "", item.full_name);
+    option.value = item.id;
+    select.append(option);
+  });
+  select.value = studentId || "";
+  select.addEventListener("change", () => {
+    setReminderStudentId(select.value || null);
+    renderContributionReminder();
+  });
+
+  if (!student) {
+    copy.append(el("small", "", "Выберите ребёнка — сайт покажет только сумму его незакрытого взноса. Выбор сохраняется только на этом устройстве."));
+    controls.append(select);
+  } else {
+    const paid = toNumber(getContribution(student.id, campaign.id)?.amount);
+    const expected = toNumber(campaign.expected_amount);
+    const remaining = Math.max(0, expected - paid);
+    const text = remaining > 0
+      ? `По сбору «${campaign.name}» осталось внести ${formatMoney(remaining)}.`
+      : `По сбору «${campaign.name}» взнос внесён полностью. Спасибо!`;
+    copy.append(el("small", "", text));
+
+    const change = el("button", "contribution-reminder-change", "Изменить ребёнка");
+    change.type = "button";
+    change.addEventListener("click", () => {
+      setReminderStudentId(null);
+      renderContributionReminder();
+    });
+    controls.append(change);
+  }
+
+  dom.contributionReminder.append(intro, controls);
+  dom.contributionReminder.classList.remove("hidden");
 }
 
 function renderCurrentCampaignSummary() {

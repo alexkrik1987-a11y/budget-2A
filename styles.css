@@ -640,6 +640,15 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 .fund-card strong { font-size: 1.7rem; letter-spacing: -.02em; }
 .fund-card small { display: block; margin-top: 9px; color: var(--ink-soft); line-height: 1.35; }
 
+.contribution-reminder { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; padding: 15px 17px; color: #30435b; background: linear-gradient(135deg, #fff6c9, #fffdf1); border: 2px dashed #d7b54e; border-radius: 17px 20px 16px 19px; box-shadow: 0 4px 0 rgba(107, 83, 29, .1); }
+.contribution-reminder-copy { display: flex; align-items: center; min-width: 0; gap: 12px; }
+.contribution-reminder-copy > div { display: grid; gap: 3px; min-width: 0; }
+.contribution-reminder-copy strong { font-size: 1rem; }
+.contribution-reminder-copy small { color: #6b5a33; font-weight: 700; line-height: 1.35; }
+.contribution-reminder-icon { display: grid; width: 42px; height: 42px; flex: 0 0 42px; font-size: 1.35rem; background: #fff; border: 2px solid #e1c45d; border-radius: 14px; box-shadow: 0 3px 0 rgba(107, 83, 29, .12); place-items: center; transform: rotate(-3deg); }
+.contribution-reminder-controls { flex: 0 0 auto; }
+.contribution-reminder-select { max-width: min(240px, 46vw); padding: 9px 11px; color: var(--ink); background: #fff; border: 2px solid #d7b54e; border-radius: 11px; font: inherit; font-weight: 800; }
+.contribution-reminder-change { padding: 6px 0; color: #6d5420; border: 0; border-bottom: 1px dashed currentColor; background: transparent; font: inherit; font-size: .78rem; font-weight: 900; cursor: pointer; }
 .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
 .campaign-progress-heading { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 17px; }
 .campaign-progress-identity { display: flex; align-items: center; min-width: 0; gap: 11px; }
@@ -854,6 +863,9 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
   .summary-status { align-self: stretch; justify-content: flex-start; }
   .fund-grid,
   .dashboard-grid { grid-template-columns: 1fr; }
+  .contribution-reminder { align-items: stretch; flex-direction: column; }
+  .contribution-reminder-controls { width: 100%; }
+  .contribution-reminder-select { width: 100%; max-width: none; }
   .fund-card:last-child { grid-column: auto; }
   .table-toolbar { align-items: flex-start; flex-direction: column; }
   .report-card { align-items: stretch; flex-direction: column; }
@@ -1114,6 +1126,15 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
 .chat-header .sticker { display: inline-block; margin-bottom: 7px; }
 .chat-header h2 { margin: 0; font-size: 1.42rem; }
 .chat-status { margin: 5px 0 0; max-width: 305px; color: rgba(255,255,255,.84); font-size: .79rem; font-weight: 700; line-height: 1.35; }
+.chat-pinned-announcement { display: flex; align-items: flex-start; justify-content: space-between; gap: 9px; margin-top: 12px; padding: 9px 10px; color: #fff9df; background: rgba(255, 255, 255, .13); border: 1px dashed rgba(255, 241, 170, .74); border-radius: 11px; }
+.chat-pinned-copy { display: grid; gap: 3px; min-width: 0; }
+.chat-pinned-copy strong { font-size: .74rem; }
+.chat-pinned-copy p { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; font-size: .8rem; line-height: 1.35; }
+.chat-pinned-copy small { color: rgba(255,255,255,.78); font-size: .66rem; font-weight: 700; }
+.chat-pinned-unpin, .chat-pin-button { padding: 3px 0; color: #2c7258; border: 0; border-bottom: 1px dashed currentColor; background: transparent; font: inherit; font-size: .68rem; font-weight: 900; cursor: pointer; }
+.chat-pinned-unpin { flex: 0 0 auto; color: #fff2ab; }
+.chat-message.is-pinned { border-color: #d5ad47; box-shadow: 0 2px 0 rgba(163, 121, 28, .14); }
+.chat-pinned-label { color: #805c0b; font-size: .64rem; font-weight: 900; white-space: nowrap; }
 .chat-header .icon-button { flex: 0 0 auto; color: #fffdf4; border-color: rgba(255,255,255,.48); background: rgba(255,255,255,.12); }
 .chat-message-list { flex: 1 1 auto; display: flex; flex-direction: column; gap: 10px; min-height: 0; padding: 15px; overflow-y: auto; background-image: linear-gradient(rgba(40, 102, 77, .045) 1px, transparent 1px); background-size: 100% 29px; }
 .chat-message-list .empty-content { align-self: stretch; margin: auto 0; }

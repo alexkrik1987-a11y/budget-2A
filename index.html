@@ -49,7 +49,7 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=20">
+  <link rel="stylesheet" href="styles.css?v=21">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -184,6 +184,8 @@
             <strong id="totalBalance">0 ₽</strong>
           </article>
         </div>
+
+        <section id="contributionReminder" class="contribution-reminder hidden" aria-live="polite"></section>
 
         <section class="paper-card" aria-labelledby="fundsTitle">
           <div class="card-title-row">
@@ -518,6 +520,7 @@
           <span class="sticker sticker-green">Только для нашего класса</span>
           <h2 id="chatTitle">Чат класса</h2>
           <p id="chatStatus" class="chat-status">Подготавливаем чат…</p>
+          <div id="chatPinnedAnnouncement" class="chat-pinned-announcement hidden" aria-live="polite"></div>
         </div>
         <button id="closeChatButton" class="icon-button" type="button" aria-label="Закрыть чат">×</button>
       </header>
@@ -648,6 +651,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=39" defer></script>
+  <script src="app.js?v=40" defer></script>
 </body>
 </html>
