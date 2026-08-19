@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "v42";
+const APP_VERSION = "v43";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -112,6 +112,7 @@ const state = {
   realtimeSubscriptionKey: null,
   realtimeRefreshTimer: null,
   noticeTimer: null,
+  schoolCalendarTimer: null,
   installPrompt: null,
   authStateConfirmed: false,
   accessRequestStatus: null,
@@ -137,6 +138,7 @@ async function init() {
   setProtectedAccess(false);
   fillStaticSelects();
   bindEvents();
+  renderSchoolCalendar();
   applySeasonalTheme();
   setupInstallExperience();
   activateServiceWorker();
@@ -231,8 +233,8 @@ function clearOAuthCallbackFromUrl() {
 
 function cacheDom() {
   const ids = [
-    "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "emailPasswordForm", "emailPasswordEmailInput", "emailPasswordInput", "emailPasswordLoginButton", "requestPasswordSetupButton", "emailPasswordStatus", "passwordResetForm", "newPasswordInput", "confirmPasswordInput", "saveNewPasswordButton", "logoutButton", "configWarning", "authError",
-    "globalNotice", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated",
+    "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "emailPasswordForm", "emailPasswordEmailInput", "emailPasswordInput", "togglePasswordVisibility", "rememberSessionInput", "emailPasswordLoginButton", "requestPasswordSetupButton", "authRequestAccessButton", "emailPasswordStatus", "passwordResetForm", "newPasswordInput", "confirmPasswordInput", "saveNewPasswordButton", "logoutButton", "configWarning", "authError",
+    "globalNotice", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated", "schoolCalendar", "schoolCalendarDay", "schoolCalendarMonth",
     "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions", "parentChildOnboardingModal", "parentChildOnboardingForm", "parentChildOnboardingSelect", "parentChildOnboardingError", "parentChildOnboardingSaveButton",
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary",
     "fundExpenseChart", "categoryExpenseChart", "reportMonthSelect", "downloadCsvButton", "printReportButton", "printReport",
@@ -282,6 +284,8 @@ function setSelectOptions(select, options) {
 function bindEvents() {
   // Google Identity самостоятельно управляет кнопкой внутри googleLoginButton.
   if (dom.emailPasswordForm) dom.emailPasswordForm.addEventListener("submit", loginWithEmailPassword);
+  if (dom.togglePasswordVisibility) dom.togglePasswordVisibility.addEventListener("click", togglePasswordVisibility);
+  if (dom.authRequestAccessButton) dom.authRequestAccessButton.addEventListener("click", requestAccessWithGoogle);
   if (dom.requestPasswordSetupButton) dom.requestPasswordSetupButton.addEventListener("click", requestPasswordSetup);
   if (dom.passwordResetForm) dom.passwordResetForm.addEventListener("submit", savePasswordReset);
   if (dom.logoutButton) dom.logoutButton.addEventListener("click", logout);
@@ -390,6 +394,47 @@ function showEmailPasswordStatus(message) {
 
 function validEmail(value) {
   return /^\S+@\S+\.\S+$/.test(value);
+}
+
+function togglePasswordVisibility() {
+  const input = dom.emailPasswordInput;
+  const button = dom.togglePasswordVisibility;
+  if (!input || !button) return;
+  const show = input.type === "password";
+  input.type = show ? "text" : "password";
+  button.textContent = show ? "◌" : "◉";
+  button.setAttribute("aria-pressed", String(show));
+  button.setAttribute("aria-label", show ? "Скрыть пароль" : "Показать пароль");
+  input.focus();
+}
+
+function requestAccessWithGoogle() {
+  if (!db) return showConfigWarning();
+  showAuthMessage("Для нового родителя: выберите Google-аккаунт. Если приём заявок открыт, заявка сразу поступит администратору.", "info");
+  dom.googleLoginButton?.scrollIntoView({ behavior: "smooth", block: "center" });
+  window.google?.accounts?.id?.prompt?.();
+}
+
+function renderSchoolCalendar() {
+  if (!dom.schoolCalendarDay || !dom.schoolCalendarMonth) return;
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat("ru-RU", {
+    timeZone: "Asia/Vladivostok",
+    day: "numeric",
+    month: "long",
+    weekday: "long"
+  }).formatToParts(now);
+  const get = (type) => parts.find((part) => part.type === type)?.value || "";
+  const day = get("day");
+  const month = get("month");
+  const weekday = get("weekday");
+  dom.schoolCalendarDay.textContent = day;
+  dom.schoolCalendarMonth.textContent = month;
+  dom.schoolCalendar?.setAttribute("aria-label", `Школьный календарь: ${weekday}, ${day} ${month}, Приморский край`);
+
+  if (!state.schoolCalendarTimer) {
+    state.schoolCalendarTimer = window.setInterval(renderSchoolCalendar, 60 * 60 * 1000);
+  }
 }
 
 const AUTH_REQUEST_TIMEOUT_MS = 15_000;

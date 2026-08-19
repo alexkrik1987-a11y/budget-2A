@@ -426,13 +426,22 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 .notebook-login .email-password-form { display: grid; gap: 10px; margin: 0 0 10px; text-align: left; }
 .notebook-login .email-password-form label { color: #172737; font-size: .92rem; font-weight: 950; }
 .notebook-login .email-password-form input { width: 100%; min-height: 47px; padding: 10px 12px; color: #172737; background: #fff; border: 1px solid #cbd4dc; border-radius: 9px; box-shadow: inset 0 1px 0 rgba(0,0,0,.03); }
-.notebook-login .email-password-form .button { width: 100%; min-height: 46px; margin-top: 4px; padding: 10px 16px; color: #fff; background: linear-gradient(105deg, #4f994c, #70b959); border-color: #4f8c47; border-radius: 8px; box-shadow: 0 3px 0 #3d7639; }
+.auth-input-shell { position: relative; display: flex; align-items: center; }
+.notebook-login .auth-input-shell input { padding-right: 42px; padding-left: 42px; }
+.auth-input-icon { position: absolute; left: 13px; z-index: 1; color: #466377; font-size: 1rem; pointer-events: none; }
+.auth-password-toggle { position: absolute; right: 7px; display: grid; width: 34px; height: 34px; padding: 0; color: #386078; font-size: 1.15rem; line-height: 1; background: transparent; border: 0; border-radius: 50%; cursor: pointer; place-items: center; }
+.auth-password-toggle:hover, .auth-password-toggle:focus-visible { color: #1c5d99; background: #eaf4fa; outline: 2px solid #75b4d1; outline-offset: 1px; }
+.auth-remember { display: flex; align-items: center; gap: 8px; margin: 0 0 2px; color: #4b6070; font-size: .77rem; font-weight: 800; cursor: pointer; }
+.auth-remember input { width: 17px !important; min-height: 17px !important; margin: 0; padding: 0 !important; accent-color: #4f994c; }
+.notebook-login .email-password-form .button { width: 100%; min-height: 46px; margin-top: 4px; padding: 10px 16px; color: #fff; background: repeating-linear-gradient(-45deg, rgba(255,255,255,.1) 0 5px, transparent 5px 10px), linear-gradient(105deg, #4f994c, #70b959); border-color: #4f8c47; border-radius: 8px; box-shadow: 0 3px 0 #3d7639; }
 .notebook-login .auth-link-button { display: block; width: 100%; margin: 2px auto 0; color: #2160ad; font-size: .78rem; font-weight: 800; line-height: 1.45; text-align: center; text-decoration: underline; }
 .notebook-login .auth-divider { margin: 16px auto 13px; color: #6a7c8b; font-size: .78rem; }
 .notebook-login .auth-divider::before, .notebook-login .auth-divider::after { background: rgba(38, 63, 82, .2); }
 .notebook-login .button-google { width: 100%; min-height: 46px; color: #1c3443; background: #fff; border-color: #8ea0af; border-radius: 8px; box-shadow: none; }
 .notebook-login .google-id-login { display: flex; width: 100%; min-height: 46px; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #8ea0af; border-radius: 8px; background: #fff; }
 .notebook-login .google-id-login > div { display: flex !important; width: 100% !important; justify-content: center !important; }
+.auth-request-access { width: 100%; min-height: 44px; margin-top: 11px; padding: 9px 13px; color: #213d51; font: inherit; font-size: .84rem; font-weight: 900; background: repeating-linear-gradient(-45deg, rgba(44, 77, 106, .05) 0 5px, transparent 5px 10px), #edf5fa; border: 1px solid #83a7bb; border-radius: 8px; box-shadow: 0 3px 0 rgba(40, 86, 109, .15); cursor: pointer; }
+.auth-request-access:hover, .auth-request-access:focus-visible { background-color: #e1f0f8; outline: 2px solid #4a8eb0; outline-offset: 2px; }
 .notebook-login .auth-load-note { grid-area: notice; width: min(100%, 680px); margin: 22px 0 0; padding: 13px 16px; color: #263f52; background: rgba(255, 248, 218, .74); border: 1px dashed rgba(184, 138, 44, .45); border-radius: 8px; box-shadow: none; }
 .notebook-login .auth-load-note span { color: #bd7f1d; }
 .notebook-login .auth-note { margin: 11px 0 0; color: #465b6a; font-size: .78rem; text-align: center; }
@@ -443,6 +452,11 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 .note-money { top: 25px; right: 29px; text-align: right; }
 .note-calm { top: 88px; right: 42px; transform: rotate(7deg); }
 .note-calm::before { background: #267ab2; }
+.note-equation { top: 260px; left: 20px; color: #383b90 !important; font-size: clamp(1rem, 2vw, 1.4rem) !important; transform: rotate(-9deg); }
+.note-soda { bottom: 42px; left: 25px; color: #9a4f54 !important; transform: rotate(-7deg); }
+.note-zone { right: 25px; bottom: 25px; color: #7e3c68 !important; text-align: center; transform: rotate(8deg); }
+.note-masha { top: 314px; right: 13px; color: #423e91 !important; writing-mode: vertical-rl; transform: rotate(180deg); }
+.note-masha::before { background: #6e4eaf; }
 .notebook-doodle { position: absolute; z-index: 0; color: #37337d; font-family: "Comic Sans MS", cursive; font-weight: 900; pointer-events: none; opacity: .82; }
 .doodle-plane { top: 120px; left: 38px; font-size: 3.3rem; transform: rotate(-22deg); }
 .doodle-splatter-left { top: 335px; left: 29px; color: #42236f; font-size: 2.8rem; }
@@ -468,6 +482,9 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
   .notebook-login .google-id-login { min-height: 49px; }
   .notebook-login .auth-load-note { width: 100%; margin-top: 17px; font-size: .78rem; }
   .notebook-note, .notebook-doodle:not(.doodle-plane) { display: none; }
+  .note-money, .note-masha { display: block; }
+  .note-money { top: 64px; right: 8px; padding: 5px 8px 4px !important; font-size: .62rem !important; opacity: .82; }
+  .note-masha { top: auto; right: 7px; bottom: 60px; padding: 5px 4px !important; font-size: .62rem !important; opacity: .74; }
   .doodle-plane { top: 77px; left: 13px; font-size: 1.9rem; opacity: .72; }
 }
 
@@ -623,6 +640,9 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 
 .summary-status { padding: 7px; background: rgba(255, 253, 245, .58); border: 1px solid rgba(177, 164, 130, .48); border-radius: 14px; box-shadow: 0 3px 0 rgba(24, 48, 68, .05); }
 .summary-status .last-updated { background: transparent; }
+.school-calendar { display: inline-grid; min-width: 66px; padding: 5px 8px 6px; color: #243d50; text-align: center; background: linear-gradient(135deg, #fffef6, #f6e5b8); border: 1px solid #d6ad55; border-radius: 10px 12px 9px 11px; box-shadow: 0 3px 0 rgba(127, 87, 20, .14); transform: rotate(-1.5deg); }
+.school-calendar-day { display: block; font-size: 1.4rem; font-weight: 950; line-height: 1; }
+.school-calendar-month { display: block; margin-top: 2px; font-size: .64rem; font-weight: 900; text-transform: lowercase; }
 
 .card-title-row { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 21px; }
 .card-title-row h3 { margin: 8px 0 0; font-size: 1.5rem; line-height: 1.15; }
@@ -881,6 +901,7 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
   .metric-card strong { font-size: clamp(2.35rem, 9vw, 3.1rem); }
   .metric-card strong::after { margin-top: 6px; }
   .summary-status { align-self: stretch; justify-content: flex-start; }
+  .school-calendar { min-width: 62px; }
   .fund-grid,
   .dashboard-grid { grid-template-columns: 1fr; }
   .contribution-reminder { align-items: stretch; flex-direction: column; }

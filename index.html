@@ -49,7 +49,7 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=23">
+  <link rel="stylesheet" href="styles.css?v=24">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -78,6 +78,10 @@
       </header>
       <p class="notebook-note note-money">Где деньги, Зин?<br><b>А + Б = ♥</b></p>
       <p class="notebook-note note-calm">Тихо!<br>Не пались!</p>
+      <p class="notebook-note note-equation">2×2=5?</p>
+      <p class="notebook-note note-soda">soda + mentos = ?</p>
+      <p class="notebook-note note-zone">ЗАПРЕТНАЯ<br>зона!</p>
+      <p class="notebook-note note-masha">Маша + Паша = ?</p>
       <div class="login-showcase">
         <div class="login-title-block">
           <img class="auth-emblem" src="icons/class-2a.svg" alt="Эмблема 2 А класса">
@@ -94,8 +98,16 @@
       <section class="login-panel" aria-label="Вход в бюджет класса">
         <form id="emailPasswordForm" class="email-password-form" novalidate>
           <label for="emailPasswordEmailInput">Вход по почте и паролю</label>
-          <input id="emailPasswordEmailInput" type="email" inputmode="email" autocomplete="email" placeholder="Ваша почта" required>
-          <input id="emailPasswordInput" type="password" autocomplete="current-password" minlength="6" placeholder="Пароль" required>
+          <div class="auth-input-shell">
+            <span class="auth-input-icon" aria-hidden="true">✉</span>
+            <input id="emailPasswordEmailInput" type="email" inputmode="email" autocomplete="email" placeholder="Ваша почта" required>
+          </div>
+          <div class="auth-input-shell">
+            <span class="auth-input-icon" aria-hidden="true">🔒</span>
+            <input id="emailPasswordInput" type="password" autocomplete="current-password" minlength="6" placeholder="Пароль" required>
+            <button id="togglePasswordVisibility" class="auth-password-toggle" type="button" aria-label="Показать пароль" aria-pressed="false">◉</button>
+          </div>
+          <label class="auth-remember"><input id="rememberSessionInput" type="checkbox" checked><span>Запомнить меня на этом устройстве</span></label>
           <button id="emailPasswordLoginButton" class="button button-primary" type="submit">Войти</button>
         </form>
         <button id="requestPasswordSetupButton" class="auth-link-button" type="button">Первый вход или забыли пароль?<br>Задать пароль по ссылке из письма</button>
@@ -108,6 +120,7 @@
         </form>
         <div class="auth-divider" aria-hidden="true"><span>или</span></div>
         <div id="googleLoginButton" class="google-id-login" aria-label="Войти через Google"></div>
+        <button id="authRequestAccessButton" class="auth-request-access" type="button">Войти или подать заявку</button>
         <div id="configWarning" class="notice notice-warning hidden" role="alert"></div>
         <div id="authError" class="notice notice-error hidden" role="alert"></div>
       </section>
@@ -159,6 +172,10 @@
             <h2 id="summaryTitle">Сводка класса</h2>
           </div>
           <div class="summary-status">
+            <aside id="schoolCalendar" class="school-calendar" aria-label="Школьный календарь Приморского края">
+              <span id="schoolCalendarDay" class="school-calendar-day">--</span>
+              <span id="schoolCalendarMonth" class="school-calendar-month">месяц</span>
+            </aside>
             <span class="mascot-chip" title="Совёнок-счётовод помогает следить за бюджетом">
               <span class="mascot-owl" aria-hidden="true">🦉</span>
               <span>Совёнок-счётовод</span>
@@ -671,6 +688,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=42" defer></script>
+  <script src="app.js?v=43" defer></script>
 </body>
 </html>
