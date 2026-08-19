@@ -431,6 +431,8 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
 .notebook-login .auth-divider { margin: 16px auto 13px; color: #6a7c8b; font-size: .78rem; }
 .notebook-login .auth-divider::before, .notebook-login .auth-divider::after { background: rgba(38, 63, 82, .2); }
 .notebook-login .button-google { width: 100%; min-height: 46px; color: #1c3443; background: #fff; border-color: #8ea0af; border-radius: 8px; box-shadow: none; }
+.notebook-login .google-id-login { display: flex; width: 100%; min-height: 46px; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #8ea0af; border-radius: 8px; background: #fff; }
+.notebook-login .google-id-login > div { display: flex !important; width: 100% !important; justify-content: center !important; }
 .notebook-login .auth-load-note { grid-area: notice; width: min(100%, 680px); margin: 22px 0 0; padding: 13px 16px; color: #263f52; background: rgba(255, 248, 218, .74); border: 1px dashed rgba(184, 138, 44, .45); border-radius: 8px; box-shadow: none; }
 .notebook-login .auth-load-note span { color: #bd7f1d; }
 .notebook-login .auth-note { margin: 11px 0 0; color: #465b6a; font-size: .78rem; text-align: center; }
@@ -462,7 +464,8 @@ html[data-season="school-start"] .season-badge { background: #ffe083; }
   .login-panel { max-width: 520px; padding: 22px 18px 20px; }
   .notebook-login .email-password-form input,
   .notebook-login .email-password-form .button,
-  .notebook-login .button-google { min-height: 49px; }
+  .notebook-login .button-google,
+  .notebook-login .google-id-login { min-height: 49px; }
   .notebook-login .auth-load-note { width: 100%; margin-top: 17px; font-size: .78rem; }
   .notebook-note, .notebook-doodle:not(.doodle-plane) { display: none; }
   .doodle-plane { top: 77px; left: 13px; font-size: 1.9rem; opacity: .72; }

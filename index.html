@@ -90,9 +90,7 @@
           <button id="saveNewPasswordButton" class="button button-primary" type="submit">Сохранить пароль</button>
         </form>
         <div class="auth-divider" aria-hidden="true"><span>или</span></div>
-        <button id="googleLoginButton" class="button button-google" type="button">
-          <span aria-hidden="true">G</span> Новый родитель? Войти через Google
-        </button>
+        <div id="googleLoginButton" class="google-id-login" aria-label="Войти через Google"></div>
         <div id="configWarning" class="notice notice-warning hidden" role="alert"></div>
         <div id="authError" class="notice notice-error hidden" role="alert"></div>
       </section>
@@ -631,6 +629,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=34" defer></script>
+  <script src="app.js?v=35" defer></script>
 </body>
 </html>

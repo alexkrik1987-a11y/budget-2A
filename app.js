@@ -3,9 +3,14 @@
 /* =========================================================
    1. НАСТРОЙКА SUPABASE
    ========================================================= */
-const SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
+const DIRECT_SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
+const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+// В опубликованной версии Caddy проксирует этот путь к Supabase, поэтому
+// телефон не обращается напрямую к нестабильному домену supabase.co.
+const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
-const APP_VERSION = "v34";
+const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
+const APP_VERSION = "v35";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
 
@@ -128,6 +133,7 @@ async function init() {
   applySeasonalTheme();
   setupInstallExperience();
   activateServiceWorker();
+  initGoogleIdentity();
 
   try {
     if (!db) {
@@ -263,7 +269,7 @@ function setSelectOptions(select, options) {
 }
 
 function bindEvents() {
-  if (dom.googleLoginButton) dom.googleLoginButton.addEventListener("click", loginWithGoogle);
+  // Google Identity самостоятельно управляет кнопкой внутри googleLoginButton.
   if (dom.emailPasswordForm) dom.emailPasswordForm.addEventListener("submit", loginWithEmailPassword);
   if (dom.requestPasswordSetupButton) dom.requestPasswordSetupButton.addEventListener("click", requestPasswordSetup);
   if (dom.passwordResetForm) dom.passwordResetForm.addEventListener("submit", savePasswordReset);
@@ -502,36 +508,82 @@ async function savePasswordReset(event) {
   await queueSessionHandling(data.session);
 }
 
-async function loginWithGoogle() {
-  if (!db) return showConfigWarning();
+function initGoogleIdentity() {
+  if (!GOOGLE_WEB_CLIENT_ID || IS_LOCAL_PREVIEW) return;
+  const loadIdentity = () => {
+    if (!window.google?.accounts?.id || !dom.googleLoginButton) return;
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_WEB_CLIENT_ID,
+      callback: handleGoogleCredential,
+      auto_select: false,
+      cancel_on_tap_outside: true,
+      itp_support: true,
+      use_fedcm_for_prompt: true
+    });
+    dom.googleLoginButton.replaceChildren();
+    window.google.accounts.id.renderButton(dom.googleLoginButton, {
+      type: "standard",
+      theme: "outline",
+      size: "large",
+      text: "signin_with",
+      shape: "rectangular",
+      logo_alignment: "left",
+      width: Math.max(260, Math.floor(dom.googleLoginButton.getBoundingClientRect().width || 320)),
+      locale: "ru"
+    });
+  };
 
-  if (dom.googleLoginButton) setButtonLoading(dom.googleLoginButton, true, "Переходим в Google…");
+  if (window.google?.accounts?.id) {
+    loadIdentity();
+    return;
+  }
+
+  const script = document.createElement("script");
+  script.src = "https://accounts.google.com/gsi/client";
+  script.async = true;
+  script.defer = true;
+  script.onload = loadIdentity;
+  script.onerror = () => showAuthError("Не удалось открыть Google. Проверьте подключение и попробуйте ещё раз.");
+  document.head.append(script);
+}
+
+function loginWithGoogle() {
+  if (!db) return showConfigWarning();
+  if (IS_LOCAL_PREVIEW) return loginWithLegacyGoogleRedirect();
+  showAuthError("Используйте кнопку Google на экране входа.");
+}
+
+async function handleGoogleCredential(response) {
+  if (!response?.credential || !db) {
+    showAuthError("Google не передал данные входа. Попробуйте ещё раз.");
+    return;
+  }
+
+  showAuthMessage("Проверяем Google-вход…", "info");
+  const { data, error } = await db.auth.signInWithIdToken({
+    provider: "google",
+    token: response.credential
+  });
+  if (error || !data?.session) {
+    showAuthError(`Не удалось завершить Google-вход: ${friendlyError(error)}`);
+    return;
+  }
+
+  await queueSessionHandling(data.session);
+}
+
+async function loginWithLegacyGoogleRedirect() {
+    showAuthMessage("Переходим в Google…", "info");
   const { error } = await db.auth.signInWithOAuth({
     provider: "google",
     options: {
-      // Preserve the deployed path but never send stale OAuth query/hash values back.
-      redirectTo: getOAuthRedirectUrl(),
-      // Позволяет родителю выбрать нужный аккаунт, если в браузере их несколько.
+      redirectTo: "http://localhost:4173/",
       queryParams: { prompt: "select_account" }
     }
   });
-
   if (error) {
-    if (dom.googleLoginButton) setButtonLoading(dom.googleLoginButton, false);
     showAuthError(`Ошибка входа: ${error.message}`);
   }
-}
-
-function getOAuthRedirectUrl() {
-  // На старой GitHub Pages-ссылке могли остаться ярлыки и кэш на телефонах.
-  // В рабочей версии всегда возвращаем Google-вход на единственный актуальный домен.
-  const isLocalPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname);
-  if (!isLocalPreview) return "https://rodcomitet.budget2a.kriknexus.pro/";
-
-  const redirectUrl = new URL(`${window.location.origin}${window.location.pathname}`);
-  redirectUrl.search = "";
-  redirectUrl.hash = "";
-  return redirectUrl.toString();
 }
 
 async function logout() {
@@ -606,7 +658,7 @@ async function handleSession(session, runId) {
 
     hideElement(dom.authError);
     state.accessRequestStatus = "APPROVED";
-    if (dom.googleLoginButton) dom.googleLoginButton.textContent = "Войти или зарегистрироваться";
+    // Официальная кнопка Google остаётся внутри своего контейнера.
     setProtectedAccess(true);
     showNotice(`${APP_VERSION}: вход выполнен. Проверяем роль…`, "info", 0);
 
@@ -1410,7 +1462,7 @@ function renderAccessRequestStatus(request) {
   } else {
     showAuthMessage("Ваш доступ уже одобрен. Обновите страницу, чтобы открыть бюджет и чат.", "info");
   }
-  if (dom.googleLoginButton) dom.googleLoginButton.textContent = "Войти с другим Google-аккаунтом";
+  // Официальная кнопка Google остаётся внутри своего контейнера.
 }
 
 function renderStudentManagement() {
