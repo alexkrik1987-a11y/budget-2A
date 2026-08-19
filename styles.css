@@ -815,6 +815,7 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
 
 .site-footer { padding: 26px max(20px, env(safe-area-inset-right)) calc(26px + env(safe-area-inset-bottom)); color: var(--ink-soft); text-align: center; font-weight: 800; }
 .site-footer p { margin: 0 0 13px; }
+.site-footer .site-version { margin: -4px 0 13px; color: #6d7787; font-size: .72rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 .install-button { margin-inline: auto; color: #fff; background: var(--navy); border-color: var(--navy-dark); box-shadow: 0 5px 0 var(--navy-dark); }
 
 .receipt-modal { width: min(920px, calc(100% - 24px)); }
