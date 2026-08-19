@@ -5,7 +5,7 @@
    ========================================================= */
 const SUPABASE_URL = "https://ftmnevlzremmisbajkmt.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
-const APP_VERSION = "v32";
+const APP_VERSION = "v33";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
 
@@ -729,99 +729,85 @@ async function loadAllData({ silent = false } = {}) {
   const loadRunId = ++state.loadRunId;
   if (!silent) showNotice(`${APP_VERSION}: загружаем основные данные бюджета…`, "info", 0);
 
-  // Сначала запрашиваем только то, без чего нельзя показать бюджет.
-  // Чат, заявки и резервные копии не должны удерживать всю страницу на слабой мобильной сети.
-  const [studentsStep, contributionsStep, expensesStep, archiveStep] = await Promise.all([
-    loadStep("список учеников", fetchStudents, { data: state.allStudents ?? [] }),
-    loadStep("взносы", () => db.from("contributions").select("id, student_id, campaign_id, amount, created_at, updated_at"), { data: state.contributions ?? [] }),
-    loadStep("расходы", fetchExpenses, { data: state.expenses ?? [] }),
-    loadStep("сборы", fetchArchiveAwareData, {
-      campaigns: state.campaigns ?? [],
-      archivedCampaigns: state.archivedCampaigns ?? [],
-      classProfile: state.classProfile,
-      ready: state.archiveFeaturesReady,
-      error: null
-    })
-  ]);
+  // На мобильной сети один защищённый RPC надёжнее, чем несколько параллельных
+  // REST-запросов. Он возвращает те же данные после проверки членства в классе.
+  const snapshotStep = await loadStep(
+    "бюджет класса",
+    () => db.rpc("load_class_budget_snapshot"),
+    { data: null }
+  );
 
   if (loadRunId !== state.loadRunId || !state.session) return;
 
-  const allStudents = studentsStep.result?.data ?? state.allStudents ?? [];
+  const snapshot = snapshotStep.result?.data;
+  if (!snapshot || typeof snapshot !== "object") {
+    if (!silent) showNotice("Бюджет пока не загрузился. Проверьте интернет и попробуйте обновить страницу.", "error", 12_000);
+    return;
+  }
+
+  const allStudents = Array.isArray(snapshot.students) ? snapshot.students : [];
+  const allCampaigns = Array.isArray(snapshot.campaigns) ? snapshot.campaigns : [];
   state.allStudents = allStudents;
   state.students = allStudents.filter((student) => student.is_active !== false);
-  state.contributions = contributionsStep.result?.data ?? state.contributions ?? [];
-  state.expenses = expensesStep.result?.data ?? state.expenses ?? [];
-  state.campaigns = archiveStep.result?.campaigns ?? state.campaigns ?? [];
-  state.archivedCampaigns = archiveStep.result?.archivedCampaigns ?? state.archivedCampaigns ?? [];
-  state.classProfile = archiveStep.result?.classProfile ?? state.classProfile;
-  state.archiveFeaturesReady = archiveStep.result?.ready === true;
+  state.contributions = Array.isArray(snapshot.contributions) ? snapshot.contributions : [];
+  state.expenses = Array.isArray(snapshot.expenses) ? snapshot.expenses : [];
+  state.campaigns = allCampaigns.filter((item) => !item.archived_at);
+  state.archivedCampaigns = allCampaigns
+    .filter((item) => item.archived_at)
+    .sort((a, b) => new Date(b.archived_at) - new Date(a.archived_at));
+  state.classProfile = snapshot.class_profile?.class_name ? snapshot.class_profile : state.classProfile;
+  state.chatMessages = Array.isArray(snapshot.chat_messages) ? snapshot.chat_messages : [];
+  state.chatReady = true;
+  state.archiveFeaturesReady = true;
+  state.advancedFeaturesReady = true;
 
   if (!state.campaigns.some((item) => item.id === state.selectedCampaignId)) {
     state.selectedCampaignId = state.campaigns.find((item) => item.is_open)?.id ?? state.campaigns[0]?.id ?? null;
   }
 
   renderAll();
-
-  const coreWarnings = [studentsStep, contributionsStep, expensesStep, archiveStep]
-    .filter((step) => step.error)
-    .map((step) => step.label);
   if (!silent) {
-    if (coreWarnings.length) {
-      showNotice(`Бюджет показан частично. Пока не ответили: ${coreWarnings.join(", ")}. Попробуйте обновить страницу.`, "error", 12_000);
+    if (snapshotStep.error) {
+      showNotice("Бюджет пока не загрузился. Проверьте интернет и попробуйте обновить страницу.", "error", 12_000);
     } else {
       hideNotice();
     }
   }
 
-  // Дополнительные данные догружаются отдельно. Они не могут вернуть нули в уже показанный бюджет.
+  // Для родителя всё уже пришло единым запросом. У администратора отдельно
+  // догружаются только служебные данные заявок и резервных копий.
   void loadSupplementaryData(loadRunId, { silent });
 }
 
 async function loadSupplementaryData(loadRunId, { silent = false } = {}) {
-  const steps = [
-    loadStep("профиль класса", fetchClassProfile, { data: state.classProfile, error: null }, OPTIONAL_DATA_TIMEOUT_MS),
-    loadStep("чат класса", fetchChatMessages, { data: [], ready: false, error: null }, OPTIONAL_DATA_TIMEOUT_MS)
-  ];
-
-  if (state.isAdmin) {
-    steps.push(
-      loadStep("настройки заявок", fetchAccessAdministration, {
-        ready: false,
-        enrollmentOpen: false,
-        accessRequests: [],
-        error: null
-      }, OPTIONAL_DATA_TIMEOUT_MS),
-      loadStep("список резервных копий", fetchBackups, { data: [], error: null }, OPTIONAL_DATA_TIMEOUT_MS)
-    );
-  }
-
-  const results = await Promise.all(steps);
-  if (loadRunId !== state.loadRunId || !state.session) return;
-
-  const profileStep = results[0];
-  const chatStep = results[1];
-  state.classProfile = profileStep.result?.data ?? state.classProfile;
-  state.chatMessages = chatStep.result?.data ?? [];
-  state.chatReady = chatStep.result?.ready === true;
-
-  let warnings = [profileStep, chatStep].filter((step) => step.error).map((step) => step.label);
-  if (state.isAdmin) {
-    const accessStep = results[2];
-    const backupsStep = results[3];
-    state.enrollmentReady = accessStep.result?.ready === true;
-    state.enrollmentOpen = accessStep.result?.enrollmentOpen === true;
-    state.accessRequests = accessStep.result?.accessRequests ?? [];
-    state.backups = backupsStep.result?.data ?? [];
-    warnings = warnings.concat([accessStep, backupsStep].filter((step) => step.error).map((step) => step.label));
-  } else {
+  if (!state.isAdmin) {
     state.enrollmentReady = false;
     state.enrollmentOpen = false;
     state.accessRequests = [];
     state.backups = [];
+    subscribeRealtime();
+    return;
   }
+
+  const [accessStep, backupsStep] = await Promise.all([
+    loadStep("настройки заявок", fetchAccessAdministration, {
+      ready: false,
+      enrollmentOpen: false,
+      accessRequests: [],
+      error: null
+    }, OPTIONAL_DATA_TIMEOUT_MS),
+    loadStep("список резервных копий", fetchBackups, { data: [], error: null }, OPTIONAL_DATA_TIMEOUT_MS)
+  ]);
+  if (loadRunId !== state.loadRunId || !state.session) return;
+
+  state.enrollmentReady = accessStep.result?.ready === true;
+  state.enrollmentOpen = accessStep.result?.enrollmentOpen === true;
+  state.accessRequests = accessStep.result?.accessRequests ?? [];
+  state.backups = backupsStep.result?.data ?? [];
 
   renderAll();
   subscribeRealtime();
+  const warnings = [accessStep, backupsStep].filter((step) => step.error).map((step) => step.label);
   if (!silent && warnings.length) {
     showNotice(`Бюджет загружен. Пока недоступно: ${warnings.join(", ")}. Это не влияет на суммы и историю взносов.`, "error", 12_000);
   }
@@ -2607,7 +2593,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=32", window.location.href);
+  const workerUrl = new URL("./sw.js?v=33", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
