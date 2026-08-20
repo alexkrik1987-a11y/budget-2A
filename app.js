@@ -938,7 +938,9 @@ async function loadAllData({ silent = false } = {}) {
     .filter((item) => item.archived_at)
     .sort((a, b) => new Date(b.archived_at) - new Date(a.archived_at));
   state.classProfile = snapshot.class_profile?.class_name ? snapshot.class_profile : state.classProfile;
-    state.chatMessages = Array.isArray(snapshot.chat_messages) ? snapshot.chat_messages : [];
+    state.chatMessages = Array.isArray(snapshot.chat_messages)
+      ? snapshot.chat_messages.filter((message) => !message?.archived_at)
+      : [];
     state.chatReady = true;
     syncChatUnreadState();
     state.archiveFeaturesReady = true;
@@ -1103,20 +1105,37 @@ async function fetchAccessAdministration() {
 }
 
 async function fetchChatMessages() {
-  const result = await db
+  const activeResult = await db
     .from("chat_messages")
-    .select("id, author_id, author_name, body, created_at, is_pinned, pinned_at")
+    .select("id, author_id, author_name, body, created_at, is_pinned, pinned_at, archived_at")
+    .is("archived_at", null)
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })
     .limit(120);
 
-  if (!result.error) {
-    return { data: [...(result.data ?? [])].reverse(), ready: true, error: null };
+  if (!activeResult.error) {
+    return { data: [...(activeResult.data ?? [])].reverse(), ready: true, error: null };
   }
-  if (/chat_messages|does not exist|relation .* does not exist/i.test(result.error.message || "")) {
+
+  // До запуска chat-archive.sql старые базы не имеют archived_at.
+  // Временный fallback сохраняет обычную работу чата без очистки данных.
+  if (/archived_at|column .* does not exist/i.test(activeResult.error.message || "")) {
+    const legacyResult = await db
+      .from("chat_messages")
+      .select("id, author_id, author_name, body, created_at, is_pinned, pinned_at")
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .limit(120);
+    if (!legacyResult.error) {
+      return { data: [...(legacyResult.data ?? [])].reverse(), ready: true, error: null };
+    }
+    return { data: [], ready: false, error: legacyResult.error };
+  }
+
+  if (/chat_messages|does not exist|relation .* does not exist/i.test(activeResult.error.message || "")) {
     return { data: [], ready: false, error: null };
   }
-  return { data: [], ready: false, error: result.error };
+  return { data: [], ready: false, error: activeResult.error };
 }
 
 async function fetchExpenses() {
@@ -1255,9 +1274,14 @@ function removeChatMessage(messageId) {
 function handleChatRealtimeEvent(payload, generation) {
   if (generation !== state.realtimeGeneration) return;
   const eventType = payload?.eventType || payload?.event;
-  if (eventType === "DELETE") removeChatMessage(payload.old?.id);
-  else if (eventType === "INSERT" || eventType === "UPDATE") mergeChatMessage(payload.new);
-  else return;
+  if (eventType === "DELETE") {
+    removeChatMessage(payload.old?.id);
+  } else if (eventType === "INSERT") {
+    if (!payload.new?.archived_at) mergeChatMessage(payload.new);
+  } else if (eventType === "UPDATE") {
+    if (payload.new?.archived_at) removeChatMessage(payload.new.id);
+    else mergeChatMessage(payload.new);
+  } else return;
 
   syncChatUnreadState();
   renderChat();
