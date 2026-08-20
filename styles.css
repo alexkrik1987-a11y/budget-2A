@@ -3678,3 +3678,124 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   .content { width: min(100% - 16px, 560px) !important; }
   .paper-card, .campaign-info-card, .table-card, .student-management-card, .access-management-card, .school-year-card, .backup-card, .templates-card { padding: 11px !important; }
 }
+
+/* V55.1 margin-boundary hotfix: keep every view inside the notebook red margin. */
+.content,
+.content > .view,
+.view > *,
+.section-heading,
+.paper-card,
+.table-card,
+.analytics-card,
+.report-card,
+.campaign-info-card,
+.templates-card,
+.student-management-card,
+.access-management-card,
+.school-year-card,
+.backup-card {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.table-scroll,
+.table-toolbar,
+.filter-bar,
+.settings-toolbar,
+.templates-grid,
+.campaign-grid,
+.metric-grid,
+.fund-grid,
+.charts-grid {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  body::before {
+    background: linear-gradient(90deg, transparent 0 21px, rgba(217, 84, 69, .34) 21px 23px, transparent 23px) !important;
+  }
+
+  .content {
+    width: calc(100% - 44px) !important;
+    max-width: none !important;
+    margin-left: 32px !important;
+    margin-right: 12px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .view,
+  .view.active,
+  .view > *,
+  .section-heading,
+  .paper-card,
+  .table-card,
+  .analytics-card,
+  .report-card,
+  .campaign-info-card,
+  .templates-card,
+  .student-management-card,
+  .access-management-card,
+  .school-year-card,
+  .backup-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .section-heading h1,
+  .section-heading h2,
+  .paper-card h2,
+  .paper-card h3,
+  .paper-card p,
+  .paper-card label,
+  .paper-card span,
+  .paper-card strong,
+  .paper-card small,
+  th,
+  td {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .table-scroll {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+  }
+
+  table {
+    max-width: none !important;
+  }
+}
+
+/* V55.1 table fit: never let a table's intrinsic min-width escape its paper card. */
+@media (max-width: 768px) {
+  .table-scroll {
+    overflow-x: hidden !important;
+  }
+
+  .table-scroll table,
+  .table-scroll .responsive-cards {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+  }
+
+  .table-scroll th,
+  .table-scroll td {
+    max-width: 0 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+
+  #view-settings .table-scroll th,
+  #view-settings .table-scroll td {
+    font-size: .72rem !important;
+    padding-inline: 5px !important;
+  }
+}
