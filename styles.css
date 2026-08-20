@@ -3538,3 +3538,72 @@ textarea {
     padding: 12px 10px;
   }
 }
+
+/* V54.4 HOTFIX — exact Settings item geometry for mobile. */
+#view-settings .student-management-item,
+#view-settings .backup-item {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+}
+#view-settings .student-management-item > div:first-child,
+#view-settings .backup-item > div:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+#view-settings .student-management-item strong,
+#view-settings .student-management-item small,
+#view-settings .backup-item strong,
+#view-settings .backup-item small {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+#view-settings .row-actions {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+#view-settings .row-actions .action-button,
+#view-settings .backup-item > .button {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+@media (max-width: 768px) {
+  #view-settings .student-management-item,
+  #view-settings .backup-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    padding: 14px !important;
+    margin-inline: 0 !important;
+  }
+  #view-settings .row-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    justify-content: stretch;
+  }
+  #view-settings .row-actions .action-button,
+  #view-settings .backup-item > .button {
+    width: 100% !important;
+    min-height: 44px;
+    margin: 0;
+  }
+}
