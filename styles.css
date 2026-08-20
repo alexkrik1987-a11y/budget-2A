@@ -4992,3 +4992,69 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
     white-space: nowrap;
   }
 }
+
+/* v73: move the seasonal school notice below navigation, into the clear area under the header. */
+.utility-strip {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  background: rgba(255, 252, 238, .72);
+  border-bottom: 1px solid rgba(65, 88, 67, .12);
+}
+.utility-strip .season-badge {
+  position: static;
+  right: auto;
+  bottom: auto;
+  z-index: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 7px 14px;
+  font-size: .78rem;
+  transform: rotate(-1deg);
+}
+@media (max-width: 768px) {
+  .utility-strip {
+    min-height: 44px;
+    padding: 5px 12px;
+  }
+  .utility-strip .season-badge {
+    min-height: 30px;
+    padding: 6px 12px;
+    font-size: .72rem;
+  }
+}
+
+/* v74: on mobile keep the seasonal badge in the header; desktop keeps it below navigation. */
+@media (max-width: 768px) {
+  .utility-strip {
+    position: absolute;
+    top: 66px;
+    right: 12px;
+    z-index: 30;
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+    border-bottom: 0;
+  }
+  .utility-strip .season-badge {
+    min-height: 30px;
+    padding: 6px 12px;
+    font-size: .72rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .utility-strip {
+    right: 16px;
+    width: max-content;
+  }
+  .utility-strip .season-badge {
+    width: max-content;
+    max-width: none;
+    white-space: nowrap;
+    font-size: .66rem;
+  }
+}
