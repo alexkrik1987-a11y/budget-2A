@@ -3002,3 +3002,31 @@ input:focus, select:focus, textarea:focus { border-color: var(--color-primary); 
   visibility: visible !important;
   opacity: 1 !important;
 }
+
+/* V53.3 HOTFIX — prevent analytics labels and explanatory notes from overlapping. */
+#view-summary .expense-distribution-list { display: grid; gap: 12px; min-width: 0; }
+#view-summary .expense-distribution-row { min-width: 0; }
+#view-summary .expense-distribution-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+  align-items: start;
+  gap: 10px;
+  min-width: 0;
+}
+#view-summary .expense-distribution-heading strong {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+#view-summary .expense-distribution-note {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+@media (max-width: 680px) {
+  #view-summary .expense-distribution-heading { grid-template-columns: 1fr; gap: 3px; }
+}

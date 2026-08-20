@@ -779,6 +779,10 @@ async function handleSession(session, runId) {
     if (!isCurrentSessionRun(runId, session)) return;
     console.error(error);
     state.isAdmin = false;
+    // Не оставляем пользователя на бесконечном мобильном загрузчике,
+    // если Supabase не ответил или проверка доступа завершилась ошибкой.
+    clearSessionRestoreHint();
+    hideLoadingScreen();
     setProtectedAccess(false);
     showAuthError(`Не удалось проверить доступ: ${friendlyError(error)}. Обновите страницу или попробуйте позже.`);
     return;
