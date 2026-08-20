@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "budget-2a-shell-v53";
+const CACHE_NAME = "budget-2a-shell-v54";
 const INDEX_URL = new URL("./index.html", self.location.href).href;
 const APP_SHELL = [
   "./",
