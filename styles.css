@@ -3134,3 +3134,225 @@ input:focus, select:focus, textarea:focus { border-color: var(--color-primary); 
     transform: none !important;
   }
 }
+
+/* V54.1 HOTFIX — keep every tab inside its card and viewport. */
+.content,
+.view,
+.view > *,
+.paper-card,
+.table-card,
+.analytics-card,
+.report-card,
+.campaign-info-card,
+.backup-card,
+.school-year-card,
+.student-management-card,
+.access-management-card,
+.templates-card,
+.table-scroll,
+.responsive-cards,
+.form-grid,
+.form-actions,
+.filter-row,
+.table-toolbar,
+.card-title-row,
+.report-controls,
+.backup-actions {
+  min-width: 0;
+  max-width: 100%;
+}
+
+img,
+svg,
+canvas,
+iframe {
+  max-width: 100%;
+}
+
+button,
+.button,
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+.button,
+.nav-button,
+.status,
+.card-title-row h3,
+.card-title-row p,
+.section-heading h2,
+.user-copy,
+.notice,
+.form-hint,
+.table-card th,
+.table-card td,
+.analytics-card,
+.report-card {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.button,
+.nav-button {
+  white-space: normal;
+  text-align: center;
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+.responsive-cards,
+.responsive-cards table,
+.responsive-cards tbody,
+.responsive-cards tr,
+.responsive-cards td,
+.responsive-cards th {
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .content {
+    width: calc(100% - 20px) !important;
+    margin-inline: auto !important;
+    overflow-x: clip;
+  }
+  .view,
+  .view > * {
+    width: 100%;
+  }
+  .section-heading,
+  .card-title-row,
+  .table-toolbar,
+  .report-card,
+  .report-controls,
+  .filter-row,
+  .form-actions,
+  .backup-actions {
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .section-heading h2 {
+    font-size: clamp(1.45rem, 7vw, 2rem);
+    line-height: 1.08;
+  }
+  .card-title-row > *,
+  .report-card > *,
+  .report-controls > *,
+  .filter-row > *,
+  .form-actions > *,
+  .backup-actions > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .card-title-row .button,
+  .report-controls .button,
+  .filter-row .button,
+  .form-actions .button,
+  .backup-actions .button,
+  .table-toolbar .button {
+    width: 100%;
+  }
+  .form-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .template-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .table-card,
+  .analytics-card,
+  .report-card,
+  .paper-card,
+  .campaign-info-card,
+  .backup-card,
+  .school-year-card,
+  .student-management-card,
+  .access-management-card,
+  .templates-card {
+    overflow: hidden;
+  }
+  .table-scroll {
+    margin-inline: 0;
+    padding-bottom: 3px;
+  }
+  table {
+    max-width: none;
+  }
+  .table-card th,
+  .table-card td {
+    vertical-align: top;
+  }
+  .search-field,
+  .campaign-picker,
+  .contribution-reminder-select,
+  .report-controls select,
+  .filter-row select,
+  .filter-row input {
+    width: 100%;
+    max-width: 100%;
+  }
+  .analytics-card .legend,
+  .analytics-card .chart-row,
+  .analytics-card .fund-row,
+  .analytics-card .bar-row {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+  .analytics-card .legend span,
+  .analytics-card .chart-label,
+  .analytics-card .fund-label,
+  .analytics-card .bar-label {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .site-footer {
+    width: calc(100% - 20px);
+    max-width: 100%;
+    margin-inline: auto;
+    text-align: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .content {
+    width: calc(100% - 14px) !important;
+  }
+  .paper-card,
+  .table-card,
+  .analytics-card,
+  .report-card,
+  .campaign-info-card,
+  .backup-card,
+  .school-year-card,
+  .student-management-card,
+  .access-management-card,
+  .templates-card {
+    border-radius: 12px;
+  }
+  .paper-card,
+  .table-card,
+  .analytics-card,
+  .report-card {
+    padding-inline: 11px;
+  }
+  .metric-card {
+    padding: 17px !important;
+  }
+  .nav-button {
+    min-width: 0;
+    padding-inline: 5px !important;
+    font-size: .72rem;
+  }
+  .nav-button span {
+    margin-right: 1px;
+  }
+  .status {
+    white-space: normal;
+  }
+}
