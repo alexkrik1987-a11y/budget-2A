@@ -5428,3 +5428,70 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
     line-height: 1.35;
   }
 }
+
+
+.living-calendar-icon {
+  position: relative;
+  overflow: hidden;
+  align-content: start;
+  justify-items: center;
+  padding: 4px 3px 3px;
+  border: 1px solid rgba(168, 58, 48, .32);
+  border-radius: 8px;
+  color: var(--navy-dark);
+  background: #fffdf5;
+  line-height: 1;
+}
+
+.living-calendar-icon::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 10px;
+  background: var(--red);
+}
+
+.living-calendar-icon > span {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  margin-bottom: 3px;
+  padding-top: 1px;
+  color: #fff;
+  font-size: .46rem;
+  font-weight: 900;
+  letter-spacing: .03em;
+  text-align: center;
+}
+
+.living-calendar-icon > strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 1.08rem;
+  line-height: 1;
+}
+
+@media (max-width: 760px) {
+  .living-calendar-icon {
+    flex-basis: 32px;
+    width: 32px;
+    height: 32px;
+    padding-top: 3px;
+    border-radius: 7px;
+  }
+
+  .living-calendar-icon::before {
+    height: 8px;
+  }
+
+  .living-calendar-icon > span {
+    margin-bottom: 2px;
+    font-size: .38rem;
+  }
+
+  .living-calendar-icon > strong {
+    margin-top: 2px;
+    font-size: .9rem;
+  }
+}

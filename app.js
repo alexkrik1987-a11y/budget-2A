@@ -239,7 +239,7 @@ function cacheDom() {
     "globalNotice", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated", "schoolCalendar", "schoolCalendarDay", "schoolCalendarMonth",
     "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions", "parentChildOnboardingModal", "parentChildOnboardingForm", "parentChildOnboardingSelect", "parentChildOnboardingError", "parentChildOnboardingSaveButton",
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary",
-    "livingNotebook", "liveNotebookBalance", "liveNotebookBalanceNote", "liveNotebookCampaign", "liveNotebookCampaignNote", "liveNotebookDate", "liveNotebookDateNote", "liveNotebookCollected", "liveNotebookSpent", "liveNotebookRemaining", "liveNotebookMessage",
+    "livingNotebook", "liveNotebookBalance", "liveNotebookBalanceNote", "liveNotebookCampaign", "liveNotebookCampaignNote", "liveNotebookDate", "liveNotebookDateNote", "liveNotebookCalendarMonth", "liveNotebookCalendarDay", "liveNotebookCollected", "liveNotebookSpent", "liveNotebookRemaining", "liveNotebookMessage",
     "fundExpenseChart", "categoryExpenseChart", "reportMonthSelect", "downloadCsvButton", "printReportButton", "printReport",
     "recentExpenses", "campaignSelect", "campaignTypeTag", "selectedCampaignName",
     "selectedCampaignMeta", "campaignPlanTotal", "campaignCollectedTotal", "editModeText",
@@ -1976,6 +1976,11 @@ function renderLivingNotebook({ totalCollected, totalSpent, totalBalance }) {
     day: "numeric",
     month: "long"
   }).format(today);
+  const calendarMonth = new Intl.DateTimeFormat("ru-RU", { month: "short" })
+    .format(today)
+    .replace(".", "")
+    .toUpperCase();
+  const calendarDay = new Intl.DateTimeFormat("ru-RU", { day: "numeric" }).format(today);
   const capitalizedDate = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
 
   if (dom.liveNotebookBalance) dom.liveNotebookBalance.textContent = formatMoney(totalBalance);
@@ -2001,6 +2006,8 @@ function renderLivingNotebook({ totalCollected, totalSpent, totalBalance }) {
   }
 
   if (dom.liveNotebookDate) dom.liveNotebookDate.textContent = capitalizedDate;
+  if (dom.liveNotebookCalendarMonth) dom.liveNotebookCalendarMonth.textContent = calendarMonth;
+  if (dom.liveNotebookCalendarDay) dom.liveNotebookCalendarDay.textContent = calendarDay;
   if (dom.liveNotebookDateNote) {
     const schoolYear = displayedSchoolYearLabel(state.classProfile?.school_year);
     dom.liveNotebookDateNote.textContent = schoolYear
