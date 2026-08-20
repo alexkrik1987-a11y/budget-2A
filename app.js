@@ -92,6 +92,7 @@ const state = {
   chatReady: false,
   chatPanelOpen: false,
   chatRefreshTimer: null,
+  chatRealtimeRetryTimer: null,
   chatExpiryTimer: null,
   chatLastReadAt: null,
   chatUnreadCount: 0,
@@ -110,6 +111,7 @@ const state = {
   advancedFeaturesReady: false,
   realtimeChannel: null,
   realtimeSubscriptionKey: null,
+  realtimeGeneration: 0,
   realtimeRefreshTimer: null,
   noticeTimer: null,
   schoolCalendarTimer: null,
@@ -698,6 +700,8 @@ async function handleSession(session, runId) {
   state.user = session?.user ?? null;
 
   if (!session) {
+    unsubscribeRealtime();
+    window.clearTimeout(state.chatRefreshTimer);
     clearSessionRestoreHint();
     hideLoadingScreen();
     state.isAdmin = false;
@@ -1220,10 +1224,59 @@ function realtimeSubscriptionKey() {
   return `${state.isAdmin ? "admin" : "parent"}:${state.enrollmentReady ? "enrollment" : "standard"}:${state.chatReady ? "chat" : "no-chat"}`;
 }
 
+function sortChatMessages(messages) {
+  return [...messages].sort((a, b) => {
+    const timeDiff = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    return timeDiff || String(a.id).localeCompare(String(b.id));
+  });
+}
+
+function mergeChatMessage(message) {
+  if (!message?.id) return false;
+  const existingIndex = state.chatMessages.findIndex((item) => item.id === message.id);
+  if (existingIndex < 0) {
+    state.chatMessages = sortChatMessages([...state.chatMessages, message]);
+    return true;
+  }
+  const nextMessages = [...state.chatMessages];
+  nextMessages[existingIndex] = { ...nextMessages[existingIndex], ...message };
+  state.chatMessages = sortChatMessages(nextMessages);
+  return true;
+}
+
+function removeChatMessage(messageId) {
+  if (!messageId) return false;
+  const nextMessages = state.chatMessages.filter((message) => message.id !== messageId);
+  const changed = nextMessages.length !== state.chatMessages.length;
+  state.chatMessages = nextMessages;
+  return changed;
+}
+
+function handleChatRealtimeEvent(payload, generation) {
+  if (generation !== state.realtimeGeneration) return;
+  const eventType = payload?.eventType || payload?.event;
+  if (eventType === "DELETE") removeChatMessage(payload.old?.id);
+  else if (eventType === "INSERT" || eventType === "UPDATE") mergeChatMessage(payload.new);
+  else return;
+
+  syncChatUnreadState();
+  renderChat();
+}
+
+function scheduleChatRealtimeRetry(generation) {
+  window.clearTimeout(state.chatRealtimeRetryTimer);
+  state.chatRealtimeRetryTimer = window.setTimeout(() => {
+    if (generation !== state.realtimeGeneration || !state.session || !state.chatReady) return;
+    unsubscribeRealtime();
+    subscribeRealtime();
+  }, 1500);
+}
+
 function subscribeRealtime() {
   const subscriptionKey = realtimeSubscriptionKey();
   if (state.realtimeChannel && state.realtimeSubscriptionKey === subscriptionKey) return;
   unsubscribeRealtime();
+  const generation = state.realtimeGeneration;
   state.realtimeSubscriptionKey = subscriptionKey;
 
   state.realtimeChannel = db
@@ -1240,12 +1293,24 @@ function subscribeRealtime() {
   }
 
   if (state.chatReady) {
-    state.realtimeChannel.on("postgres_changes", { event: "*", schema: "public", table: "chat_messages" }, scheduleChatRefresh);
+    state.realtimeChannel.on("postgres_changes", { event: "*", schema: "public", table: "chat_messages" }, (payload) => handleChatRealtimeEvent(payload, generation));
   }
-  state.realtimeChannel.subscribe();
+
+  state.realtimeChannel.subscribe((status) => {
+    if (generation !== state.realtimeGeneration) return;
+    if (status === "SUBSCRIBED") {
+      window.clearTimeout(state.chatRealtimeRetryTimer);
+      return;
+    }
+    if (state.chatReady && ["CHANNEL_ERROR", "TIMED_OUT", "CLOSED"].includes(status)) {
+      scheduleChatRealtimeRetry(generation);
+    }
+  });
 }
 
 function unsubscribeRealtime() {
+  window.clearTimeout(state.chatRealtimeRetryTimer);
+  state.realtimeGeneration += 1;
   if (db && state.realtimeChannel) db.removeChannel(state.realtimeChannel);
   state.realtimeChannel = null;
   state.realtimeSubscriptionKey = null;
@@ -1257,7 +1322,7 @@ function scheduleChatRefresh() {
     try {
       const result = await fetchChatMessages();
       if (result.error) throw result.error;
-      state.chatMessages = result.data ?? [];
+      state.chatMessages = sortChatMessages(result.data ?? []);
       state.chatReady = result.ready === true;
       syncChatUnreadState();
       renderChat();
