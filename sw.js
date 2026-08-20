@@ -1,11 +1,13 @@
 "use strict";
 
-const CACHE_NAME = "budget-2a-shell-v70";
+const CACHE_NAME = "budget-2a-shell-v71";
 const INDEX_URL = new URL("./index.html", self.location.href).href;
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./styles.css?v=575",
+  "./styles.css?v=576",
+  "./vovka-helper.js?v=1",
+  "./vovka-preview-assets/vovka-navigator.png",
   "./app.js?v=53",
   "./vendor/supabase.min.js?v=10",
   "./manifest.webmanifest",
