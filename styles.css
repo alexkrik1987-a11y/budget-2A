@@ -3799,3 +3799,374 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
     padding-inline: 5px !important;
   }
 }
+
+/* V56 local fix: red-margin geometry, readable mobile tables, and authenticated header controls. */
+.site-header .header-inner,
+.site-header .brand,
+.site-header .user-panel,
+.site-header .user-copy {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.site-header #logoutButton,
+.site-header .user-panel #logoutButton {
+  display: inline-flex !important;
+  flex: 0 0 auto;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.site-footer {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .site-header .header-inner {
+    width: calc(100% - 44px) !important;
+    margin-left: 32px !important;
+    margin-right: 12px !important;
+    min-height: 0 !important;
+    padding: 12px 0 !important;
+    align-items: flex-start !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+
+  .site-header .brand {
+    flex: 1 1 170px;
+    gap: 8px !important;
+  }
+
+  .site-header .brand-icon {
+    width: 48px !important;
+    height: 48px !important;
+    flex-basis: 48px !important;
+  }
+
+  .site-header .brand h1 {
+    font-size: clamp(1.1rem, 5.6vw, 1.55rem) !important;
+    overflow-wrap: anywhere;
+  }
+
+  .site-header .user-panel {
+    flex: 1 1 100%;
+    width: 100% !important;
+    justify-content: flex-end;
+    gap: 8px !important;
+    padding: 8px !important;
+  }
+
+  .site-header .user-copy {
+    flex: 1 1 auto;
+    max-width: calc(100% - 58px) !important;
+    min-width: 0;
+  }
+
+  .site-header .user-copy strong,
+  .site-header .user-copy span {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .site-footer {
+    width: calc(100% - 44px) !important;
+    margin-left: 32px !important;
+    margin-right: 12px !important;
+    padding-inline: 0 !important;
+    overflow-wrap: anywhere;
+  }
+
+  .site-footer p,
+  .site-footer .install-button {
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Convert every data table into readable horizontal-label cards on mobile. */
+  .table-scroll {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  .table-scroll table.responsive-cards {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+  }
+
+  .table-scroll table.responsive-cards thead {
+    display: none !important;
+  }
+
+  .table-scroll table.responsive-cards tbody,
+  .table-scroll table.responsive-cards tfoot {
+    display: grid !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 10px;
+  }
+
+  .table-scroll table.responsive-cards tbody tr {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 9px 10px !important;
+    background: rgba(255, 253, 246, .88);
+    border: 1px solid rgba(177, 164, 130, .48);
+    border-radius: 12px;
+  }
+
+  .table-scroll table.responsive-cards tbody td,
+  .table-scroll table.responsive-cards tbody th {
+    display: grid !important;
+    grid-template-columns: minmax(78px, 34%) minmax(0, 1fr) !important;
+    align-items: start;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding: 5px 0 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+    text-align: left !important;
+  }
+
+  .table-scroll table.responsive-cards tbody td::before,
+  .table-scroll table.responsive-cards tbody th::before {
+    content: attr(data-label);
+    min-width: 0;
+    padding-right: 8px;
+    color: #5b6d72;
+    font-size: .68rem;
+    font-weight: 900;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  #view-settings .table-scroll table.responsive-cards tbody td:nth-child(1)::before { content: "Сбор"; }
+  #view-settings .table-scroll table.responsive-cards tbody td:nth-child(2)::before { content: "Тип"; }
+  #view-settings .table-scroll table.responsive-cards tbody td:nth-child(3)::before { content: "Фонд"; }
+  #view-settings .table-scroll table.responsive-cards tbody td:nth-child(4)::before { content: "План"; }
+  #view-settings .table-scroll table.responsive-cards tbody td:nth-child(5)::before { content: "Статус"; }
+  #view-settings .table-scroll table.responsive-cards tbody td:nth-child(6)::before { content: "Действия"; }
+
+  .table-scroll table.responsive-cards tfoot tr {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .table-scroll table.responsive-cards tfoot th,
+  .table-scroll table.responsive-cards tfoot td {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .table-scroll table.responsive-cards .row-actions,
+  .table-scroll table.responsive-cards .row-actions > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+/* V56.1 final visual pass: visible logout control and settings table cards. */
+.site-header #logoutButton,
+.site-header .user-panel #logoutButton {
+  color: #173f35 !important;
+  background: #f7d36e !important;
+  border: 2px solid #b58a20 !important;
+  box-shadow: 0 4px 0 #8c6815 !important;
+  text-shadow: none !important;
+}
+
+.site-header #logoutButton:hover,
+.site-header .user-panel #logoutButton:hover {
+  color: #173f35 !important;
+  background: #ffe49a !important;
+}
+
+@media (max-width: 768px) {
+  #view-settings .table-scroll table:not(.responsive-cards) {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+  }
+
+  #view-settings .table-scroll table:not(.responsive-cards) thead {
+    display: none !important;
+  }
+
+  #view-settings .table-scroll table:not(.responsive-cards) tbody {
+    display: grid !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 10px;
+  }
+
+  #view-settings .table-scroll table:not(.responsive-cards) tbody tr {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 9px 10px !important;
+    background: rgba(255, 253, 246, .88);
+    border: 1px solid rgba(177, 164, 130, .48);
+    border-radius: 12px;
+  }
+
+  #view-settings .table-scroll table:not(.responsive-cards) tbody td {
+    display: grid !important;
+    grid-template-columns: minmax(78px, 34%) minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding: 5px 0 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+    text-align: left !important;
+  }
+
+  #view-settings .table-scroll table:not(.responsive-cards) tbody td:nth-child(1)::before { content: "Сбор"; }
+  #view-settings .table-scroll table:not(.responsive-cards) tbody td:nth-child(2)::before { content: "Тип"; }
+  #view-settings .table-scroll table:not(.responsive-cards) tbody td:nth-child(3)::before { content: "Фонд"; }
+  #view-settings .table-scroll table:not(.responsive-cards) tbody td:nth-child(4)::before { content: "План"; }
+  #view-settings .table-scroll table:not(.responsive-cards) tbody td:nth-child(5)::before { content: "Статус"; }
+  #view-settings .table-scroll table:not(.responsive-cards) tbody td:nth-child(6)::before { content: "Действия"; }
+
+  #view-settings .table-scroll table:not(.responsive-cards) tbody td::before {
+    min-width: 0;
+    padding-right: 8px;
+    color: #5b6d72;
+    font-size: .68rem;
+    font-weight: 900;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  #view-settings .table-scroll table:not(.responsive-cards) .row-actions,
+  #view-settings .table-scroll table:not(.responsive-cards) .row-actions > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+/* V56.2: exact notebook margin alignment and header badge separation. */
+@media (min-width: 769px) {
+  .site-header .season-badge {
+    right: auto !important;
+    left: max(20px, calc((100vw - 1200px) / 2)) !important;
+    bottom: 7px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body::before {
+    background: linear-gradient(90deg, transparent 0 56px, rgba(217, 84, 69, .42) 56px 58px, transparent 58px) !important;
+  }
+
+  .content,
+  #protectedContent.is-authenticated > .content {
+    width: calc(100% - 76px) !important;
+    max-width: none !important;
+    margin-left: 64px !important;
+    margin-right: 12px !important;
+  }
+
+  .site-footer {
+    width: calc(100% - 76px) !important;
+    max-width: none !important;
+    margin-left: 64px !important;
+    margin-right: 12px !important;
+  }
+
+  .site-footer p,
+  .site-footer .install-button {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .section-heading,
+  .paper-card,
+  .table-card,
+  .campaign-info-card,
+  .templates-card,
+  .student-management-card,
+  .school-year-card,
+  .backup-card,
+  .access-management-card,
+  .archive-grid,
+  .settings-search-row {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* V56.3: move notebook margin closer to the edge while preserving a 8px content inset. */
+@media (max-width: 768px) {
+  body {
+    background-image: linear-gradient(90deg, transparent 0 28px, rgba(205, 78, 82, .48) 28px 30px, transparent 30px), linear-gradient(rgba(64, 139, 164, .17) 1px, transparent 1px), linear-gradient(90deg, rgba(64, 139, 164, .17) 1px, transparent 1px) !important;
+    background-size: 100% 100%, 22px 22px, 22px 22px !important;
+  }
+
+  body::before {
+    background: linear-gradient(90deg, transparent 0 28px, rgba(217, 84, 69, .42) 28px 30px, transparent 30px) !important;
+  }
+
+  .content,
+  #protectedContent.is-authenticated > .content {
+    width: calc(100% - 48px) !important;
+    margin-left: 36px !important;
+    margin-right: 12px !important;
+  }
+
+  .site-footer {
+    width: calc(100% - 48px) !important;
+    margin-left: 36px !important;
+    margin-right: 12px !important;
+  }
+}
+
+/* V56.4: keep exactly one mobile notebook red margin line. */
+@media (max-width: 768px) {
+  body::before {
+    display: none !important;
+  }
+}
+
+/* V56.5: card notebook margin lines must not cross tables or labels. */
+@media (max-width: 768px) {
+  .paper-card::before,
+  .table-card::before,
+  .templates-card::before,
+  .student-management-card::before,
+  .school-year-card::before,
+  .backup-card::before,
+  .access-management-card::before,
+  .campaign-info-card::before {
+    display: none !important;
+    content: none !important;
+  }
+}
