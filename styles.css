@@ -3043,3 +3043,26 @@ input:focus, select:focus, textarea:focus { border-color: var(--color-primary); 
   #protectedContent.is-authenticated > .content { width: min(calc(100% - 24px), 620px); padding-top: 18px; padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
   #protectedContent.is-authenticated > .content > .view.active { min-height: 520px; }
 }
+
+/* V53.9 HOTFIX — mobile nav must be a short bottom bar, never a full-screen overlay. */
+@media (max-width: 768px) {
+  #protectedContent.is-authenticated > .main-nav {
+    position: fixed !important;
+    top: auto !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 78px !important;
+    overflow: visible !important;
+    background: rgba(247, 240, 222, .97) !important;
+    pointer-events: auto !important;
+  }
+  #protectedContent.is-authenticated > .main-nav .nav-inner {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 70px !important;
+  }
+}
