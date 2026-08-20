@@ -4178,3 +4178,460 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
     content: none !important;
   }
 }
+
+/* V56.7: desktop-only visual separation for the Settings campaign table. */
+@media (min-width: 769px) {
+  #view-settings .table-card {
+    overflow: hidden;
+    background: rgba(255, 253, 246, .96) !important;
+    border: 2px solid rgba(58, 111, 92, .34) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 12px 28px rgba(31, 66, 54, .14), 0 0 0 5px rgba(255, 250, 226, .72) !important;
+  }
+
+  #view-settings .table-card .table-toolbar {
+    padding: 16px 20px !important;
+    background: linear-gradient(90deg, rgba(218, 239, 248, .88), rgba(255, 244, 196, .74)) !important;
+    border-bottom: 2px solid rgba(58, 111, 92, .22) !important;
+  }
+
+  #view-settings .table-card .table-scroll {
+    padding: 0 8px 8px;
+    background: rgba(255, 255, 255, .38);
+  }
+
+  #view-settings .table-card table {
+    border-collapse: separate;
+    border-spacing: 0 5px;
+  }
+
+  #view-settings .table-card thead th {
+    padding-top: 14px;
+    padding-bottom: 12px;
+    color: #244f47;
+    background: #e8f1ea;
+    border-bottom: 2px solid rgba(58, 111, 92, .24);
+  }
+
+  #view-settings .table-card tbody tr {
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 2px 0 rgba(58, 111, 92, .08);
+  }
+
+  #view-settings .table-card tbody tr:nth-child(even) {
+    background: rgba(244, 249, 244, .94);
+  }
+
+  #view-settings .table-card tbody td {
+    border-top: 1px solid rgba(104, 135, 119, .13);
+    border-bottom: 1px solid rgba(104, 135, 119, .13);
+  }
+
+  #view-settings .table-card tbody td:first-child {
+    border-left: 3px solid #e4bd4f;
+    border-top-left-radius: 9px;
+    border-bottom-left-radius: 9px;
+  }
+
+  #view-settings .table-card tbody td:last-child {
+    border-right: 1px solid rgba(104, 135, 119, .13);
+    border-top-right-radius: 9px;
+    border-bottom-right-radius: 9px;
+  }
+
+  #view-settings .table-card tbody tr:hover {
+    background: #fff7d4;
+    box-shadow: 0 4px 12px rgba(58, 111, 92, .14);
+  }
+}
+
+/* V56.8: desktop header badge separation and stronger Settings table contrast. */
+@media (min-width: 769px) {
+  .site-header {
+    position: relative;
+  }
+
+  .site-header .season-badge {
+    right: 24px;
+    bottom: 10px;
+    left: auto;
+    z-index: 3;
+    max-width: 190px;
+    padding: 6px 12px;
+    overflow: visible;
+    white-space: nowrap;
+    transform: rotate(-1deg);
+  }
+
+  #view-settings .table-card {
+    background: #fffdf5 !important;
+    border: 3px solid #2f715d !important;
+    box-shadow: 0 14px 30px rgba(31, 66, 54, .18), 0 0 0 5px rgba(255, 244, 196, .9) !important;
+  }
+
+  #view-settings .table-card .table-scroll {
+    padding: 4px 10px 12px;
+    background: #fffdf5;
+  }
+
+  #view-settings .table-card thead th {
+    color: #fffdf5 !important;
+    background: #2f715d !important;
+    border: 0 !important;
+  }
+
+  #view-settings .table-card tbody tr,
+  #view-settings .table-card tbody tr:nth-child(even) {
+    background: #ffffff !important;
+    box-shadow: none;
+  }
+
+  #view-settings .table-card tbody tr:nth-child(even) {
+    background: #eef7f2 !important;
+  }
+
+  #view-settings .table-card tbody td {
+    color: #193b35;
+    border-top: 1px solid #b9d4c8;
+    border-bottom: 1px solid #b9d4c8;
+  }
+
+  #view-settings .table-card tbody tr:hover {
+    background: #fff2b8 !important;
+  }
+
+  #view-settings .table-card tbody td:last-child {
+    white-space: nowrap;
+  }
+
+  #view-settings .table-card tbody td:last-child .button {
+    min-height: 34px;
+    margin: 2px 2px;
+    padding: 6px 10px;
+    color: #1c4d3e;
+    background: #d9f0e2;
+    border: 1px solid #8fc5a4;
+    border-radius: 8px;
+    box-shadow: 0 2px 0 #9dc6aa;
+  }
+
+  #view-settings .table-card tbody td:last-child .button:nth-child(2) {
+    color: #6a4c14;
+    background: #fff0b6;
+    border-color: #d6b84d;
+    box-shadow: 0 2px 0 #c4a849;
+  }
+
+  #view-settings .table-card tbody td:last-child .button:nth-child(3) {
+    color: #8b3c35;
+    background: #ffe1dc;
+    border-color: #dfa19a;
+    box-shadow: 0 2px 0 #c98d86;
+  }
+}
+
+/* V56.9: override the older important badge placement on desktop. */
+@media (min-width: 769px) {
+  .site-header .season-badge {
+    right: 24px !important;
+    bottom: 10px !important;
+    left: auto !important;
+    z-index: 3 !important;
+    max-width: 190px !important;
+    white-space: nowrap !important;
+    transform: rotate(-1deg) !important;
+  }
+}
+
+/* V57: compact mobile header only; desktop layout is untouched. */
+@media (max-width: 680px) {
+  .site-header .header-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(138px, 44%);
+    align-items: center;
+    gap: 8px;
+    min-height: 0;
+    padding: 10px 0 30px;
+  }
+
+  .site-header .brand {
+    min-width: 0;
+    gap: 7px;
+  }
+
+  .site-header .brand-icon {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-width: 2px;
+    border-radius: 12px 14px 10px 13px;
+    box-shadow: 3px 3px 0 var(--red);
+  }
+
+  .site-header .brand .eyebrow {
+    margin-bottom: 1px;
+    overflow: hidden;
+    color: #ffe783;
+    font-size: .48rem;
+    letter-spacing: .09em;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .site-header .brand h1 {
+    overflow: hidden;
+    font-size: clamp(1rem, 4.4vw, 1.25rem);
+    line-height: 1.05;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .site-header .user-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 27px auto;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    min-width: 0;
+    padding: 5px 5px 5px 7px;
+    border-radius: 11px;
+  }
+
+  .site-header .user-copy {
+    min-width: 0;
+    max-width: none;
+    text-align: right;
+  }
+
+  .site-header .user-copy strong,
+  .site-header .user-copy span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .site-header .user-copy strong {
+    font-size: .62rem;
+    line-height: 1.1;
+  }
+
+  .site-header .user-copy span {
+    margin-top: 2px;
+    font-size: .47rem;
+    line-height: 1.1;
+  }
+
+  .site-header .avatar {
+    width: 27px;
+    height: 27px;
+    border-width: 2px;
+  }
+
+  .site-header #logoutButton {
+    min-width: 48px;
+    min-height: 29px;
+    padding: 4px 6px;
+    font-size: .58rem;
+    line-height: 1;
+  }
+
+  .site-header .season-badge {
+    right: auto !important;
+    bottom: 5px !important;
+    left: 50% !important;
+    max-width: calc(100% - 28px) !important;
+    padding: 5px 10px;
+    font-size: .66rem;
+    transform: translateX(-50%) rotate(-1deg) !important;
+  }
+}
+
+/* V57.1: keep the season badge inside the compact mobile header. */
+@media (max-width: 680px) {
+  .site-header {
+    position: relative !important;
+  }
+
+  .site-header .season-badge {
+    position: absolute !important;
+    display: block !important;
+    right: 12px !important;
+    bottom: 5px !important;
+    left: auto !important;
+    width: auto !important;
+    max-width: calc(100% - 24px) !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    transform: rotate(-1deg) !important;
+  }
+}
+
+/* V57.2: compact one-row mobile profile, overriding the old stacked hotfix. */
+@media (max-width: 680px) {
+  .site-header .user-panel {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 27px auto !important;
+    grid-template-areas: none !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 5px 5px 5px 7px !important;
+  }
+
+  .site-header .user-copy {
+    grid-area: auto !important;
+    max-width: none !important;
+    overflow: hidden !important;
+    text-align: right !important;
+  }
+
+  .site-header .user-copy strong,
+  .site-header .user-copy span {
+    display: block !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    overflow-wrap: normal !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .site-header .user-panel .avatar {
+    grid-area: auto !important;
+    width: 27px !important;
+    height: 27px !important;
+    margin: 0 !important;
+  }
+
+  .site-header .user-panel #logoutButton {
+    grid-area: auto !important;
+    width: auto !important;
+    min-width: 48px !important;
+    min-height: 29px !important;
+    margin: 0 !important;
+  }
+}
+
+/* V57.3: final mobile header spacing and badge separation. */
+@media (max-width: 680px) {
+  .site-header {
+    min-height: 104px !important;
+  }
+
+  .site-header .header-inner {
+    grid-template-columns: minmax(0, 49%) minmax(0, 51%);
+    gap: 6px;
+    padding-inline: 0;
+  }
+
+  .site-header .brand h1 {
+    font-size: clamp(.92rem, 4vw, 1.1rem);
+  }
+
+  .site-header .season-badge {
+    right: 12px !important;
+    bottom: 5px !important;
+    left: auto !important;
+    font-size: .62rem;
+  }
+}
+
+/* V57.4: prevent brand title/profile overlap on narrow phones. */
+@media (max-width: 680px) {
+  .site-header .header-inner {
+    grid-template-columns: minmax(0, 45%) minmax(0, 55%);
+  }
+
+  .site-header .brand {
+    overflow: hidden;
+  }
+
+  .site-header .brand h1 {
+    max-width: 100%;
+    font-size: clamp(.78rem, 3.55vw, .98rem);
+    letter-spacing: -.02em;
+  }
+
+  .site-header .brand .eyebrow {
+    font-size: .43rem;
+  }
+}
+
+/* V57.5: keep the complete class title visible in the compact mobile brand. */
+@media (max-width: 680px) {
+  .site-header .header-inner {
+    grid-template-columns: minmax(0, 50%) minmax(0, 50%);
+  }
+
+  .site-header .brand h1 {
+    display: -webkit-box;
+    max-width: 100%;
+    overflow: hidden;
+    font-size: clamp(.76rem, 3.35vw, .92rem);
+    line-height: .98;
+    text-overflow: clip;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+}
+
+/* V57.6: repair the empty Expenses state on mobile. */
+@media (max-width: 768px) {
+  #view-expenses .responsive-cards .empty-row {
+    display: block !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  #view-expenses .responsive-cards .empty-row td,
+  #view-expenses .responsive-cards .empty-row td.empty-state {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 25px 16px 27px !important;
+    text-align: center !important;
+    background: #fffdf5 !important;
+    border: 1px solid #d7d0bb !important;
+    border-radius: 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  #view-expenses .responsive-cards .empty-row .empty-content {
+    display: grid !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    justify-items: center !important;
+    gap: 8px !important;
+  }
+
+  #view-expenses .responsive-cards .empty-row .empty-illustration {
+    margin: 0 0 4px !important;
+    font-size: 2.2rem !important;
+    line-height: 1 !important;
+  }
+
+  #view-expenses .responsive-cards .empty-row .empty-content strong,
+  #view-expenses .responsive-cards .empty-row .empty-content small {
+    display: block !important;
+    width: 100% !important;
+    max-width: 290px !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    line-height: 1.35 !important;
+  }
+
+  #view-expenses .responsive-cards tfoot tr {
+    margin-top: 12px !important;
+    padding: 12px 14px !important;
+    background: #f1ebd9 !important;
+    border: 1px solid #d7d0bb !important;
+    border-radius: 12px !important;
+  }
+}
