@@ -2214,3 +2214,381 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
   flex: 0 0 auto;
   white-space: nowrap;
 }
+
+
+/* =========================================================
+   V50 — ЕДИНАЯ ТЕТРАДНАЯ СВОДКА ДЛЯ РОДИТЕЛЕЙ
+   Финальный локальный слой. Только #view-summary; карточки не
+   рисуют собственную сетку или красное поле.
+   ========================================================= */
+#view-summary {
+  --summary-ink: #20372e;
+  --summary-muted: #66766e;
+  --summary-green: #3f9a6b;
+  --summary-green-deep: #286b4b;
+  --summary-wine: #9d4057;
+  --summary-blue: #5799cb;
+  --summary-sand: #f3e2c3;
+  --summary-border: #d7d6cc;
+  --summary-shadow: 0 4px 14px rgba(46, 64, 54, .11);
+  min-width: 0;
+  max-width: 100%;
+  padding: 24px clamp(12px, 2.4vw, 30px) 32px clamp(64px, 5.8vw, 78px);
+  overflow: clip;
+  color: var(--summary-ink);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Desktop keeps only a small notebook mark; the page owns the red margin. */
+#view-summary::before {
+  top: 245px;
+  left: 16px;
+  z-index: 0;
+  color: #2d62a4;
+  content: "✈";
+  font-size: 2.4rem;
+  opacity: .7;
+  transform: rotate(-15deg);
+}
+
+#view-summary::after {
+  right: 16px;
+  bottom: 210px;
+  z-index: 0;
+  font-size: 1.15rem;
+  opacity: .68;
+}
+
+#view-summary > * {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  max-width: 100%;
+}
+
+#view-summary .section-heading {
+  align-items: center;
+  margin-bottom: 18px;
+  padding-left: 0;
+}
+
+#view-summary .section-heading h2 {
+  margin-top: 7px;
+  color: #19352a;
+  font-size: clamp(1.75rem, 3.5vw, 2.35rem);
+  letter-spacing: -.025em;
+}
+
+#view-summary .summary-status {
+  gap: 8px;
+  padding: 6px;
+  background: rgba(255, 254, 249, .82);
+  border: 1px solid rgba(169, 158, 130, .38);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(46, 64, 54, .06);
+}
+
+#view-summary .totals-grid {
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+#view-summary .metric-card {
+  min-width: 0;
+  min-height: 128px;
+  padding: 18px 20px 17px 22px;
+  color: var(--summary-ink);
+  background-image: none;
+  border: 1px solid rgba(49, 70, 58, .14);
+  border-left: 6px solid currentColor;
+  border-radius: 8px;
+  box-shadow: var(--summary-shadow);
+  transform: none;
+}
+
+#view-summary .metric-card:nth-child(1) {
+  color: var(--summary-green-deep);
+  background: #e4f2e8;
+  border-left-color: var(--summary-green);
+  transform: none;
+}
+
+#view-summary .metric-card:nth-child(2) {
+  color: #852f44;
+  background: #f6e3e8;
+  border-left-color: var(--summary-wine);
+  transform: none;
+}
+
+#view-summary .metric-card:nth-child(3) {
+  color: #28618c;
+  background: #e2eff9;
+  border-left-color: var(--summary-blue);
+  transform: none;
+}
+
+#view-summary .metric-card:hover {
+  transform: translateY(-2px);
+}
+
+#view-summary .metric-card strong {
+  color: #20372e;
+  font-size: clamp(1.8rem, 3.8vw, 2.55rem);
+  white-space: nowrap;
+  text-shadow: none;
+}
+
+#view-summary .metric-icon {
+  transform: none;
+}
+
+#view-summary .contribution-reminder {
+  align-items: stretch;
+  gap: 14px;
+  margin: 0 0 20px;
+  padding: 15px 17px;
+  color: #4f432f;
+  background: var(--summary-sand);
+  border: 1px solid #d7ba83;
+  border-left: 5px solid #c6984e;
+  border-radius: 8px;
+  box-shadow: var(--summary-shadow);
+  transform: none;
+  flex-direction: column;
+}
+
+#view-summary .contribution-reminder.is-setup {
+  background: #f2dfb9;
+  border-left-color: #b9822d;
+}
+
+#view-summary .contribution-reminder-list {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+#view-summary .contribution-reminder-item {
+  min-width: 0;
+  background: rgba(255, 255, 255, .76);
+  border-radius: 9px;
+  transform: none;
+}
+
+#view-summary .contribution-reminder-item.is-paid {
+  background: #effaf1;
+  border-left-color: var(--summary-green);
+}
+
+#view-summary .contribution-reminder-item-heading strong,
+#view-summary .campaign-progress-identity strong {
+  min-width: 0;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+#view-summary .paper-card {
+  min-width: 0;
+  max-width: 100%;
+  padding: 20px 22px 22px 36px;
+  background-color: rgba(255, 254, 249, .96);
+  background-image: none;
+  border: 1px solid var(--summary-border);
+  border-radius: 8px;
+  box-shadow: var(--summary-shadow);
+  transform: none;
+}
+
+#view-summary .paper-card::before,
+#view-summary .paper-card::after {
+  display: none;
+}
+
+#view-summary .fund-card {
+  min-width: 0;
+  border-radius: 8px;
+  transform: none;
+}
+
+#view-summary .fund-card:hover {
+  transform: translateY(-2px);
+}
+
+#view-summary .chart-panel {
+  min-width: 0;
+  background: rgba(255, 255, 255, .78);
+  border: 1px solid #dedbd0;
+  border-radius: 8px;
+}
+
+#view-summary .budget-overview-total strong,
+#view-summary .budget-overview-row-heading strong,
+#view-summary .expense-distribution-heading strong,
+#view-summary .fund-card strong,
+#view-summary .campaign-progress-stat strong,
+#view-summary .compact-expense strong {
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+
+#view-summary .budget-bar-track,
+#view-summary .expense-distribution-track {
+  height: 12px;
+}
+
+#view-summary .budget-bar-spent {
+  background: var(--summary-wine);
+}
+
+#view-summary .budget-bar-balance {
+  background: var(--summary-green);
+}
+
+#view-summary .report-card {
+  background-color: var(--summary-sand);
+  background-image: none;
+  border-color: #d6c3a2;
+}
+
+#view-summary .report-controls .button,
+#view-summary .report-controls select,
+#view-summary .contribution-reminder-change,
+#view-summary .contribution-reminder-select {
+  min-height: 44px;
+}
+
+#view-summary .report-controls .button {
+  border-radius: 8px;
+}
+
+#view-summary .campaign-progress-card {
+  min-width: 0;
+  border-radius: 9px;
+  transform: none;
+}
+
+#view-summary .campaign-progress-icon,
+#view-summary .campaign-percent,
+#view-summary .compact-expense-icon,
+#view-summary .sticker {
+  transform: none;
+}
+
+@media (max-width: 820px) {
+  #view-summary .totals-grid,
+  #view-summary .fund-grid,
+  #view-summary .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #view-summary .metric-card {
+    min-height: 112px;
+  }
+}
+
+@media (max-width: 680px) {
+  #view-summary {
+    padding: 18px 10px 24px 42px;
+    overflow: clip;
+    background: transparent;
+  }
+
+  /* The global mobile rule hides its line, so the summary draws one line only. */
+  #view-summary::before {
+    display: block;
+    top: 0;
+    bottom: 0;
+    left: 24px;
+    z-index: 0;
+    width: 2px;
+    height: auto;
+    color: transparent;
+    content: "";
+    background: rgba(217, 84, 69, .28);
+    opacity: 1;
+    transform: none;
+  }
+
+  #view-summary::after {
+    display: none;
+  }
+
+  #view-summary .section-heading {
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  #view-summary .summary-status {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  #view-summary .metric-card {
+    min-height: 104px;
+    padding: 15px 17px;
+  }
+
+  #view-summary .metric-card strong {
+    font-size: 2rem;
+  }
+
+  #view-summary .paper-card {
+    padding: 17px 14px 18px 20px;
+  }
+
+  #view-summary .charts-grid,
+  #view-summary .contribution-reminder-list {
+    grid-template-columns: 1fr;
+  }
+
+  #view-summary .report-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  #view-summary .report-controls {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+
+  #view-summary .report-controls .field,
+  #view-summary .report-controls .button {
+    width: 100%;
+    grid-column: auto;
+  }
+
+  #view-summary .budget-overview-row-heading,
+  #view-summary .expense-distribution-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  #view-summary .budget-overview-row-heading strong,
+  #view-summary .expense-distribution-heading strong {
+    max-width: 100%;
+    text-align: left;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 420px) {
+  #view-summary .mascot-chip > span:last-child {
+    display: none;
+  }
+
+  #view-summary .metric-card strong {
+    font-size: 1.85rem;
+  }
+
+  #view-summary .campaign-progress-stats {
+    grid-template-columns: 1fr;
+  }
+}
