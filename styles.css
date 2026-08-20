@@ -4170,3 +4170,11 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
     content: none !important;
   }
 }
+
+/* V56.6: remove only the inner red line drawn by the Summary view. */
+@media (max-width: 768px) {
+  #view-summary::before {
+    display: none !important;
+    content: none !important;
+  }
+}
