@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "v48";
+const APP_VERSION = "v49";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -2006,10 +2006,12 @@ function renderContributionReminder() {
 
 function renderCurrentCampaignSummary() {
   if (!dom.currentCampaignSummary) return;
-  const campaign = state.campaigns.find((item) => item.is_open) ?? null;
+  const openCampaigns = state.campaigns
+    .filter((item) => item.is_open)
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   dom.currentCampaignSummary.replaceChildren();
 
-  if (!campaign) {
+  if (!openCampaigns.length) {
     dom.currentCampaignSummary.className = "campaign-summary empty-state";
     dom.currentCampaignSummary.append(createEmptyContent(
       "🎯",
@@ -2019,46 +2021,52 @@ function renderCurrentCampaignSummary() {
     return;
   }
 
-  const contributions = getCampaignContributions(campaign.id);
-  const plan = toNumber(campaign.expected_amount) * state.students.length;
-  const collected = sum(contributions.map((item) => item.amount));
-  const percent = plan > 0 ? Math.min(100, Math.round((collected / plan) * 100)) : 0;
-  const paidCount = state.students.filter((student) => getStudentStatus(student.id, campaign).key === "paid").length;
-  const remaining = Math.max(0, plan - collected);
+  const cards = openCampaigns.map((campaign) => {
+    const contributions = getCampaignContributions(campaign.id);
+    const plan = toNumber(campaign.expected_amount) * state.students.length;
+    const collected = sum(contributions.map((item) => item.amount));
+    const percent = plan > 0 ? Math.min(100, Math.round((collected / plan) * 100)) : 0;
+    const paidCount = state.students.filter((student) => getStudentStatus(student.id, campaign).key === "paid").length;
+    const remaining = Math.max(0, plan - collected);
 
-  const heading = el("div", "campaign-progress-heading");
-  const identity = el("div", "campaign-progress-identity");
-  identity.append(
-    el("span", "campaign-progress-icon", FUND_ICONS[campaign.fund] || "🎯"),
-    (() => {
-      const copy = el("div");
-      copy.append(
-        el("strong", "", campaign.name),
-        el("small", "", FUND_LABELS[campaign.fund] || "Классный сбор")
-      );
-      return copy;
-    })()
-  );
-  heading.append(identity, el("span", "campaign-percent", `${percent}%`));
+    const card = el("article", "campaign-progress-card");
+    const heading = el("div", "campaign-progress-heading");
+    const identity = el("div", "campaign-progress-identity");
+    identity.append(
+      el("span", "campaign-progress-icon", FUND_ICONS[campaign.fund] || "🎯"),
+      (() => {
+        const copy = el("div");
+        copy.append(
+          el("strong", "", campaign.name),
+          el("small", "", `Фонд: ${FUND_LABELS[campaign.fund] || "Классный сбор"}`)
+        );
+        return copy;
+      })()
+    );
+    heading.append(identity, el("span", "campaign-percent", `${percent}%`));
 
-  const track = el("div", "progress-track");
-  const bar = el("div", "progress-bar");
-  bar.style.width = `${percent}%`;
-  track.setAttribute("role", "progressbar");
-  track.setAttribute("aria-label", `Собрано ${percent}%`);
-  track.setAttribute("aria-valuemin", "0");
-  track.setAttribute("aria-valuemax", "100");
-  track.setAttribute("aria-valuenow", String(percent));
-  track.append(bar);
+    const track = el("div", "progress-track");
+    const bar = el("div", "progress-bar");
+    bar.style.width = `${percent}%`;
+    track.setAttribute("role", "progressbar");
+    track.setAttribute("aria-label", `${campaign.name}: собрано ${percent}%`);
+    track.setAttribute("aria-valuemin", "0");
+    track.setAttribute("aria-valuemax", "100");
+    track.setAttribute("aria-valuenow", String(percent));
+    track.append(bar);
 
-  const stats = el("div", "campaign-progress-stats");
-  stats.append(
-    createProgressStat("Собрано", formatMoney(collected), "💰"),
-    createProgressStat("Осталось", formatMoney(remaining), "🏁"),
-    createProgressStat("Сдали полностью", `${paidCount} из ${state.students.length}`, "⭐")
-  );
-  dom.currentCampaignSummary.className = "campaign-summary";
-  dom.currentCampaignSummary.append(heading, track, stats);
+    const stats = el("div", "campaign-progress-stats");
+    stats.append(
+      createProgressStat("Собрано", formatMoney(collected), "💰"),
+      createProgressStat("Осталось", formatMoney(remaining), "🏁"),
+      createProgressStat("Сдали полностью", `${paidCount} из ${state.students.length}`, "⭐")
+    );
+    card.append(heading, track, stats);
+    return card;
+  });
+
+  dom.currentCampaignSummary.className = "campaign-summary campaign-progress-list";
+  dom.currentCampaignSummary.append(...cards);
 }
 
 function renderRecentExpenses() {
@@ -2093,8 +2101,77 @@ function renderRecentExpenses() {
 }
 
 function renderExpenseCharts() {
-  renderDonutChart(dom.fundExpenseChart, groupTotals(state.expenses, "fund"), FUND_LABELS);
-  renderDonutChart(dom.categoryExpenseChart, groupTotals(state.expenses, "category"), CATEGORY_LABELS);
+  renderBudgetOverview(dom.fundExpenseChart);
+  renderExpenseDistribution(dom.categoryExpenseChart, groupTotals(state.expenses, "fund"), FUND_LABELS);
+}
+
+function renderBudgetOverview(container) {
+  if (!container) return;
+  container.replaceChildren();
+
+  const collected = sum(state.contributions.map((item) => item.amount));
+  const spent = sum(state.expenses.map((item) => item.amount));
+  const balance = collected - spent;
+  const base = Math.max(collected, spent, 0);
+  const spentPercent = base > 0 ? Math.min(100, Math.round((spent / base) * 100)) : 0;
+  const balancePercent = base > 0 ? Math.max(0, Math.min(100, Math.round((Math.max(0, balance) / base) * 100))) : 0;
+
+  const overview = el("div", "budget-overview");
+  const total = el("div", "budget-overview-total");
+  total.append(el("span", "", "Всего собрано"), el("strong", "", formatMoney(collected)));
+  overview.append(total);
+
+  const rows = [
+    ["Потрачено", formatMoney(spent), spentPercent, "budget-bar-spent"],
+    ["Осталось", formatMoney(Math.max(0, balance)), balancePercent, "budget-bar-balance"]
+  ];
+  rows.forEach(([label, amount, percent, barClass]) => {
+    const row = el("div", "budget-overview-row");
+    const heading = el("div", "budget-overview-row-heading");
+    heading.append(el("span", "", label), el("strong", "", `${amount} · ${percent}%`));
+    const track = el("div", "budget-bar-track");
+    const bar = el("span", `budget-bar ${barClass}`);
+    bar.style.width = `${percent}%`;
+    track.append(bar);
+    row.append(heading, track);
+    overview.append(row);
+  });
+
+  const note = el("small", "budget-overview-note", "Проценты показывают долю потраченного и остатка от общей суммы бюджета, а не только распределение расходов.");
+  overview.append(note);
+  container.append(overview);
+}
+
+function renderExpenseDistribution(container, totals, labels) {
+  if (!container) return;
+  container.replaceChildren();
+  const entries = Object.entries(totals).filter(([, value]) => value > 0).sort((a, b) => b[1] - a[1]);
+  const total = sum(entries.map(([, value]) => value));
+
+  if (!entries.length) {
+    container.append(createEmptyContent("🎨", "Пока нет данных", "Распределение появится после первого расхода."));
+    return;
+  }
+
+  const list = el("div", "expense-distribution-list");
+  entries.forEach(([key, value]) => {
+    const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+    const row = el("div", "expense-distribution-row");
+    const heading = el("div", "expense-distribution-heading");
+    const label = el("span", "expense-distribution-label");
+    const dot = el("i", "chart-dot");
+    dot.style.background = CHART_COLORS[key] || "#78909c";
+    label.append(dot, document.createTextNode(labels[key] || key));
+    heading.append(label, el("strong", "", `${formatMoney(value)} · ${percent}% расходов`));
+    const track = el("div", "expense-distribution-track");
+    const bar = el("span", "expense-distribution-bar");
+    bar.style.width = `${percent}%`;
+    bar.style.background = CHART_COLORS[key] || "#78909c";
+    track.append(bar);
+    row.append(heading, track);
+    list.append(row);
+  });
+  container.append(list, el("small", "expense-distribution-note", "Процент показывает распределение уже потраченных денег между фондами."));
 }
 
 function groupTotals(items, key) {
