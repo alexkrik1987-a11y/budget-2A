@@ -1547,8 +1547,15 @@ function syncChatPanelState() {
 
 function handleLivingAction(action) {
   if (action === "contribution") {
-    switchView("contributions");
-    if (!getReminderStudentId()) window.setTimeout(openParentChildOnboardingIfNeeded, 120);
+    switchView("summary");
+    window.setTimeout(() => {
+      const target = dom.contributionReminder;
+      if (target && !target.classList.contains("hidden")) {
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        showNotice("Личный блок появится после загрузки открытых сборов и списка детей.", "info", 5000);
+      }
+    }, 80);
     return;
   }
   if (action === "campaigns") {
