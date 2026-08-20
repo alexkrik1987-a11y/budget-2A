@@ -303,6 +303,10 @@ function bindEvents() {
     button.addEventListener("click", () => switchView(button.dataset.view));
   });
 
+  document.querySelectorAll("[data-living-action]").forEach((button) => {
+    button.addEventListener("click", () => handleLivingAction(button.dataset.livingAction));
+  });
+
   if (dom.chatToggleButton) dom.chatToggleButton.addEventListener("click", openChatPanel);
   if (dom.closeChatButton) dom.closeChatButton.addEventListener("click", closeChatPanel);
   if (dom.chatBackdrop) dom.chatBackdrop.addEventListener("click", closeChatPanel);
@@ -1395,8 +1399,9 @@ function renderAll() {
 function renderClassProfile() {
   const className = state.classProfile?.class_name || "2 «А»";
   const schoolYear = state.classProfile?.school_year || "";
-  // Меняем только надпись в шапке, без запуска нового учебного года в базе.
-  const displayedSchoolYear = /^2025\s*[\/–-]\s*2026$/.test(schoolYear) ? "2026–2027" : schoolYear;
+  // Для текущего учебного года меняем только пользовательское отображение.
+  // Финансовые записи и архивы в базе не изменяются.
+  const displayedSchoolYear = displayedSchoolYearLabel(schoolYear);
   document.querySelectorAll("[data-class-name]").forEach((node) => { node.textContent = className; });
   document.querySelectorAll("[data-school-year]").forEach((node) => { node.textContent = displayedSchoolYear; });
   document.title = `Бюджет ${className} класса`;
@@ -1540,6 +1545,20 @@ function syncChatPanelState() {
   }
 }
 
+function handleLivingAction(action) {
+  if (action === "contribution") {
+    switchView("contributions");
+    if (!getReminderStudentId()) window.setTimeout(openParentChildOnboardingIfNeeded, 120);
+    return;
+  }
+  if (action === "campaigns") {
+    switchView("summary");
+    window.setTimeout(() => dom.currentCampaignSummary?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
+    return;
+  }
+  if (action === "chat") openChatPanel();
+}
+
 function openChatPanel() {
   if (!state.session) return;
   state.chatPanelOpen = true;
@@ -1657,7 +1676,7 @@ function renderArchivedCampaigns() {
     const header = el("div", "archive-card-header");
     const title = el("div");
     title.append(
-      el("span", "sticker sticker-blue", campaign.school_year || "Учебный год не указан"),
+      el("span", "sticker sticker-blue", displayedSchoolYearLabel(campaign.school_year) || "Учебный год не указан"),
       el("h3", "", campaign.name),
       el("p", "", `${CAMPAIGN_TYPE_LABELS[campaign.campaign_type] || "Сбор"} · ${FUND_LABELS[campaign.fund] || "Классный фонд"} · архивирован ${formatDateTime(campaign.archived_at)}`)
     );
@@ -1983,8 +2002,9 @@ function renderLivingNotebook({ totalCollected, totalSpent, totalBalance }) {
 
   if (dom.liveNotebookDate) dom.liveNotebookDate.textContent = capitalizedDate;
   if (dom.liveNotebookDateNote) {
-    dom.liveNotebookDateNote.textContent = state.classProfile?.school_year
-      ? `Учебный год ${state.classProfile.school_year}`
+    const schoolYear = displayedSchoolYearLabel(state.classProfile?.school_year);
+    dom.liveNotebookDateNote.textContent = schoolYear
+      ? `Учебный год ${schoolYear}`
       : "Школьный календарь Приморского края";
   }
 
@@ -3424,6 +3444,12 @@ function nextMonthIso() {
   const date = new Date();
   date.setMonth(date.getMonth() + 1, 1);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function displayedSchoolYearLabel(value) {
+  const schoolYear = String(value || "").trim();
+  if (/^2025\s*[\/-–]\s*2026$/.test(schoolYear)) return "2026–2027";
+  return schoolYear.replace(/\//g, "–");
 }
 
 function nextSchoolYearLabel(currentSchoolYear) {

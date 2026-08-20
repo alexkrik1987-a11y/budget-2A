@@ -5309,3 +5309,122 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
     line-height: 1.35;
   }
 }
+
+
+.living-notebook-actions {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.living-action-button {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 13px;
+  border: 2px solid rgba(24, 48, 68, .18);
+  border-radius: 14px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 4px 0 rgba(24, 48, 68, .08);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.living-action-button:hover,
+.living-action-button:focus-visible {
+  border-color: var(--navy);
+  box-shadow: 0 6px 0 rgba(24, 48, 68, .1);
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.living-action-button > span:first-child {
+  display: grid;
+  flex: 0 0 31px;
+  width: 31px;
+  height: 31px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--blue-soft);
+  font-size: 1rem;
+}
+
+.living-action-contribution { background: rgba(251, 227, 236, .78); }
+.living-action-contribution > span:first-child { background: var(--pink-soft); }
+.living-action-campaign { background: rgba(255, 241, 189, .78); }
+.living-action-campaign > span:first-child { background: var(--yellow-soft); }
+.living-action-chat { background: rgba(220, 239, 248, .82); }
+.living-action-chat > span:first-child { background: var(--blue-soft); }
+
+.living-action-button > span:last-child {
+  display: block;
+  min-width: 0;
+}
+
+.living-action-button strong,
+.living-action-button small {
+  display: block;
+}
+
+.living-action-button strong {
+  color: var(--navy-dark);
+  font-size: .88rem;
+  line-height: 1.15;
+}
+
+.living-action-button small {
+  margin-top: 4px;
+  color: var(--ink-soft);
+  font-size: .7rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+@media (max-width: 760px) {
+  .living-notebook-actions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .living-action-button {
+    min-height: 52px;
+    padding: 9px 10px;
+    border-radius: 12px;
+  }
+
+  .living-action-button strong {
+    font-size: .82rem;
+  }
+
+  .living-action-button small {
+    margin-top: 2px;
+    font-size: .68rem;
+  }
+}
+
+
+.summary-guide {
+  max-width: 650px;
+  margin: 7px 0 0;
+  color: var(--ink-soft);
+  font-size: .86rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+@media (max-width: 760px) {
+  .summary-guide {
+    max-width: 100%;
+    margin-top: 5px;
+    font-size: .76rem;
+    line-height: 1.35;
+  }
+}

@@ -156,8 +156,8 @@
 
     <nav class="main-nav" aria-label="Основная навигация">
       <div class="nav-inner">
-        <button class="nav-button active" type="button" data-view="summary"><span>📚</span> Сводка</button>
-        <button class="nav-button" type="button" data-view="contributions"><span>✏️</span> Взносы</button>
+        <button class="nav-button active" type="button" data-view="summary"><span>📚</span> Главная</button>
+        <button class="nav-button" type="button" data-view="contributions"><span>✏️</span> Мой взнос</button>
         <button class="nav-button" type="button" data-view="expenses"><span>🧾</span> Расходы</button>
         <button class="nav-button" type="button" data-view="archive"><span>🗂️</span> Архив</button>
         <button id="settingsNavButton" class="nav-button admin-only hidden" type="button" data-view="settings"><span>⚙️</span> Настройки</button>
@@ -174,7 +174,8 @@
         <div class="section-heading">
           <div>
             <span class="sticker sticker-yellow">Всё под контролем 🍎</span>
-            <h2 id="summaryTitle">Сводка класса</h2>
+            <h2 id="summaryTitle">Главная страница класса</h2>
+            <p class="summary-guide">Впервые здесь? Выберите ребёнка, откройте «Мой взнос» и проверьте открытые сборы.</p>
           </div>
           <div class="summary-status">
             <aside id="schoolCalendar" class="school-calendar" aria-label="Школьный календарь Приморского края">
@@ -230,6 +231,17 @@
             <span id="liveNotebookSpent">Потратили 0 ₽</span>
             <span aria-hidden="true">→</span>
             <strong id="liveNotebookRemaining">Осталось 0 ₽</strong>
+          </div>
+          <div class="living-notebook-actions" aria-label="Быстрые действия">
+            <button class="living-action-button living-action-contribution" type="button" data-living-action="contribution">
+              <span aria-hidden="true">✏️</span><span><strong>Мой взнос</strong><small>Выбрать ребёнка и проверить сборы</small></span>
+            </button>
+            <button class="living-action-button living-action-campaign" type="button" data-living-action="campaigns">
+              <span aria-hidden="true">🎯</span><span><strong>Открытые сборы</strong><small>Узнать, на что сейчас собираем</small></span>
+            </button>
+            <button class="living-action-button living-action-chat" type="button" data-living-action="chat">
+              <span aria-hidden="true">💬</span><span><strong>Чат класса</strong><small>Прочитать или отправить сообщение</small></span>
+            </button>
           </div>
           <p id="liveNotebookMessage" class="living-notebook-message" aria-live="polite">Данные появятся после загрузки бюджета.</p>
         </section>
