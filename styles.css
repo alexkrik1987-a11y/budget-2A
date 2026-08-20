@@ -2894,3 +2894,67 @@ input:focus, select:focus, textarea:focus { border-color: var(--color-primary); 
   .modal-card { max-height: calc(100dvh - 20px); overflow: auto; padding: 16px; }
   .class-chat-panel { right: 8px; left: 8px; width: auto; border-radius: 15px; }
 }
+
+/* V53.1 HOTFIX — readable header and visible navigation on every screen. */
+.site-header.chalkboard {
+  color: #fff !important;
+  background: #0c3f35 !important;
+  background-image: linear-gradient(135deg, rgba(255,255,255,.05), transparent 42%), repeating-linear-gradient(3deg, transparent 0 18px, rgba(255,255,255,.018) 19px 20px), linear-gradient(135deg, #145c4a, #0c3f35) !important;
+  border-color: #b87b3c !important;
+}
+.site-header .brand,
+.site-header .brand strong,
+.site-header .brand .eyebrow,
+.site-header .user-panel,
+.site-header .user-copy,
+.site-header .user-copy strong,
+.site-header .role-badge { color: #fff !important; opacity: 1 !important; }
+.site-header .eyebrow span { color: #ffe783 !important; }
+.main-nav {
+  display: block !important;
+  color: #1c332d !important;
+  background: #f7f0de !important;
+  opacity: 1 !important;
+}
+.main-nav .nav-inner { display: flex; align-items: stretch; justify-content: center; gap: 4px; }
+.main-nav .nav-button {
+  color: #1c332d !important;
+  background: transparent !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+  border-bottom: 3px solid transparent;
+}
+.main-nav .nav-button:hover { color: #145c4a !important; background: #ddefe3 !important; }
+.main-nav .nav-button.active { color: #145c4a !important; background: rgba(255,255,255,.78) !important; border-bottom-color: #d95445 !important; }
+@media (max-width: 768px) {
+  .site-header.chalkboard { min-height: 66px; }
+  .main-nav {
+    position: fixed !important;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    display: block !important;
+    padding: 4px 6px env(safe-area-inset-bottom);
+    border-top: 1px solid rgba(76,107,91,.26);
+    box-shadow: 0 -6px 18px rgba(39,63,49,.12);
+    backdrop-filter: blur(12px);
+  }
+  .main-nav .nav-inner { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; max-width: 620px; margin: 0 auto; }
+  .main-nav .nav-button {
+    display: flex;
+    min-height: 54px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 4px 2px;
+    font-size: .68rem;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .main-nav .nav-button span { margin: 0; font-size: 1rem; line-height: 1; }
+  .main-nav .nav-button.admin-only.hidden { display: none !important; }
+  .content { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+  .chat-toggle { bottom: calc(74px + env(safe-area-inset-bottom)); }
+}
