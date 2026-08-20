@@ -1942,3 +1942,36 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
  */
 
 /* END CODEX SUMMARY NOTEBOOK LAYER v46 */
+
+
+/* =========================================================
+   V47 — РОВНОЕ ТЕТРАДНОЕ ПОЛЕ В СВОДКЕ
+   Один общий фон и гарантированный отступ для карточек.
+   ========================================================= */
+#view-summary .paper-card {
+  background-color: rgba(255, 254, 249, .84);
+  background-image: none;
+}
+
+#view-summary .paper-card::before,
+#view-summary .paper-card::after {
+  display: none;
+}
+
+#view-summary {
+  padding-left: clamp(64px, 5.8vw, 78px);
+}
+
+#view-summary .section-heading {
+  padding-left: 0;
+}
+
+@media (max-width: 680px) {
+  #view-summary {
+    padding: 18px 10px 24px 42px;
+  }
+
+  #view-summary .section-heading {
+    padding-left: 0;
+  }
+}
