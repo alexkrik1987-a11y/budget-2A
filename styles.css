@@ -4635,3 +4635,24 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
     border-radius: 12px !important;
   }
 }
+
+/* V57.1: summary cards should use the mobile paper width, not a deep inner inset. */
+@media (max-width: 768px) {
+  #view-summary {
+    padding: 18px 8px 24px 10px !important;
+    box-sizing: border-box !important;
+  }
+
+  #view-summary > .section-heading,
+  #view-summary > .paper-card,
+  #view-summary .metric-grid,
+  #view-summary .totals-grid,
+  #view-summary #fundCards,
+  #view-summary .charts-grid,
+  #view-summary .report-card,
+  #view-summary .analytics-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
