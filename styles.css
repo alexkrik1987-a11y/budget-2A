@@ -4656,3 +4656,68 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
     box-sizing: border-box !important;
   }
 }
+
+/* V57.2: make administrative modal labels readable over the dimmed page. */
+.modal-card {
+  color: #173b32 !important;
+  background: #fffdf5 !important;
+  border-color: #b77b3b !important;
+}
+
+.modal-card .field > span,
+.modal-card .field > label,
+.modal-card .checkbox-field > span {
+  display: inline-block;
+  color: #173b32 !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+
+.modal-card .field > span {
+  margin-bottom: 6px;
+  padding: 2px 7px;
+  background: rgba(255, 244, 184, .92);
+  border: 1px solid rgba(190, 145, 58, .28);
+  border-radius: 6px;
+}
+
+.modal-card .field input,
+.modal-card .field select,
+.modal-card .field textarea {
+  color: #173b32 !important;
+  background: #fff !important;
+  border-color: #9db7b0 !important;
+  box-shadow: 0 2px 0 rgba(26, 77, 61, .12) !important;
+}
+
+.modal-card .checkbox-field {
+  color: #173b32 !important;
+  background: #e1f1f8 !important;
+  border-color: #9fc9d8 !important;
+}
+
+.modal-card .checkbox-field > span {
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.modal-card .modal-header h2,
+.modal-card .modal-header h3 {
+  color: #173b32 !important;
+  text-shadow: none !important;
+}
+
+@media (max-width: 768px) {
+  .modal-card {
+    padding: 20px 17px 20px 22px !important;
+  }
+
+  .modal-card .field > span {
+    font-size: .82rem;
+  }
+
+  .modal-card .modal-actions .button {
+    min-height: 48px;
+  }
+}
