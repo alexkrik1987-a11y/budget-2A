@@ -4721,3 +4721,143 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
     min-height: 48px;
   }
 }
+
+
+/* V57.3: clarify contribution summary and settings campaign list. */
+#view-contributions .campaign-info-card {
+  align-items: stretch;
+  gap: 24px;
+  padding: 18px 22px;
+  background: rgba(255, 253, 247, .96);
+}
+
+#view-contributions .campaign-info-card::before,
+#view-contributions .campaign-info-card::after {
+  display: none;
+}
+
+#view-contributions .campaign-info-card > div:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+#view-contributions .campaign-info-card h3 {
+  margin: 10px 0 5px;
+  color: #173b32;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.1;
+}
+
+#view-contributions .campaign-info-card p {
+  max-width: 42rem;
+  color: #4e6570;
+  font-weight: 700;
+}
+
+#view-contributions .campaign-totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(116px, 1fr));
+  gap: 10px;
+  min-width: min(100%, 300px);
+}
+
+#view-contributions .campaign-totals div {
+  min-width: 0;
+  padding: 10px 13px;
+  text-align: left;
+  background: #f7efcf;
+  border: 1px solid #dfc979;
+  border-radius: 12px;
+}
+
+#view-contributions .campaign-totals div:last-child {
+  background: #e1f1e7;
+  border-color: #acd2b9;
+}
+
+#view-contributions .campaign-totals span {
+  display: block;
+  margin-bottom: 3px;
+  color: #47646a;
+  font-size: .8rem;
+  font-weight: 900;
+}
+
+#view-contributions .campaign-totals strong {
+  display: block;
+  color: #173b32;
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  line-height: 1.1;
+}
+
+#view-settings .campaigns-list-heading {
+  display: flex;
+  align-items: center;
+  margin: 22px 0 4px;
+  padding: 15px 18px;
+  background: rgba(255, 253, 247, .9);
+  border: 1px solid rgba(104, 135, 119, .24);
+  border-left: 5px solid #d9a441;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(36, 64, 52, .06);
+}
+
+#view-settings .campaigns-list-heading h3 {
+  margin: 7px 0 3px;
+  color: #173b32;
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  line-height: 1.1;
+}
+
+#view-settings .campaigns-list-heading p {
+  margin: 0;
+  color: #536a70;
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  #view-contributions .campaign-info-card {
+    gap: 14px;
+    padding: 17px 15px 17px 28px;
+  }
+
+  #view-contributions .campaign-info-card h3 {
+    margin-top: 8px;
+    font-size: 1.75rem;
+  }
+
+  #view-contributions .campaign-totals {
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  #view-contributions .campaign-totals div {
+    padding: 10px 11px;
+  }
+
+  #view-contributions .campaign-totals strong {
+    font-size: 1.45rem;
+  }
+
+  #view-settings .campaigns-list-heading {
+    margin-top: 18px;
+    padding: 13px 14px 14px 18px;
+  }
+
+  #view-settings .campaigns-list-heading p {
+    font-size: .82rem;
+    line-height: 1.35;
+  }
+}
+
+
+/* V57.3 follow-up: no notebook punch holes inside the selected campaign summary. */
+#view-contributions .campaign-info-card::before,
+#view-contributions .campaign-info-card::after {
+  content: none !important;
+  display: none !important;
+  box-shadow: none !important;
+}
