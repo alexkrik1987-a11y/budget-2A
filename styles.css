@@ -3438,3 +3438,103 @@ textarea {
     overflow-wrap: anywhere !important;
   }
 }
+
+/* V54.3 HOTFIX — align Settings cards and keep action controls inside their bounds. */
+#view-settings .student-management-list,
+#view-settings .backup-list,
+#view-settings .template-grid,
+#view-settings .access-request-list {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+#view-settings .student-item,
+#view-settings .backup-item,
+#view-settings .template-button,
+#view-settings .access-request-item {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+#view-settings .student-item > *,
+#view-settings .backup-item > *,
+#view-settings .access-request-item > * {
+  min-width: 0;
+  max-width: 100%;
+}
+#view-settings .student-item .button-row,
+#view-settings .student-item .actions,
+#view-settings .backup-item .actions,
+#view-settings .backup-item .button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+#view-settings .student-item .button,
+#view-settings .student-item button,
+#view-settings .backup-item .button,
+#view-settings .backup-item button {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+#view-settings .backup-item strong,
+#view-settings .backup-item small,
+#view-settings .student-item strong,
+#view-settings .student-item small,
+#view-settings .access-request-item strong,
+#view-settings .access-request-item small {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 768px) {
+  #view-settings .student-management-list,
+  #view-settings .backup-list,
+  #view-settings .access-request-list {
+    display: grid;
+    gap: 10px;
+    padding: 0;
+    margin-inline: 0;
+  }
+  #view-settings .student-item,
+  #view-settings .backup-item,
+  #view-settings .access-request-item {
+    width: 100%;
+    margin-inline: 0;
+    padding: 14px !important;
+    border-radius: 14px;
+  }
+  #view-settings .student-item .button-row,
+  #view-settings .student-item .actions,
+  #view-settings .backup-item .actions,
+  #view-settings .backup-item .button-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+  #view-settings .student-item .button,
+  #view-settings .student-item button,
+  #view-settings .backup-item .button,
+  #view-settings .backup-item button {
+    width: 100%;
+    min-height: 44px;
+    white-space: normal;
+    line-height: 1.15;
+  }
+  #view-settings .template-grid {
+    gap: 10px;
+    padding-inline: 0;
+  }
+  #view-settings .template-button {
+    width: 100%;
+    min-height: 90px;
+    padding: 12px 10px;
+  }
+}
