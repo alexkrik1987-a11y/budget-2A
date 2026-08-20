@@ -4979,3 +4979,16 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
     display: none;
   }
 }
+
+/* V60: keep the class mark together in the compact mobile brand. */
+@media (max-width: 768px) {
+  .site-header .brand,
+  .site-header .brand > div {
+    min-width: 0;
+  }
+
+  .site-header .brand h1 [data-class-name] {
+    display: inline-block;
+    white-space: nowrap;
+  }
+}
