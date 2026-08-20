@@ -3066,3 +3066,71 @@ input:focus, select:focus, textarea:focus { border-color: var(--color-primary); 
     max-height: 70px !important;
   }
 }
+
+/* V54.0 HOTFIX — mobile install button and header layout. */
+@media (max-width: 768px) {
+  .content {
+    padding-bottom: 124px !important;
+  }
+  .site-footer {
+    padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important;
+  }
+  .install-button {
+    display: flex !important;
+    width: calc(100% - 24px) !important;
+    min-height: 48px !important;
+    margin: 14px auto 10px !important;
+    position: relative;
+    z-index: 2;
+  }
+  .site-header .header-inner {
+    align-items: stretch !important;
+    gap: 9px !important;
+  }
+  .site-header .user-panel {
+    display: grid !important;
+    min-width: 0 !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-areas:
+      "copy avatar"
+      "logout logout" !important;
+    align-items: center !important;
+    gap: 7px 9px !important;
+    padding: 8px 10px !important;
+  }
+  .site-header .user-copy {
+    min-width: 0 !important;
+    max-width: none !important;
+    overflow-wrap: anywhere !important;
+    grid-area: copy !important;
+  }
+  .site-header .user-copy strong,
+  .site-header .user-copy span {
+    display: block !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+  }
+  .site-header .user-panel .avatar {
+    grid-area: avatar !important;
+    width: 38px !important;
+    height: 38px !important;
+    margin: 0 !important;
+  }
+  .site-header .user-panel #logoutButton {
+    grid-area: logout !important;
+    width: 100% !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+  }
+  .site-header .season-badge {
+    position: static !important;
+    display: table !important;
+    max-width: calc(100% - 24px) !important;
+    margin: 0 12px 10px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    transform: none !important;
+  }
+}
