@@ -2592,3 +2592,23 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
     grid-template-columns: 1fr;
   }
 }
+
+/* v51: explicit fund label inside each personal contribution card */
+#view-summary .contribution-reminder-item-fund {
+  display: block;
+  color: #5e705f;
+  font-size: .72rem;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+#view-summary .contribution-reminder-item.is-paid .contribution-reminder-item-fund {
+  color: #4b765a;
+}
+
+@media (max-width: 680px) {
+  #view-summary .contribution-reminder-item-fund {
+    font-size: .7rem;
+  }
+}
