@@ -791,6 +791,14 @@ async function handleSession(session, runId) {
   try {
     if (!isCurrentSessionRun(runId, session)) return;
     applyRoleToUi();
+
+    // Доступ уже подтверждён RPC can_access_budget. Показываем оболочку
+    // сразу, чтобы медленный мобильный snapshot не оставлял пустой экран.
+    // Суммы и рабочие карточки заполняются сразу после завершения loadAllData().
+    rememberSessionRestoreHint();
+    setProtectedAccess(true);
+    hideLoadingScreen();
+
     if (state.loadedSessionUserId !== session.user.id || state.loadedSessionRunId !== runId) {
       state.loadedSessionUserId = session.user.id;
       state.loadedSessionRunId = runId;
@@ -798,10 +806,6 @@ async function handleSession(session, runId) {
       if (!isCurrentSessionRun(runId, session)) return;
       subscribeRealtime();
     }
-    if (!isCurrentSessionRun(runId, session)) return;
-    rememberSessionRestoreHint();
-    setProtectedAccess(true);
-    hideLoadingScreen();
   } catch (error) {
     if (!isCurrentSessionRun(runId, session)) return;
     console.error(error);
