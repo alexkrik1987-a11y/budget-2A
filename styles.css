@@ -3356,3 +3356,85 @@ textarea {
     white-space: normal;
   }
 }
+
+/* V54.2 HOTFIX — readable action buttons and compact settings forms. */
+.button-primary,
+.button-primary:visited {
+  color: #fff !important;
+  background: #145c4a !important;
+  border-color: #0b4436 !important;
+  box-shadow: 0 4px 0 #0b4436 !important;
+  text-shadow: none !important;
+}
+.button-secondary,
+.button-secondary:visited,
+.button-light,
+.button-light:visited,
+.file-button {
+  color: #244f43 !important;
+  background: #fffdf6 !important;
+  border-color: #8eaaa0 !important;
+  text-shadow: none !important;
+}
+.button-danger,
+.button-danger:visited {
+  color: #fff !important;
+  background: #a63f42 !important;
+  border-color: #7e2c31 !important;
+}
+.button-primary:hover,
+.button-secondary:hover,
+.button-light:hover,
+.file-button:hover {
+  color: #fff !important;
+  background: #0c3f35 !important;
+}
+.button-secondary:hover,
+.button-light:hover,
+.file-button:hover {
+  color: #173f34 !important;
+  background: #e8f2ec !important;
+}
+
+.start-school-year-form,
+.backup-actions,
+.school-year-card .form-grid,
+.backup-card .backup-actions {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .start-school-year-form,
+  .school-year-card .form-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .start-school-year-form .button,
+  .school-year-card .button,
+  .backup-card .button,
+  .backup-actions .button,
+  .backup-actions .file-button {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 46px !important;
+    white-space: normal !important;
+    line-height: 1.15 !important;
+  }
+  .backup-actions {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+  }
+  .school-year-card input,
+  .backup-card input,
+  .school-year-card select,
+  .backup-card select {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .templates-card .template-button {
+    min-width: 0 !important;
+    width: 100% !important;
+    overflow-wrap: anywhere !important;
+  }
+}
