@@ -3607,3 +3607,74 @@ textarea {
     margin: 0;
   }
 }
+
+/* V55 LOCAL CODEX FINISH — visual-only layer, no logic changes. */
+:root {
+  --v55-ink: #173f35;
+  --v55-muted: #5b6d72;
+  --v55-board: #0d5b49;
+  --v55-board-deep: #084b3d;
+  --v55-paper: #fffdf6;
+  --v55-cream: #f6efdc;
+  --v55-line: rgba(64, 139, 164, 0.17);
+  --v55-red-margin: rgba(205, 78, 82, 0.48);
+  --v55-blue-card: #e4f1fb;
+  --v55-pink-card: #fde8ed;
+  --v55-yellow-card: #fff0bf;
+  --v55-green-card: #e4f4e9;
+  --v55-shadow: 0 12px 28px rgba(34, 74, 71, 0.12);
+  --v55-radius: 16px;
+}
+html { background: var(--v55-cream); }
+body {
+  color: var(--v55-ink);
+  background-color: var(--v55-cream);
+  background-image: linear-gradient(90deg, transparent 0 56px, var(--v55-red-margin) 56px 58px, transparent 58px), linear-gradient(var(--v55-line) 1px, transparent 1px), linear-gradient(90deg, var(--v55-line) 1px, transparent 1px);
+  background-size: 100% 100%, 22px 22px, 22px 22px;
+}
+.site-header { background: var(--v55-board) !important; color: #fffdf2 !important; border-color: #b77b3b !important; box-shadow: 0 8px 0 rgba(92,57,25,.28), 0 14px 30px rgba(18,68,56,.16) !important; }
+.site-header * { color: inherit; }
+.site-header .user-panel, .site-header .user-panel * { color: #fffdf2 !important; }
+.content { width: min(100% - 32px, 1120px) !important; max-width: 1120px !important; margin-inline: auto !important; padding: 28px 0 120px !important; }
+.view { min-width: 0; }
+.section-heading, .paper-card, .campaign-info-card, .table-card, .student-management-card, .access-management-card, .school-year-card, .backup-card, .templates-card { min-width: 0; border-radius: var(--v55-radius) !important; box-shadow: var(--v55-shadow) !important; }
+.section-heading { padding: 12px 16px 18px !important; }
+.section-heading h1, .section-heading h2, .paper-card h2, .paper-card h3 { color: var(--v55-ink) !important; overflow-wrap: anywhere; }
+.metric-grid { gap: 16px !important; }
+.metric-card { min-width: 0 !important; border-radius: var(--v55-radius) !important; box-shadow: var(--v55-shadow) !important; overflow: hidden !important; }
+.metric-card.chalk-blue { background: var(--v55-blue-card) !important; }
+.metric-card.chalk-pink { background: var(--v55-pink-card) !important; }
+.metric-card.chalk-green { background: var(--v55-green-card) !important; }
+.metric-card .metric-value, .metric-card strong, .metric-card b { color: var(--v55-ink) !important; }
+.fund-grid, .charts-grid, .dashboard-grid, .report-actions, .form-grid, .settings-grid, .template-grid, .archive-grid { min-width: 0 !important; }
+.fund-card, .chart-card, .campaign-card, .archive-card, .template-button, .student-management-item, .backup-item, .access-request-item { min-width: 0 !important; max-width: 100% !important; box-sizing: border-box !important; overflow-wrap: anywhere; }
+.fund-card:nth-child(1) { background: var(--v55-blue-card) !important; }
+.fund-card:nth-child(2) { background: var(--v55-pink-card) !important; }
+.fund-card:nth-child(3) { background: var(--v55-yellow-card) !important; }
+.button, button, .file-button, .action-button { box-sizing: border-box !important; max-width: 100%; overflow-wrap: anywhere; white-space: normal; text-align: center; }
+.button-primary, button.primary, .button[data-variant="primary"] { background: var(--v55-board) !important; color: #fffdf2 !important; border-color: var(--v55-board-deep) !important; }
+.button-secondary, button.secondary, .button[data-variant="secondary"], .file-button { background: #fffdf6 !important; color: var(--v55-ink) !important; border-color: #8fa9a5 !important; }
+.table-scroll { width: 100%; max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; border-radius: 12px; }
+table { max-width: 100%; }
+th, td { overflow-wrap: anywhere; word-break: break-word; }
+#chatToggleButton, .chat-toggle { z-index: 60 !important; background: var(--v55-board) !important; color: #fffdf2 !important; border: 3px solid #f4d45d !important; box-shadow: 0 8px 0 rgba(111,83,20,.25), 0 14px 26px rgba(17,78,60,.22) !important; }
+.main-nav { z-index: 50 !important; }
+@media (max-width: 768px) {
+  .content { width: min(100% - 24px, 560px) !important; max-width: 560px !important; padding: 18px 0 calc(112px + env(safe-area-inset-bottom)) !important; }
+  .site-header { width: 100% !important; min-height: 0 !important; }
+  .section-heading { padding: 10px 10px 14px !important; }
+  .metric-grid, .fund-grid, .charts-grid, .dashboard-grid, .report-actions, .form-grid, .settings-grid, .template-grid, .archive-grid { grid-template-columns: minmax(0,1fr) !important; width: 100% !important; gap: 12px !important; }
+  .paper-card, .campaign-info-card, .table-card, .student-management-card, .access-management-card, .school-year-card, .backup-card, .templates-card { width: 100% !important; max-width: 100% !important; padding: 14px !important; overflow: hidden !important; }
+  .card-title-row, .table-toolbar, .settings-search-row, .report-actions, .backup-actions, .row-actions { min-width: 0 !important; width: 100% !important; flex-wrap: wrap !important; }
+  .table-toolbar, .settings-search-row, .backup-actions, .row-actions { display: grid !important; grid-template-columns: minmax(0,1fr) !important; gap: 10px !important; }
+  .table-toolbar > *, .settings-search-row > *, .backup-actions > *, .row-actions > *, .report-actions > * { width: 100% !important; min-width: 0 !important; max-width: 100% !important; }
+  input, select, textarea, .button, button, .file-button, .action-button { min-width: 0 !important; max-width: 100% !important; }
+  .student-management-item, .backup-item, .access-request-item { display: grid !important; grid-template-columns: minmax(0,1fr) !important; gap: 10px !important; width: 100% !important; padding: 14px !important; }
+  .student-management-item > *, .backup-item > *, .access-request-item > * { min-width: 0 !important; max-width: 100% !important; }
+  .main-nav { top: auto !important; bottom: 0 !important; height: auto !important; min-height: 64px !important; max-height: 82px !important; padding-bottom: env(safe-area-inset-bottom) !important; overflow: hidden !important; }
+  #chatToggleButton, .chat-toggle { right: 12px !important; bottom: calc(76px + env(safe-area-inset-bottom)) !important; max-width: calc(100vw - 24px) !important; }
+}
+@media (max-width: 380px) {
+  .content { width: min(100% - 16px, 560px) !important; }
+  .paper-card, .campaign-info-card, .table-card, .student-management-card, .access-management-card, .school-year-card, .backup-card, .templates-card { padding: 11px !important; }
+}
