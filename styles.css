@@ -2958,3 +2958,47 @@ input:focus, select:focus, textarea:focus { border-color: var(--color-primary); 
   .content { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
   .chat-toggle { bottom: calc(74px + env(safe-area-inset-bottom)); }
 }
+
+/* V53.2 HOTFIX — keep mobile content visible and make class chat unmistakable. */
+.content,
+.view.active {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+.chat-toggle {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 158px !important;
+  min-height: 52px !important;
+  padding: 11px 18px !important;
+  color: #fff !important;
+  background: #145c4a !important;
+  border: 3px solid #f7d36e !important;
+  box-shadow: 0 8px 22px rgba(20, 63, 48, .38), 0 0 0 3px rgba(255,255,255,.72) !important;
+  font-size: .95rem !important;
+  font-weight: 900 !important;
+  text-shadow: 0 1px 1px rgba(0,0,0,.28) !important;
+}
+.chat-toggle-icon { display: inline-block !important; opacity: 1 !important; }
+.chat-toggle > span:not(.chat-toggle-icon):not(.chat-unread-badge) { display: inline-block !important; color: #fff !important; opacity: 1 !important; }
+.chat-toggle .chat-unread-badge { color: #145c4a !important; background: #f7d36e !important; }
+@media (max-width: 768px) {
+  .content { display: block !important; visibility: visible !important; opacity: 1 !important; }
+  .content > .view.active { display: block !important; visibility: visible !important; opacity: 1 !important; }
+  .chat-toggle {
+    right: 10px !important;
+    bottom: calc(78px + env(safe-area-inset-bottom)) !important;
+    min-width: 148px !important;
+    min-height: 48px !important;
+    padding: 9px 13px !important;
+    font-size: .86rem !important;
+  }
+}
+
+/* V53.2 safety fallback: show the summary only when no view is active. */
+.content:not(:has(.view.active)) > #view-summary {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
