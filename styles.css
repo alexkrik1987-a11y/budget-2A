@@ -1975,3 +1975,97 @@ tfoot td { color: var(--ink); font-weight: 900; background: #f1ebd9; border-bott
     padding-left: 0;
   }
 }
+
+
+/* =========================================================
+   V48 — ВСЕ ОТКРЫТЫЕ СБОРЫ В «МОЙ ВЗНОС»
+   ========================================================= */
+#view-summary .contribution-reminder {
+  align-items: stretch;
+  flex-direction: column;
+}
+
+#view-summary .contribution-reminder-copy {
+  width: 100%;
+}
+
+#view-summary .contribution-reminder-controls {
+  align-self: flex-end;
+}
+
+#view-summary .contribution-reminder-list {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+  margin-top: 2px;
+}
+
+#view-summary .contribution-reminder-item {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  padding: 12px 13px 11px;
+  color: #3b4650;
+  background: rgba(255, 255, 255, .72);
+  border: 1px solid rgba(193, 153, 57, .42);
+  border-left: 4px solid #d3a63e;
+  border-radius: 10px 12px 9px 11px;
+  box-shadow: 0 2px 0 rgba(107, 83, 29, .08);
+}
+
+#view-summary .contribution-reminder-item.is-paid {
+  border-color: rgba(66, 148, 102, .38);
+  border-left-color: #4b9b6e;
+  background: rgba(239, 250, 241, .82);
+}
+
+#view-summary .contribution-reminder-item-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+}
+
+#view-summary .contribution-reminder-item-heading strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #394f45;
+  font-size: .86rem;
+  line-height: 1.2;
+}
+
+#view-summary .contribution-reminder-item-icon {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 8px;
+  background: #fffdf4;
+  place-items: center;
+}
+
+#view-summary .contribution-reminder-item-amount {
+  color: #8a5e16;
+  font-size: .92rem;
+}
+
+#view-summary .contribution-reminder-item.is-paid .contribution-reminder-item-amount {
+  color: #2f8255;
+}
+
+#view-summary .contribution-reminder-item-detail {
+  color: #746849;
+  font-size: .72rem;
+  line-height: 1.3;
+}
+
+@media (max-width: 680px) {
+  #view-summary .contribution-reminder-controls {
+    align-self: stretch;
+  }
+
+  #view-summary .contribution-reminder-list {
+    grid-template-columns: 1fr;
+  }
+}

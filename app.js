@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "v46";
+const APP_VERSION = "v48";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -1916,9 +1916,11 @@ function renderContributionReminder() {
   dom.contributionReminder.classList.add("hidden");
   dom.contributionReminder.classList.remove("is-setup");
 
-  const campaign = state.campaigns.find((item) => item.is_open) ?? null;
+  const openCampaigns = state.campaigns
+    .filter((item) => item.is_open)
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   const students = state.students ?? [];
-  if (!state.session || !campaign || !students.length) return;
+  if (!state.session || !openCampaigns.length || !students.length) return;
 
   let studentId = getReminderStudentId();
   let student = students.find((item) => item.id === studentId) ?? null;
@@ -1956,20 +1958,16 @@ function renderContributionReminder() {
     copy.append(
       el("span", "contribution-reminder-step", "Шаг 1 из 1 · для Вашего удобства"),
       el("strong", "", "Выберите своего ребёнка"),
-      el("small", "", "После выбора сайт покажет личный остаток по текущему сбору. Этот выбор сохраняется только на Вашем устройстве.")
+      el("small", "", "После выбора сайт покажет личный остаток по каждому открытому сбору. Этот выбор сохраняется только на Вашем устройстве.")
     );
     const picker = el("label", "contribution-reminder-picker");
     picker.append(el("span", "", "Кого показать?"), select, el("em", "", "↓ выберите имя"));
     controls.append(picker);
   } else {
-    copy.append(el("strong", "", "Мой взнос"));
-    const paid = toNumber(getContribution(student.id, campaign.id)?.amount);
-    const expected = toNumber(campaign.expected_amount);
-    const remaining = Math.max(0, expected - paid);
-    const text = remaining > 0
-      ? `По сбору «${campaign.name}» осталось внести ${formatMoney(remaining)}.`
-      : `По сбору «${campaign.name}» взнос внесён полностью. Спасибо!`;
-    copy.append(el("small", "", text));
+    copy.append(
+      el("strong", "", "Мой взнос"),
+      el("small", "", `Открытых сборов: ${openCampaigns.length}. Остаток рассчитан для «${student.full_name}».`)
+    );
 
     const change = el("button", "contribution-reminder-change", "Изменить ребёнка");
     change.type = "button";
@@ -1981,6 +1979,28 @@ function renderContributionReminder() {
   }
 
   dom.contributionReminder.append(intro, controls);
+
+  if (student) {
+    const campaignList = el("div", "contribution-reminder-list");
+    openCampaigns.forEach((campaign) => {
+      const paid = toNumber(getContribution(student.id, campaign.id)?.amount);
+      const expected = toNumber(campaign.expected_amount);
+      const remaining = Math.max(0, expected - paid);
+      const isPaid = remaining === 0;
+      const item = el("article", `contribution-reminder-item${isPaid ? " is-paid" : ""}`);
+      const itemHeading = el("div", "contribution-reminder-item-heading");
+      itemHeading.append(
+        el("span", "contribution-reminder-item-icon", FUND_ICONS[campaign.fund] || "🎯"),
+        el("strong", "", campaign.name)
+      );
+      const amount = el("strong", "contribution-reminder-item-amount", isPaid ? "Внесено" : `Осталось ${formatMoney(remaining)}`);
+      const detail = el("small", "contribution-reminder-item-detail", `План ${formatMoney(expected)} · внесено ${formatMoney(paid)}`);
+      item.append(itemHeading, amount, detail);
+      campaignList.append(item);
+    });
+    dom.contributionReminder.append(campaignList);
+  }
+
   dom.contributionReminder.classList.remove("hidden");
 }
 
