@@ -93,6 +93,8 @@ const state = {
   chatPanelOpen: false,
   chatRefreshTimer: null,
   chatRealtimeRetryTimer: null,
+  realtimeRetryTimer: null,
+  realtimeFallbackTimer: null,
   chatExpiryTimer: null,
   chatLastReadAt: null,
   chatUnreadCount: 0,
@@ -113,6 +115,7 @@ const state = {
   realtimeSubscriptionKey: null,
   realtimeGeneration: 0,
   realtimeRefreshTimer: null,
+  realtimeLastConnectedAt: 0,
   noticeTimer: null,
   schoolCalendarTimer: null,
   installPrompt: null,
@@ -285,6 +288,8 @@ function setSelectOptions(select, options) {
 }
 
 function bindEvents() {
+  window.addEventListener("online", handleRealtimeNetworkResume);
+  document.addEventListener("visibilitychange", handleRealtimeVisibilityChange);
   // Google Identity самостоятельно управляет кнопкой внутри googleLoginButton.
   if (dom.emailPasswordForm) dom.emailPasswordForm.addEventListener("submit", loginWithEmailPassword);
   if (dom.togglePasswordVisibility) dom.togglePasswordVisibility.addEventListener("click", togglePasswordVisibility);
@@ -1292,13 +1297,28 @@ function handleChatRealtimeEvent(payload, generation) {
   renderChat();
 }
 
-function scheduleChatRealtimeRetry(generation) {
+function scheduleRealtimeRetry(generation) {
+  window.clearTimeout(state.realtimeRetryTimer);
   window.clearTimeout(state.chatRealtimeRetryTimer);
-  state.chatRealtimeRetryTimer = window.setTimeout(() => {
-    if (generation !== state.realtimeGeneration || !state.session || !state.chatReady) return;
+  const retry = window.setTimeout(() => {
+    if (generation !== state.realtimeGeneration || !state.session) return;
     unsubscribeRealtime();
     subscribeRealtime();
   }, 1500);
+  state.realtimeRetryTimer = retry;
+  state.chatRealtimeRetryTimer = retry;
+}
+
+function scheduleChatRealtimeRetry(generation) {
+  scheduleRealtimeRetry(generation);
+}
+
+function startRealtimeFallback(generation) {
+  window.clearInterval(state.realtimeFallbackTimer);
+  state.realtimeFallbackTimer = window.setInterval(() => {
+    if (generation !== state.realtimeGeneration || !state.session || document.visibilityState === "hidden") return;
+    void loadAllData({ silent: true }).catch((error) => console.error("Realtime fallback refresh error:", error));
+  }, 60 * 1000);
 }
 
 function subscribeRealtime() {
@@ -1325,20 +1345,28 @@ function subscribeRealtime() {
     state.realtimeChannel.on("postgres_changes", { event: "*", schema: "public", table: "chat_messages" }, (payload) => handleChatRealtimeEvent(payload, generation));
   }
 
+  startRealtimeFallback(generation);
   state.realtimeChannel.subscribe((status) => {
     if (generation !== state.realtimeGeneration) return;
     if (status === "SUBSCRIBED") {
+      state.realtimeLastConnectedAt = Date.now();
+      window.clearTimeout(state.realtimeRetryTimer);
       window.clearTimeout(state.chatRealtimeRetryTimer);
       return;
     }
-    if (state.chatReady && ["CHANNEL_ERROR", "TIMED_OUT", "CLOSED"].includes(status)) {
-      scheduleChatRealtimeRetry(generation);
+    if (["CHANNEL_ERROR", "TIMED_OUT", "CLOSED"].includes(status)) {
+      scheduleRealtimeRetry(generation);
     }
   });
 }
 
 function unsubscribeRealtime() {
+  window.clearTimeout(state.realtimeRetryTimer);
   window.clearTimeout(state.chatRealtimeRetryTimer);
+  window.clearInterval(state.realtimeFallbackTimer);
+  state.realtimeRetryTimer = null;
+  state.chatRealtimeRetryTimer = null;
+  state.realtimeFallbackTimer = null;
   state.realtimeGeneration += 1;
   if (db && state.realtimeChannel) db.removeChannel(state.realtimeChannel);
   state.realtimeChannel = null;
@@ -1359,6 +1387,18 @@ function scheduleChatRefresh() {
       console.error("Chat refresh error:", error);
     }
   }, 180);
+}
+
+function handleRealtimeNetworkResume() {
+  if (!state.session) return;
+  unsubscribeRealtime();
+  subscribeRealtime();
+  scheduleRealtimeRefresh();
+}
+
+function handleRealtimeVisibilityChange() {
+  if (document.visibilityState !== "visible" || !state.session) return;
+  scheduleRealtimeRefresh();
 }
 
 function scheduleRealtimeRefresh() {
