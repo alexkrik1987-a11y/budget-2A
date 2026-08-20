@@ -239,6 +239,7 @@ function cacheDom() {
     "globalNotice", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated", "schoolCalendar", "schoolCalendarDay", "schoolCalendarMonth",
     "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions", "parentChildOnboardingModal", "parentChildOnboardingForm", "parentChildOnboardingSelect", "parentChildOnboardingError", "parentChildOnboardingSaveButton",
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary",
+    "livingNotebook", "liveNotebookBalance", "liveNotebookBalanceNote", "liveNotebookCampaign", "liveNotebookCampaignNote", "liveNotebookDate", "liveNotebookDateNote", "liveNotebookCollected", "liveNotebookSpent", "liveNotebookRemaining", "liveNotebookMessage",
     "fundExpenseChart", "categoryExpenseChart", "reportMonthSelect", "downloadCsvButton", "printReportButton", "printReport",
     "recentExpenses", "campaignSelect", "campaignTypeTag", "selectedCampaignName",
     "selectedCampaignMeta", "campaignPlanTotal", "campaignCollectedTotal", "editModeText",
@@ -1922,6 +1923,8 @@ function renderSummary() {
     dom.totalBalance.style.color = totalBalance < 0 ? "#ff9f9f" : "";
   }
 
+  renderLivingNotebook({ totalCollected, totalSpent, totalBalance });
+
   if (dom.fundCards) {
     dom.fundCards.replaceChildren(...Object.keys(FUND_LABELS).map((fund) => {
       const collected = collectedByFund[fund] ?? 0;
@@ -1940,6 +1943,63 @@ function renderSummary() {
   renderCurrentCampaignSummary();
   renderRecentExpenses();
   renderExpenseCharts();
+}
+
+function renderLivingNotebook({ totalCollected, totalSpent, totalBalance }) {
+  if (!dom.livingNotebook) return;
+
+  const openCampaigns = state.campaigns
+    .filter((item) => item.is_open)
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const currentCampaign = openCampaigns[0] ?? null;
+  const today = new Date();
+  const dateLabel = new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long"
+  }).format(today);
+  const capitalizedDate = dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
+
+  if (dom.liveNotebookBalance) dom.liveNotebookBalance.textContent = formatMoney(totalBalance);
+  if (dom.liveNotebookBalanceNote) {
+    dom.liveNotebookBalanceNote.textContent = totalBalance < 0
+      ? "Расходы больше поступлений — нужна проверка"
+      : "Деньги после учёта поступлений и расходов";
+  }
+
+  if (dom.liveNotebookCampaign) {
+    dom.liveNotebookCampaign.textContent = currentCampaign?.name || "Открытых сборов пока нет";
+  }
+  if (dom.liveNotebookCampaignNote) {
+    if (currentCampaign) {
+      const campaignContributions = getCampaignContributions(currentCampaign.id);
+      const plan = toNumber(currentCampaign.expected_amount) * state.students.length;
+      const collected = sum(campaignContributions.map((item) => item.amount));
+      const percent = plan > 0 ? Math.min(100, Math.round((collected / plan) * 100)) : 0;
+      dom.liveNotebookCampaignNote.textContent = `Фонд: ${FUND_LABELS[currentCampaign.fund] || "Классный фонд"} · готово ${percent}%`;
+    } else {
+      dom.liveNotebookCampaignNote.textContent = "Новая цель появится здесь";
+    }
+  }
+
+  if (dom.liveNotebookDate) dom.liveNotebookDate.textContent = capitalizedDate;
+  if (dom.liveNotebookDateNote) {
+    dom.liveNotebookDateNote.textContent = state.classProfile?.school_year
+      ? `Учебный год ${state.classProfile.school_year}`
+      : "Школьный календарь Приморского края";
+  }
+
+  if (dom.liveNotebookCollected) dom.liveNotebookCollected.textContent = `Собрали ${formatMoney(totalCollected)}`;
+  if (dom.liveNotebookSpent) dom.liveNotebookSpent.textContent = `Потратили ${formatMoney(totalSpent)}`;
+  if (dom.liveNotebookRemaining) dom.liveNotebookRemaining.textContent = `Осталось ${formatMoney(totalBalance)}`;
+
+  if (dom.liveNotebookMessage) {
+    const latestExpense = state.expenses[0];
+    dom.liveNotebookMessage.textContent = latestExpense
+      ? `Последняя запись: ${latestExpense.description} · ${formatDate(latestExpense.expense_date)}`
+      : currentCampaign
+        ? `Сейчас собираем на «${currentCampaign.name}».`
+        : "Новых записей пока нет — бюджет готов к работе.";
+  }
 }
 
 function sumByFund(items) {

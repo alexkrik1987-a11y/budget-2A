@@ -189,6 +189,51 @@
           </div>
         </div>
 
+        <section id="livingNotebook" class="living-notebook" aria-labelledby="livingNotebookTitle">
+          <div class="living-notebook-heading">
+            <div>
+              <span class="sticker sticker-green">Главное за несколько секунд</span>
+              <h3 id="livingNotebookTitle">Живая тетрадь класса</h3>
+              <p>Бюджет, текущая цель и важные новости — на одной странице.</p>
+            </div>
+            <span class="living-notebook-mark" aria-hidden="true">✦</span>
+          </div>
+          <div class="living-notebook-grid">
+            <article class="living-note-card living-note-balance">
+              <span class="living-note-icon" aria-hidden="true">💰</span>
+              <div>
+                <span class="living-note-label">Сейчас в кассе</span>
+                <strong id="liveNotebookBalance">0 ₽</strong>
+                <small id="liveNotebookBalanceNote">Считаем общий остаток</small>
+              </div>
+            </article>
+            <article class="living-note-card living-note-campaign">
+              <span class="living-note-icon" aria-hidden="true">🎯</span>
+              <div>
+                <span class="living-note-label">Текущий сбор</span>
+                <strong id="liveNotebookCampaign">Открытых сборов пока нет</strong>
+                <small id="liveNotebookCampaignNote">Новая цель появится здесь</small>
+              </div>
+            </article>
+            <article class="living-note-card living-note-calendar">
+              <span class="living-note-icon" aria-hidden="true">📅</span>
+              <div>
+                <span class="living-note-label">Сегодня в классе</span>
+                <strong id="liveNotebookDate">--</strong>
+                <small id="liveNotebookDateNote">Школьный календарь Приморского края</small>
+              </div>
+            </article>
+          </div>
+          <div class="living-notebook-flow" aria-label="Движение денег">
+            <span id="liveNotebookCollected">Собрали 0 ₽</span>
+            <span aria-hidden="true">→</span>
+            <span id="liveNotebookSpent">Потратили 0 ₽</span>
+            <span aria-hidden="true">→</span>
+            <strong id="liveNotebookRemaining">Осталось 0 ₽</strong>
+          </div>
+          <p id="liveNotebookMessage" class="living-notebook-message" aria-live="polite">Данные появятся после загрузки бюджета.</p>
+        </section>
+
         <div class="totals-grid">
           <article class="metric-card chalkboard chalk-blue">
             <span class="metric-icon metric-icon-blue" aria-hidden="true">🪙</span>
@@ -530,7 +575,7 @@
 
     <footer class="site-footer">
       <p>Сделано с заботой о нашем классе <span aria-hidden="true">🍎📚</span></p>
-      <p class="site-version">Версия 2.1</p>
+      <p class="site-version">Версия V1.2</p>
       <button id="installAppButton" class="button install-button hidden" type="button">
         <span aria-hidden="true">📲</span> Установить на телефон
       </button>
