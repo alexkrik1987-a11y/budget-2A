@@ -160,6 +160,7 @@
         <button class="nav-button" type="button" data-view="contributions"><span>✏️</span> Взносы класса</button>
         <button class="nav-button" type="button" data-view="expenses"><span>🧾</span> Расходы</button>
         <button class="nav-button" type="button" data-view="archive"><span>🗂️</span> Архив</button>
+        <button class="nav-button" type="button" data-view="useful"><span>📌</span> Полезное</button>
         <button id="settingsNavButton" class="nav-button admin-only hidden" type="button" data-view="settings"><span>⚙️</span> Настройки</button>
       </div>
     </nav>
@@ -467,6 +468,67 @@
           <p class="last-updated">Здесь остаются взносы, расходы и история завершённых сборов.</p>
         </div>
         <div id="archiveCampaigns" class="archive-grid"></div>
+      </section>
+
+      <section id="view-useful" class="view" aria-labelledby="usefulTitle">
+        <div class="section-heading">
+          <div>
+            <span class="sticker sticker-green">Всегда под рукой</span>
+            <h2 id="usefulTitle">Полезное</h2>
+            <p>Контакты, школа и расписание в одном спокойном месте.</p>
+          </div>
+          <span class="useful-page-mark" aria-hidden="true">📚</span>
+        </div>
+
+        <section class="useful-grid" aria-label="Полезная информация класса">
+          <article class="paper-card useful-card useful-contacts-card">
+            <div class="card-title-row compact">
+              <div><span class="sticker sticker-pink">Контакты</span><h3>К кому обратиться</h3></div>
+              <span aria-hidden="true">☎️</span>
+            </div>
+            <div id="usefulContacts" class="useful-contact-list"></div>
+          </article>
+
+          <article class="paper-card useful-card useful-school-card">
+            <div class="card-title-row compact">
+              <div><span class="sticker sticker-blue">Наша школа</span><h3 id="usefulSchoolName">Название школы не указано</h3></div>
+              <span aria-hidden="true">🏫</span>
+            </div>
+            <p id="usefulSchoolAddress" class="useful-school-address">Адрес школы добавит администратор.</p>
+            <a id="usefulSchoolMapLink" class="button button-secondary button-small hidden" target="_blank" rel="noopener" href="#">Открыть на карте</a>
+          </article>
+
+          <article class="paper-card useful-card useful-schedule-card">
+            <div class="card-title-row compact">
+              <div><span class="sticker sticker-yellow">На неделю</span><h3>Расписание уроков</h3></div>
+              <span aria-hidden="true">🗓️</span>
+            </div>
+            <div id="usefulSchedule" class="useful-schedule-grid"></div>
+          </article>
+        </section>
+
+        <section class="paper-card useful-notes-card">
+          <div class="card-title-row compact">
+            <div><span class="sticker sticker-orange">Важное</span><h3>Памятки класса</h3></div>
+            <span aria-hidden="true">📝</span>
+          </div>
+          <div id="usefulNotes" class="useful-notes-list"></div>
+        </section>
+
+        <section id="usefulAdminEditor" class="paper-card useful-admin-editor admin-only hidden" aria-labelledby="usefulEditorTitle">
+          <div class="card-title-row">
+            <div><span class="sticker sticker-blue">Только администратор</span><h3 id="usefulEditorTitle">Редактировать «Полезное»</h3><p>Изменения сразу появятся у родителей после сохранения.</p></div>
+          </div>
+          <form id="usefulInfoForm" class="useful-editor-form" novalidate>
+            <fieldset><legend>Учитель</legend><div class="useful-form-grid"><label>Ф.И.О.<input id="usefulTeacherName" type="text" maxlength="120" placeholder="Кожухова Анна Александровна"></label><label>Телефон<input id="usefulTeacherPhone" type="tel" maxlength="40" placeholder="+7 ..."></label></div></fieldset>
+            <fieldset><legend>Родительский комитет</legend><div class="useful-form-grid"><label>Председатель — Ф.И.О.<input id="usefulChairName" type="text" maxlength="120"></label><label>Телефон председателя<input id="usefulChairPhone" type="tel" maxlength="40"></label><label>Зам. председателя — Ф.И.О.<input id="usefulDeputyName" type="text" maxlength="120"></label><label>Телефон заместителя<input id="usefulDeputyPhone" type="tel" maxlength="40"></label></div></fieldset>
+            <fieldset><legend>Школа</legend><div class="useful-form-grid"><label>Название школы<input id="usefulSchoolNameInput" type="text" maxlength="180"></label><label>Адрес школы<input id="usefulSchoolAddressInput" type="text" maxlength="240"></label><label class="useful-form-wide">Ссылка на карту<input id="usefulSchoolMapInput" type="url" maxlength="500" placeholder="https://maps.google.com/..."></label></div></fieldset>
+            <fieldset><legend>Расписание</legend><div class="useful-schedule-editor"><label>Понедельник<textarea id="usefulScheduleMon" rows="5" placeholder="Русский язык\nМатематика\nОкружающий мир"></textarea></label><label>Вторник<textarea id="usefulScheduleTue" rows="5"></textarea></label><label>Среда<textarea id="usefulScheduleWed" rows="5"></textarea></label><label>Четверг<textarea id="usefulScheduleThu" rows="5"></textarea></label><label>Пятница<textarea id="usefulScheduleFri" rows="5"></textarea></label></div></fieldset>
+            <fieldset><legend>Памятки класса</legend><label class="useful-form-wide">Каждая памятка с новой строки<textarea id="usefulNotesInput" rows="4" placeholder="Что взять на экскурсию\nВажная информация к собранию"></textarea></label></fieldset>
+            <p id="usefulInfoFormError" class="form-error hidden" role="alert"></p>
+            <button id="saveUsefulInfoButton" class="button button-primary" type="submit">Сохранить полезную информацию</button>
+          </form>
+        </section>
       </section>
 
       <section id="view-settings" class="view" aria-labelledby="settingsTitle">

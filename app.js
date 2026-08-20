@@ -100,8 +100,8 @@ const state = {
   chatUnreadCount: 0,
   chatReadInitialized: false,
   chatReadUserId: null,
-  classProfile: { class_name: "2 «А»", school_year: "" },
   archiveFeaturesReady: false,
+  classProfile: { class_name: "2 «А»", school_year: "", useful_info: {} },
   selectedCampaignId: null,
   studentSearch: "",
   expenseSearch: "",
@@ -244,6 +244,7 @@ function cacheDom() {
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary",
     "livingNotebook", "liveNotebookBalance", "liveNotebookBalanceNote", "liveNotebookCampaign", "liveNotebookCampaignNote", "liveNotebookDate", "liveNotebookDateNote", "liveNotebookCalendarMonth", "liveNotebookCalendarDay", "liveNotebookCollected", "liveNotebookSpent", "liveNotebookRemaining", "liveNotebookMessage",
     "fundExpenseChart", "categoryExpenseChart", "reportMonthSelect", "downloadCsvButton", "printReportButton", "printReport",
+    "usefulContacts", "usefulSchoolName", "usefulSchoolAddress", "usefulSchoolMapLink", "usefulSchedule", "usefulNotes", "usefulAdminEditor", "usefulInfoForm", "usefulTeacherName", "usefulTeacherPhone", "usefulChairName", "usefulChairPhone", "usefulDeputyName", "usefulDeputyPhone", "usefulSchoolNameInput", "usefulSchoolAddressInput", "usefulSchoolMapInput", "usefulScheduleMon", "usefulScheduleTue", "usefulScheduleWed", "usefulScheduleThu", "usefulScheduleFri", "usefulNotesInput", "usefulInfoFormError", "saveUsefulInfoButton",
     "recentExpenses", "campaignSelect", "campaignTypeTag", "selectedCampaignName",
     "selectedCampaignMeta", "campaignPlanTotal", "campaignCollectedTotal", "editModeText",
     "contributionsTableBody", "contributionsPlanFooter", "contributionsPaidFooter", "studentSearchInput",
@@ -322,6 +323,7 @@ function bindEvents() {
   if (dom.toggleAccessEnrollmentButton) dom.toggleAccessEnrollmentButton.addEventListener("click", toggleAccessEnrollment);
   if (dom.accessRequestList) dom.accessRequestList.addEventListener("click", handleAccessRequestAction);
   if (dom.parentChildOnboardingForm) dom.parentChildOnboardingForm.addEventListener("submit", saveParentChildOnboarding);
+  if (dom.usefulInfoForm) dom.usefulInfoForm.addEventListener("submit", saveUsefulInfo);
 
   if (dom.expenseFilters) {
     dom.expenseFilters.addEventListener("click", (event) => {
@@ -948,6 +950,7 @@ async function loadAllData({ silent = false } = {}) {
     .filter((item) => item.archived_at)
     .sort((a, b) => new Date(b.archived_at) - new Date(a.archived_at));
   state.classProfile = snapshot.class_profile?.class_name ? snapshot.class_profile : state.classProfile;
+  state.classProfile.useful_info = normalizeUsefulInfo(state.classProfile.useful_info);
     state.chatMessages = Array.isArray(snapshot.chat_messages)
       ? snapshot.chat_messages.filter((message) => !message?.archived_at)
       : [];
@@ -1074,7 +1077,7 @@ async function fetchArchiveAwareData() {
 
 async function fetchClassProfile() {
   const result = await db.from("class_profile")
-    .select("class_name, school_year, updated_at")
+    .select("class_name, school_year, useful_info, updated_at")
     .eq("id", true)
     .maybeSingle();
   if (result.error && /class_profile|does not exist|relation .* does not exist/i.test(result.error.message || "")) {
@@ -1333,7 +1336,8 @@ function subscribeRealtime() {
     .on("postgres_changes", { event: "*", schema: "public", table: "contributions" }, scheduleRealtimeRefresh)
     .on("postgres_changes", { event: "*", schema: "public", table: "expenses" }, scheduleRealtimeRefresh)
     .on("postgres_changes", { event: "*", schema: "public", table: "campaigns" }, scheduleRealtimeRefresh)
-    .on("postgres_changes", { event: "*", schema: "public", table: "students" }, scheduleRealtimeRefresh);
+    .on("postgres_changes", { event: "*", schema: "public", table: "students" }, scheduleRealtimeRefresh)
+    .on("postgres_changes", { event: "*", schema: "public", table: "class_profile" }, scheduleRealtimeRefresh);
 
   if (state.isAdmin && state.enrollmentReady) {
     state.realtimeChannel
@@ -1418,6 +1422,7 @@ function scheduleRealtimeRefresh() {
    ========================================================= */
 function renderAll() {
   renderClassProfile();
+  renderUsefulInfo();
   renderCampaignSelect();
   renderSummary();
   renderContributionReminder();
@@ -1447,6 +1452,141 @@ function renderClassProfile() {
   document.title = `Бюджет ${className} класса`;
   if (dom.nextClassName && document.activeElement !== dom.nextClassName) dom.nextClassName.value = className;
   if (dom.nextSchoolYear && document.activeElement !== dom.nextSchoolYear) dom.nextSchoolYear.value = nextSchoolYearLabel(schoolYear);
+}
+
+const USEFUL_DAYS = [
+  ["mon", "Понедельник"],
+  ["tue", "Вторник"],
+  ["wed", "Среда"],
+  ["thu", "Четверг"],
+  ["fri", "Пятница"]
+];
+
+function normalizeUsefulInfo(value) {
+  const info = value && typeof value === "object" ? value : {};
+  const teacher = info.teacher && typeof info.teacher === "object" ? info.teacher : {};
+  const committee = Array.isArray(info.committee) ? info.committee : [];
+  const school = info.school && typeof info.school === "object" ? info.school : {};
+  const schedule = info.schedule && typeof info.schedule === "object" ? info.schedule : {};
+  return {
+    teacher: { name: String(teacher.name || ""), phone: String(teacher.phone || "") },
+    committee: [0, 1].map((index) => ({
+      role: index === 0 ? "Председатель" : "Зам. председателя",
+      name: String(committee[index]?.name || ""),
+      phone: String(committee[index]?.phone || "")
+    })),
+    school: { name: String(school.name || ""), address: String(school.address || ""), map_url: String(school.map_url || "") },
+    schedule: Object.fromEntries(USEFUL_DAYS.map(([key]) => [key, Array.isArray(schedule[key]) ? schedule[key].map((item) => String(item).trim()).filter(Boolean).slice(0, 12) : []])),
+    notes: Array.isArray(info.notes) ? info.notes.map((item) => String(item).trim()).filter(Boolean).slice(0, 20) : []
+  };
+}
+
+function safeUsefulUrl(value) {
+  try {
+    const url = new URL(String(value || ""));
+    return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
+function createUsefulContact(label, name, phone) {
+  const item = el("div", "useful-contact-item");
+  const copy = el("div", "useful-contact-copy");
+  copy.append(el("strong", "", label), el("span", "", name || "Контакт пока не указан"));
+  item.append(copy);
+  if (phone) {
+    const link = el("a", "button button-secondary button-small useful-call-button", "Позвонить");
+    link.href = `tel:${phone.replace(/[^+\\d]/g, "")}`;
+    link.setAttribute("aria-label", `Позвонить: ${label}`);
+    item.append(link);
+  }
+  return item;
+}
+
+function renderUsefulInfo() {
+  const info = normalizeUsefulInfo(state.classProfile?.useful_info);
+  state.classProfile.useful_info = info;
+  if (dom.usefulContacts) {
+    const contacts = [
+      ["Учитель", info.teacher.name, info.teacher.phone],
+      ...info.committee.map((person) => [person.role, person.name, person.phone])
+    ];
+    dom.usefulContacts.replaceChildren(...contacts.map(([label, name, phone]) => createUsefulContact(label, name, phone)));
+  }
+  if (dom.usefulSchoolName) dom.usefulSchoolName.textContent = info.school.name || "Название школы не указано";
+  if (dom.usefulSchoolAddress) dom.usefulSchoolAddress.textContent = info.school.address || "Адрес школы добавит администратор.";
+  const mapUrl = safeUsefulUrl(info.school.map_url);
+  if (dom.usefulSchoolMapLink) {
+    dom.usefulSchoolMapLink.classList.toggle("hidden", !mapUrl);
+    if (mapUrl) dom.usefulSchoolMapLink.href = mapUrl;
+  }
+  if (dom.usefulSchedule) {
+    dom.usefulSchedule.replaceChildren(...USEFUL_DAYS.map(([key, label]) => {
+      const card = el("article", "useful-day-card");
+      card.append(el("h4", "", label));
+      const lessons = info.schedule[key] || [];
+      if (lessons.length) {
+        const list = el("ol", "useful-lesson-list");
+        lessons.forEach((lesson) => list.append(el("li", "", lesson)));
+        card.append(list);
+      } else {
+        card.append(el("p", "useful-empty-copy", "Уроки пока не добавлены"));
+      }
+      return card;
+    }));
+  }
+  if (dom.usefulNotes) {
+    const notes = info.notes.length ? info.notes : ["Памятки пока не добавлены."];
+    dom.usefulNotes.replaceChildren(...notes.map((note) => el("p", "useful-note-item", note)));
+  }
+  if (state.isAdmin) fillUsefulEditor(info);
+}
+
+function fillUsefulEditor(info = normalizeUsefulInfo(state.classProfile?.useful_info)) {
+  const values = {
+    usefulTeacherName: info.teacher.name,
+    usefulTeacherPhone: info.teacher.phone,
+    usefulChairName: info.committee[0].name,
+    usefulChairPhone: info.committee[0].phone,
+    usefulDeputyName: info.committee[1].name,
+    usefulDeputyPhone: info.committee[1].phone,
+    usefulSchoolNameInput: info.school.name,
+    usefulSchoolAddressInput: info.school.address,
+    usefulSchoolMapInput: info.school.map_url,
+    usefulNotesInput: info.notes.join("\\n")
+  };
+  Object.entries(values).forEach(([id, value]) => {
+    if (dom[id] && document.activeElement !== dom[id]) dom[id].value = value;
+  });
+  USEFUL_DAYS.forEach(([key]) => {
+    const input = dom[`usefulSchedule${key[0].toUpperCase()}${key.slice(1)}`];
+    if (input && document.activeElement !== input) input.value = info.schedule[key].join("\\n");
+  });
+}
+
+async function saveUsefulInfo(event) {
+  event.preventDefault();
+  if (!state.isAdmin) return showNotice("Редактировать «Полезное» может только администратор.", "error");
+  const read = (id) => String(dom[id]?.value || "").trim();
+  const payload = {
+    teacher: { name: read("usefulTeacherName"), phone: read("usefulTeacherPhone") },
+    committee: [
+      { role: "Председатель", name: read("usefulChairName"), phone: read("usefulChairPhone") },
+      { role: "Зам. председателя", name: read("usefulDeputyName"), phone: read("usefulDeputyPhone") }
+    ],
+    school: { name: read("usefulSchoolNameInput"), address: read("usefulSchoolAddressInput"), map_url: safeUsefulUrl(read("usefulSchoolMapInput")) },
+    schedule: Object.fromEntries(USEFUL_DAYS.map(([key]) => [key, String(dom[`usefulSchedule${key[0].toUpperCase()}${key.slice(1)}`]?.value || "").split(/\\r?\\n/).map((item) => item.trim()).filter(Boolean).slice(0, 12)])),
+    notes: read("usefulNotesInput").split(/\\r?\\n/).map((item) => item.trim()).filter(Boolean).slice(0, 20)
+  };
+  hideElement(dom.usefulInfoFormError);
+  setButtonLoading(dom.saveUsefulInfoButton, true, "Сохраняем…");
+  const { error } = await db.from("class_profile").update({ useful_info: payload, updated_by: state.session?.user?.id || null, updated_at: new Date().toISOString() }).eq("id", true);
+  setButtonLoading(dom.saveUsefulInfoButton, false);
+  if (error) return showElementError(dom.usefulInfoFormError, `Не удалось сохранить полезную информацию: ${friendlyError(error)}`);
+  state.classProfile.useful_info = normalizeUsefulInfo(payload);
+  renderUsefulInfo();
+  showNotice("Полезная информация сохранена ✓", "info");
 }
 
 function renderChat() {
