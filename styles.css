@@ -4861,3 +4861,121 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   display: none !important;
   box-shadow: none !important;
 }
+
+/* V59: mobile chat composer must not cover the message history when the keyboard is open. */
+@media (max-width: 768px) {
+  .class-chat-panel {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .chat-header {
+    flex: 0 0 auto;
+    gap: 8px;
+    padding: max(10px, env(safe-area-inset-top)) 12px 8px;
+  }
+
+  .chat-header .sticker {
+    margin-bottom: 3px;
+    padding: 3px 7px;
+    font-size: .62rem;
+  }
+
+  .chat-header h2 {
+    font-size: 1.15rem;
+    line-height: 1.05;
+  }
+
+  .chat-status {
+    margin-top: 3px;
+    max-width: 260px;
+    font-size: .68rem;
+    line-height: 1.2;
+  }
+
+  .chat-pinned-announcement {
+    gap: 6px;
+    margin-top: 6px;
+    padding: 6px 8px;
+  }
+
+  .chat-pinned-copy strong,
+  .chat-pinned-copy p {
+    font-size: .68rem;
+    line-height: 1.2;
+  }
+
+  .chat-message-list {
+    flex: 1 1 0;
+    min-height: 110px;
+    padding: 10px 10px 8px;
+    gap: 8px;
+  }
+
+  .chat-message {
+    max-width: 96%;
+    padding: 9px 10px;
+  }
+
+  .chat-message-header {
+    gap: 6px;
+  }
+
+  .chat-message-author strong {
+    font-size: .76rem;
+  }
+
+  .chat-message-author time,
+  .chat-delete-button,
+  .chat-pin-button {
+    font-size: .64rem;
+  }
+
+  .chat-message-body {
+    margin-top: 5px;
+    font-size: .88rem;
+    line-height: 1.3;
+  }
+
+  .chat-form {
+    flex: 0 0 auto;
+    gap: 6px;
+    padding: 8px 10px 6px;
+  }
+
+  .chat-form textarea {
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 88px !important;
+    resize: none;
+    padding: 8px 10px;
+    border-radius: 10px;
+    font-size: .95rem;
+    line-height: 1.25;
+  }
+
+  .chat-form-footer {
+    gap: 8px;
+  }
+
+  .chat-form-footer small {
+    font-size: .72rem;
+  }
+
+  .chat-form-footer .button {
+    min-height: 42px;
+    padding: 7px 14px;
+    font-size: .88rem;
+  }
+
+  .chat-rules {
+    display: none;
+  }
+}
