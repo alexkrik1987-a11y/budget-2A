@@ -49,7 +49,7 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=589">
+  <link rel="stylesheet" href="styles.css?v=586">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -270,8 +270,7 @@
 
                 <section id="contributionReminder" class="contribution-reminder hidden" aria-live="polite"></section>
         <section id="parentOnboardingGuide" class="parent-onboarding-guide hidden" aria-labelledby="parentOnboardingGuideTitle"></section>
-        <button id="mobileBudgetDetailsToggle" class="mobile-budget-details-toggle" type="button" aria-expanded="false"><span aria-hidden="true">＋</span><span>Показать подробности бюджета класса</span></button>
-        <section class="paper-card mobile-budget-detail" aria-labelledby="fundsTitle">
+        <section class="paper-card" aria-labelledby="fundsTitle">
           <div class="card-title-row">
             <div>
               <span class="sticker sticker-blue">Наши копилки</span>
@@ -282,7 +281,7 @@
           <div id="fundCards" class="fund-grid"></div>
         </section>
 
-        <section class="paper-card analytics-card mobile-budget-detail" aria-labelledby="analyticsTitle">
+        <section class="paper-card analytics-card" aria-labelledby="analyticsTitle">
           <div class="card-title-row">
             <div>
               <span class="sticker sticker-orange">Понятно с первого взгляда</span>
@@ -302,7 +301,7 @@
           </div>
         </section>
 
-        <section class="paper-card report-card mobile-budget-detail" aria-labelledby="reportTitle">
+        <section class="paper-card report-card" aria-labelledby="reportTitle">
           <div class="report-copy">
             <span class="sticker sticker-green">Готовый отчёт</span>
             <h3 id="reportTitle">Отчёт за месяц</h3>
@@ -315,7 +314,7 @@
           </div>
         </section>
 
-        <div class="dashboard-grid mobile-budget-detail">
+        <div class="dashboard-grid">
           <section class="paper-card" aria-labelledby="progressTitle">
             <div class="card-title-row compact">
               <h3 id="progressTitle">Прогресс текущего сбора</h3>
@@ -397,11 +396,7 @@
                   <th colspan="2" scope="row">Итого</th>
                   <td class="contributions-total-value contributions-total-collected" data-label="Собрано"><span>Собрано</span><strong id="contributionsPaidFooter">0 ₽</strong></td>
                   <td class="contributions-total-value contributions-total-plan" data-label="План"><span>План</span><strong id="contributionsPlanFooter">0 ₽</strong></td>
-                  <td class="contributions-progress-cell" data-label="Прогресс">
-                    <div class="contributions-progress-head"><span>Прогресс</span><strong id="contributionsProgressPercent">0%</strong></div>
-                    <div class="contributions-progress-track" id="contributionsProgressTrack" role="progressbar" aria-label="Собрано от плана" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="contributionsProgressFill"></span></div>
-                    <small id="contributionsProgressHint">Собрано 0 ₽ из 0 ₽</small>
-                  </td>
+                  <td></td>
                 </tr>
               </tfoot>
             </table>
@@ -839,6 +834,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=89" defer></script>
+  <script src="app.js?v=81" defer></script>
 </body>
 </html>
