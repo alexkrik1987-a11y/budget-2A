@@ -18,5 +18,5 @@ for (const needle of [
   "@media (max-width: 640px)"
 ]) assert(css.includes(needle), `Не найдены благодарственные стили: ${needle}`);
 assert(html.includes('styles.css?v=586'), "index.html не обновил cache-busting styles.css");
-assert(fs.readFileSync("sw.js", "utf8").includes("budget-2a-shell-v85"), "sw.js не обновил PWA-кэш до v85");
+assert(fs.readFileSync("sw.js", "utf8").includes("budget-2a-shell-v86"), "sw.js не обновил PWA-кэш до v86");
 console.log("v79 thank-you checks: PASS");

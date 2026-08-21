@@ -123,6 +123,7 @@ const state = {
   accessRequestStatus: null,
   enrollmentReady: false,
   enrollmentOpen: false,
+  pendingEnrollmentMutation: null,
   accessRequests: [],
   loadedSessionUserId: null,
   loadedSessionRunId: 0,
@@ -1003,7 +1004,15 @@ async function loadSupplementaryData(loadRunId, { silent = false } = {}) {
   if (loadRunId !== state.loadRunId || !state.session) return;
 
   state.enrollmentReady = accessStep.result?.ready === true;
-  state.enrollmentOpen = accessStep.result?.enrollmentOpen === true;
+  const fetchedEnrollmentOpen = accessStep.result?.enrollmentOpen === true;
+  const pendingEnrollment = state.pendingEnrollmentMutation;
+  const keepOptimisticEnrollment = pendingEnrollment && Date.now() - pendingEnrollment.startedAt < 8000 && fetchedEnrollmentOpen !== pendingEnrollment.value;
+  if (keepOptimisticEnrollment) {
+    state.enrollmentOpen = pendingEnrollment.value;
+  } else {
+    state.enrollmentOpen = fetchedEnrollmentOpen;
+    if (pendingEnrollment && fetchedEnrollmentOpen === pendingEnrollment.value) state.pendingEnrollmentMutation = null;
+  }
   state.accessRequests = accessStep.result?.accessRequests ?? [];
   state.backups = backupsStep.result?.data ?? [];
 
@@ -2122,7 +2131,15 @@ async function refreshAccessAdministration() {
   const result = await fetchAccessAdministration();
   if (result.error) throw result.error;
   state.enrollmentReady = result.ready === true;
-  state.enrollmentOpen = result.enrollmentOpen === true;
+  const fetchedEnrollmentOpen = result.enrollmentOpen === true;
+  const pendingEnrollment = state.pendingEnrollmentMutation;
+  const keepOptimisticEnrollment = pendingEnrollment && Date.now() - pendingEnrollment.startedAt < 8000 && fetchedEnrollmentOpen !== pendingEnrollment.value;
+  if (keepOptimisticEnrollment) {
+    state.enrollmentOpen = pendingEnrollment.value;
+  } else {
+    state.enrollmentOpen = fetchedEnrollmentOpen;
+    if (pendingEnrollment && fetchedEnrollmentOpen === pendingEnrollment.value) state.pendingEnrollmentMutation = null;
+  }
   state.accessRequests = result.accessRequests ?? [];
   renderAccessManagement();
 }
@@ -2139,6 +2156,7 @@ async function toggleAccessEnrollment() {
   const { error } = await db.rpc("set_access_enrollment", { p_open: next });
   setButtonLoading(dom.toggleAccessEnrollmentButton, false);
   if (error) return showElementError(dom.accessRequestError, `Не удалось изменить приём заявок: ${friendlyError(error)}`);
+  state.pendingEnrollmentMutation = { value: next, startedAt: Date.now() };
   state.enrollmentOpen = next;
   renderAccessManagement();
   void refreshAccessAdministration().catch((refreshError) => {
@@ -3788,7 +3806,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=85", window.location.href);
+  const workerUrl = new URL("./sw.js?v=86", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
