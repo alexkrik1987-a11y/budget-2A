@@ -5595,3 +5595,29 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
     display: none !important;
   }
 }
+
+
+/* Thank-you state for completed campaigns. */
+.thank-you-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 14px 0 18px;
+  padding: 13px 15px;
+  color: #245a75;
+  text-align: left;
+  background: linear-gradient(135deg, #fff6c9, #fffdf2);
+  border: 2px dashed #d9bd56;
+  border-radius: 13px 16px 12px 15px;
+  box-shadow: 0 4px 0 rgba(198, 145, 24, .14);
+}
+.thank-you-message-main { max-width: 620px; margin: 0 auto 16px; }
+.thank-you-message-icon { flex: 0 0 auto; font-size: 1.45rem; line-height: 1.1; }
+.thank-you-message-copy { min-width: 0; }
+.thank-you-message-copy strong { display: block; color: #745514; font-size: .98rem; }
+.thank-you-message-copy p { margin: 4px 0 0; color: #456174; font-size: .82rem; font-weight: 700; line-height: 1.4; }
+@media (max-width: 640px) {
+  .thank-you-message { gap: 9px; margin: 11px 0 14px; padding: 11px 12px; }
+  .thank-you-message-copy strong { font-size: .9rem; }
+  .thank-you-message-copy p { font-size: .76rem; }
+}

@@ -1869,6 +1869,7 @@ function renderArchivedCampaigns() {
       el("h3", "", campaign.name),
       el("p", "", `${CAMPAIGN_TYPE_LABELS[campaign.campaign_type] || "Сбор"} · ${FUND_LABELS[campaign.fund] || "Классный фонд"} · архивирован ${formatDateTime(campaign.archived_at)}`)
     );
+    card.append(createThankYouMessage(campaign, "archive"));
     const restoreButton = el("button", "button button-secondary button-small admin-only", "Вернуть в активные");
     restoreButton.type = "button";
     restoreButton.dataset.action = "restore-campaign";
@@ -2433,11 +2434,17 @@ function renderCurrentCampaignSummary() {
 
   if (!openCampaigns.length) {
     dom.currentCampaignSummary.className = "campaign-summary empty-state";
-    dom.currentCampaignSummary.append(createEmptyContent(
-      "🎯",
-      "Открытых сборов пока нет",
-      "Новая цель появится здесь сразу после открытия сбора."
-    ));
+    const latestClosedCampaign = [...state.archivedCampaigns]
+      .sort((a, b) => new Date(b.archived_at || 0).getTime() - new Date(a.archived_at || 0).getTime())[0];
+    if (latestClosedCampaign) {
+      dom.currentCampaignSummary.append(createThankYouMessage(latestClosedCampaign, "main"));
+    } else {
+      dom.currentCampaignSummary.append(createEmptyContent(
+        "🎯",
+        "Открытых сборов пока нет",
+        "Новая цель появится здесь сразу после открытия сбора."
+      ));
+    }
     return;
   }
 
@@ -3780,6 +3787,22 @@ function createProgressStat(label, value, icon) {
   return item;
 }
 
+function createThankYouMessage(campaign, context = "archive") {
+  const box = el("div", `thank-you-message thank-you-message-${context}`);
+  const title = context === "main" ? "Спасибо, сбор завершён!" : "Спасибо родителям класса!";
+  const copy = context === "main"
+    ? `Сбор «${campaign.name}» закрыт. Спасибо всем, кто помог сделать это вместе.`
+    : `Сбор «${campaign.name}» завершён и сохранён в архиве. Вся история взносов осталась на месте.`;
+  box.append(
+    el("span", "thank-you-message-icon", "💛"),
+    (() => {
+      const text = el("div", "thank-you-message-copy");
+      text.append(el("strong", "", title), el("p", "", copy));
+      return text;
+    })()
+  );
+  return box;
+}
 function createEmptyContent(icon, title, copy) {
   const content = el("div", "empty-content");
   content.append(
