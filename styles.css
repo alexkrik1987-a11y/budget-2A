@@ -5770,7 +5770,7 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
 .mobile-budget-details-toggle { display: none; }
 .mobile-contribution-details-button { display: none !important; }
 .mobile-no-open-campaigns { display: none !important; }
-@media (max-width: 700px) {
+@media (max-width: 768px) {
   #view-summary { display: flex; flex-direction: column; gap: 12px; }
   #view-summary > .section-heading { order: 1; }
   #view-summary > #contributionReminder { order: 2; }

@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "V1.2 · v90";
+const APP_VERSION = "V1.2 · v91";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -2921,6 +2921,7 @@ function createContributionInputCell(student, campaign, amount) {
   return cell;
 }
 
+// v91: mobile summary fix applies through the full 768px mobile breakpoint.
 // v90: concise mobile contribution summary; details remain in Contributions tab.
 // v89: parent-first mobile home with collapsible budget details.
 // v88: contribution progress is rendered only by the mobile layout.
