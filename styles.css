@@ -5768,32 +5768,14 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
 
 /* v89: parent-first mobile home; desktop layout remains unchanged. */
 .mobile-budget-details-toggle { display: none; }
-.mobile-main-quick-nav { display: none; }
-.mobile-contribution-details-button { display: none !important; }
 .mobile-no-open-campaigns { display: none !important; }
-@media (max-width: 768px) {
+@media (max-width: 700px) {
   #view-summary { display: flex; flex-direction: column; gap: 12px; }
   #view-summary > .section-heading { order: 1; }
   #view-summary > #contributionReminder { order: 2; }
   #view-summary > #parentOnboardingGuide { order: 3; }
-  #view-summary > .mobile-main-quick-nav { display: block; order: 4; }
-  #view-summary > .living-notebook,
-  #view-summary > .totals-grid,
-  #view-summary > #contributionReminder,
-  #view-summary > #parentOnboardingGuide,
-  #view-summary > .mobile-budget-details-toggle,
-  #view-summary > .mobile-budget-detail { display: none !important; }
-  #view-summary .living-notebook-flow { display: none !important; }
-  #view-summary .mobile-main-quick-nav { padding: 16px; background: linear-gradient(145deg, #fffef8, #edf8f3); border: 2px solid rgba(55, 96, 103, .22); border-radius: 18px; box-shadow: 0 8px 18px rgba(31, 66, 54, .10); }
-  #view-summary .mobile-main-quick-nav h3 { margin: 8px 0 4px; color: #183044; font-size: 1.2rem; }
-  #view-summary .mobile-main-quick-nav p { margin: 0 0 12px; color: #5b6d72; font-size: .78rem; line-height: 1.35; }
-  #view-summary .mobile-main-quick-nav-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
-  #view-summary .mobile-main-quick-nav-grid button { display: grid; min-width: 0; gap: 3px; padding: 11px 10px; color: #183044; text-align: left; background: rgba(255, 255, 255, .82); border: 1px solid #c7dcd7; border-radius: 12px; }
-  #view-summary .mobile-main-quick-nav-grid button > span { font-size: 1.15rem; }
-  #view-summary .mobile-main-quick-nav-grid button strong { overflow-wrap: anywhere; font-size: .76rem; line-height: 1.15; }
-  #view-summary .mobile-main-quick-nav-grid button small { color: #5b6d72; font-size: .66rem; line-height: 1.15; }
-  #view-summary .mobile-main-quick-nav-grid button:last-child { grid-column: 1 / -1; }
-  #view-summary .mobile-main-quick-nav-grid button:active { transform: translateY(1px); background: #e8f5ee; }
+  #view-summary > .living-notebook { order: 4; }
+  #view-summary > .totals-grid { order: 5; }
   #view-summary > .mobile-budget-details-toggle { order: 6; }
   #view-summary > .mobile-budget-detail { order: 7; }
   #view-summary .mobile-budget-details-toggle { display: flex; width: 100%; min-height: 50px; align-items: center; justify-content: center; gap: 8px; margin: 0; padding: 12px 14px; color: #245a75; font-size: .82rem; font-weight: 950; text-align: center; background: linear-gradient(135deg, #fff8d9, #eef9f4); border: 2px dashed #d9bd56; border-radius: 14px; box-shadow: 0 4px 0 rgba(55, 96, 103, .08); }
@@ -5803,8 +5785,6 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   #view-summary .mobile-budget-detail.is-mobile-visible { display: block !important; }
   #view-summary .mobile-budget-detail.dashboard-grid.is-mobile-visible { display: grid !important; }
   #view-summary #contributionReminder { margin: 0; }
-  #view-summary .mobile-contribution-details-button { display: inline-flex !important; width: 100%; justify-content: center; margin-top: 10px; font-size: .76rem; }
-  #view-summary .mobile-contribution-details-list { display: none !important; }
   #view-summary #contributionReminder.mobile-no-open-campaigns { display: block !important; }
   #view-summary .contribution-reminder-copy { min-width: 0; }
   #view-summary .contribution-reminder-copy strong { font-size: 1.08rem; }
