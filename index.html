@@ -49,7 +49,7 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=592">
+  <link rel="stylesheet" href="styles.css?v=594">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -189,14 +189,25 @@
             </span>
             <p id="lastUpdated" class="last-updated">Обновляем данные…</p>
           </div>
-        </div>
-
+                </div>
+        <section class="mobile-main-quick-nav" aria-labelledby="mobileMainQuickNavTitle">
+          <span class="sticker sticker-blue">Быстрый переход</span>
+          <h3 id="mobileMainQuickNavTitle">Что открыть?</h3>
+          <p>Каждая вкладка содержит свою информацию — без повторений.</p>
+          <div class="mobile-main-quick-nav-grid">
+            <button type="button" data-main-view="contributions"><span aria-hidden="true">✏️</span><strong>Взносы класса</strong><small>Сборы и статусы</small></button>
+            <button type="button" data-main-view="expenses"><span aria-hidden="true">🧾</span><strong>Расходы</strong><small>Траты и чеки</small></button>
+            <button type="button" data-main-view="archive"><span aria-hidden="true">🗂️</span><strong>Архив</strong><small>Закрытые сборы</small></button>
+            <button type="button" data-main-view="useful"><span aria-hidden="true">📌</span><strong>Полезное</strong><small>Контакты и школа</small></button>
+            <button type="button" data-main-view="chat"><span aria-hidden="true">💬</span><strong>Чат класса</strong><small>Общение родителей</small></button>
+          </div>
+        </section>
         <section id="livingNotebook" class="living-notebook" aria-labelledby="livingNotebookTitle">
           <div class="living-notebook-heading">
             <div>
               <span class="sticker sticker-green">Главное за несколько секунд</span>
-              <h3 id="livingNotebookTitle">Живая тетрадь класса</h3>
-              <p>Бюджет, текущая цель и важные новости — на одной странице.</p>
+              <h3 id="livingNotebookTitle">Общий бюджет класса</h3>
+              <p>Общие деньги класса — коротко и понятно.</p>
             </div>
             <span class="living-notebook-mark" aria-hidden="true">✦</span>
           </div>
@@ -204,9 +215,9 @@
             <article class="living-note-card living-note-balance">
               <span class="living-note-icon" aria-hidden="true">💰</span>
               <div>
-                <span class="living-note-label">Сейчас в кассе</span>
+                <span class="living-note-label">Общий остаток в кассе</span>
                 <strong id="liveNotebookBalance">0 ₽</strong>
-                <small id="liveNotebookBalanceNote">Считаем общий остаток</small>
+                <small id="liveNotebookBalanceNote">После учёта поступлений и расходов</small>
               </div>
             </article>
             <article class="living-note-card living-note-campaign">
@@ -839,6 +850,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=92" defer></script>
+  <script src="app.js?v=94" defer></script>
 </body>
 </html>

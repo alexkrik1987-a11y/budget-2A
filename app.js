@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "V1.2 · v92";
+const APP_VERSION = "V1.2 · v94";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -312,6 +312,13 @@ function bindEvents() {
 
   document.querySelectorAll("[data-living-action]").forEach((button) => {
     button.addEventListener("click", () => handleLivingAction(button.dataset.livingAction));
+  });
+  document.querySelectorAll("[data-main-view]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetView = button.dataset.mainView;
+      if (targetView === "chat") openChatPanel();
+      else switchView(targetView);
+    });
   });
 
   if (dom.chatToggleButton) dom.chatToggleButton.addEventListener("click", openChatPanel);
@@ -2848,7 +2855,7 @@ function renderContributions() {
   }
 
   if (dom.campaignTypeTag) dom.campaignTypeTag.textContent = CAMPAIGN_TYPE_LABELS[campaign.campaign_type] ?? "Сбор";
-  if (dom.selectedCampaignName) dom.selectedCampaignName.textContent = campaign.name;
+  if (dom.selectedCampaignName) dom.selectedCampaignName.textContent = `Сбор: ${campaign.name}`;
   if (dom.selectedCampaignMeta) dom.selectedCampaignMeta.textContent = `${FUND_LABELS[campaign.fund]} · ${campaign.is_open ? "сбор открыт" : "сборы не открыты"}`;
 
   const query = normalizeSearch(state.studentSearch);
@@ -2901,6 +2908,8 @@ function createContributionInputCell(student, campaign, amount) {
   return cell;
 }
 
+// v94: mobile Home is navigation-only; each tab owns its information.
+// v93: mobile home shows one concise common-budget block; campaign details are labeled separately.
 // v92: contribution details are rendered only in the Contributions view.
 // v91: mobile summary fix applies through the full 768px mobile breakpoint.
 // v90: concise mobile contribution summary; details remain in Contributions tab.
