@@ -20,5 +20,5 @@ for (const needle of [
   'parent-onboarding-guide',
   'parent-onboarding-guide-step'
 ]) assert(html.includes(needle) || css.includes(needle), `Не найден onboarding-элемент: ${needle}`);
-assert(html.includes('styles.css?v=586'), "index.html не обновил cache-busting styles.css");
+assert(html.includes('styles.css?v=587'), "index.html не обновил cache-busting styles.css");
 console.log("v81 parent onboarding checks: PASS");
