@@ -5736,6 +5736,36 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
 }
 
 
+/* v88: concise contributions layout; progress is mobile-only. */
+#view-contributions .section-heading { margin-bottom: 16px; }
+#view-contributions .section-heading h2 { margin-bottom: 4px; }
+#view-contributions .campaign-picker { min-width: 250px; }
+#view-contributions .campaign-info-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(330px, .75fr); gap: 24px; align-items: center; padding: 20px 22px; background: linear-gradient(135deg, #fffdf5 0%, #eef9f4 100%); border: 2px solid rgba(58, 112, 103, .22); box-shadow: 0 7px 0 rgba(58, 112, 103, .08); }
+#view-contributions .campaign-info-card h3 { margin: 8px 0 4px; color: #174d62; font-size: clamp(1.25rem, 2vw, 1.65rem); }
+#view-contributions .campaign-info-card p { max-width: 620px; margin: 0; color: var(--ink-soft); }
+#view-contributions .campaign-totals { gap: 10px; }
+#view-contributions .campaign-totals > div { min-height: 84px; padding: 14px 16px; border-radius: 15px; box-shadow: inset 0 -3px 0 rgba(36, 90, 117, .08); }
+#view-contributions .campaign-totals span { font-size: .72rem; letter-spacing: .06em; }
+#view-contributions .campaign-totals strong { font-size: clamp(1.3rem, 2.2vw, 1.8rem); }
+#view-contributions .table-card { margin-top: 18px; }
+#view-contributions .table-toolbar { align-items: center; padding-bottom: 14px; border-bottom: 1px solid rgba(55, 96, 103, .16); }
+#view-contributions .read-mode-note { margin-right: auto; font-weight: 800; }
+#view-contributions .contributions-table thead th { background: #eff8f3; color: #20546a; font-size: .75rem; letter-spacing: .04em; }
+#view-contributions .contributions-table tbody tr { transition: background .18s ease; }
+#view-contributions .contributions-table tbody tr:hover { background: #fffbed; }
+.contributions-progress-cell { display: none; }
+.contributions-progress-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 7px; color: #245a75; font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
+.contributions-progress-head strong { color: #246243; font-size: 1rem; }
+.contributions-progress-track { height: 10px; overflow: hidden; background: #e7ece7; border: 1px solid rgba(36, 98, 67, .2); border-radius: 999px; }
+.contributions-progress-track span { display: block; width: 0; height: 100%; background: linear-gradient(90deg, #63bb83, #218c62); border-radius: inherit; transition: width .35s ease; }
+.contributions-progress-cell small { display: block; margin-top: 6px; color: var(--ink-soft); font-size: .66rem; font-weight: 700; }
+@media (max-width: 700px) {
+  #view-contributions .campaign-info-card { grid-template-columns: 1fr; gap: 14px; padding: 15px; }
+  #view-contributions .campaign-picker { min-width: 0; }
+  .contributions-progress-cell { display: block !important; grid-column: 1 / -1; width: auto !important; padding: 11px 12px !important; background: #eef9f1; border: 1px solid #9bcfaf !important; border-radius: 12px; }
+  .contributions-total-footer td:last-child { display: block !important; }
+}
+
 /* v87: polished Useful Info cards for desktop and mobile. */
 .useful-grid { align-items: stretch; }
 .useful-card { overflow: hidden; border-color: rgba(55, 96, 103, .24); }

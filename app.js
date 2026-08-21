@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "V1.2";
+const APP_VERSION = "V1.2 · v88";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -248,7 +248,7 @@ function cacheDom() {
     "usefulContacts", "usefulSchoolName", "usefulSchoolAddress", "usefulSchoolMapLink", "usefulSchedule", "usefulNotes", "usefulAdminEditor", "usefulInfoForm", "usefulTeacherName", "usefulTeacherPhone", "usefulChairName", "usefulChairPhone", "usefulDeputyName", "usefulDeputyPhone", "usefulSchoolNameInput", "usefulSchoolAddressInput", "usefulSchoolMapInput", "usefulScheduleMon", "usefulScheduleTue", "usefulScheduleWed", "usefulScheduleThu", "usefulScheduleFri", "usefulNotesInput", "usefulInfoFormError", "saveUsefulInfoButton",
     "recentExpenses", "campaignSelect", "campaignTypeTag", "selectedCampaignName",
     "selectedCampaignMeta", "campaignPlanTotal", "campaignCollectedTotal", "editModeText",
-    "contributionsTableBody", "contributionsPlanFooter", "contributionsPaidFooter", "studentSearchInput",
+    "contributionsTableBody", "contributionsPlanFooter", "contributionsPaidFooter", "contributionsProgressFill", "contributionsProgressPercent", "contributionsProgressHint", "contributionsProgressTrack", "studentSearchInput",
     "expenseFilters", "expensesTableBody", "expensesFooter", "openExpenseModalButton",
     "expenseSearchInput", "expenseMonthFilter", "clearExpenseFiltersButton",
     "expenseModal", "expenseForm", "expenseModalTitle", "expenseId", "expenseDate",
@@ -2892,11 +2892,19 @@ function createContributionInputCell(student, campaign, amount) {
   return cell;
 }
 
+// v88: contribution progress is rendered only by the mobile layout.
 function setContributionTotals(plan, collected) {
   if (dom.campaignPlanTotal) dom.campaignPlanTotal.textContent = formatMoney(plan);
   if (dom.campaignCollectedTotal) dom.campaignCollectedTotal.textContent = formatMoney(collected);
   if (dom.contributionsPlanFooter) dom.contributionsPlanFooter.textContent = formatMoney(plan);
   if (dom.contributionsPaidFooter) dom.contributionsPaidFooter.textContent = formatMoney(collected);
+  const safePlan = Math.max(0, toNumber(plan));
+  const safeCollected = Math.max(0, toNumber(collected));
+  const percent = safePlan > 0 ? Math.min(100, Math.round((safeCollected / safePlan) * 100)) : 0;
+  if (dom.contributionsProgressFill) dom.contributionsProgressFill.style.width = `${percent}%`;
+  if (dom.contributionsProgressPercent) dom.contributionsProgressPercent.textContent = `${percent}%`;
+  if (dom.contributionsProgressHint) dom.contributionsProgressHint.textContent = `Собрано ${formatMoney(collected)} из ${formatMoney(plan)}`;
+  if (dom.contributionsProgressTrack) dom.contributionsProgressTrack.setAttribute("aria-valuenow", String(percent));
 }
 
 function getStudentStatus(studentId, campaign) {
