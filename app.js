@@ -2145,32 +2145,35 @@ async function handleAccessRequestAction(event) {
       ? `Удалить доступ ${request.display_name} (${request.email}) к бюджету и чату? Google-аккаунт человека не удаляется, но войти на этот сайт он больше не сможет.`
       : `Удалить профиль-заявку ${request.display_name} (${request.email}) из списка?`;
     if (!window.confirm(question)) return;
-    button.disabled = true;
+    setButtonLoading(button, true, "Удаляем…");
     const { error } = await db.rpc("revoke_class_access", { p_request_id: request.id });
     if (error) {
-      button.disabled = false;
+      setButtonLoading(button, false);
       return showElementError(dom.accessRequestError, `Не удалось удалить доступ: ${friendlyError(error)}`);
     }
-    await refreshAccessAdministration();
-    showNotice(request.request_status === "APPROVED" ? "Доступ к сайту удалён" : "Профиль-заявка удалён", "info");
+    state.accessRequests = state.accessRequests.filter((item) => item.id !== request.id);
+    renderAccessManagement();
+    showNotice(request.request_status === "APPROVED" ? "Доступ к сайту удалён ✓" : "Профиль-заявка удалён ✓", "info", 5000);
     return;
   }
 
   const isApproval = action === "approve";
   const question = isApproval
-    ? `Одобрить ${request.display_name} (${request.email})? После этого родитель увидит бюджет и чат при следующем обновлении страницы.`
+    ? `Одобрить ${request.display_name} (${request.email})? После подтверждения доступ сразу появится в этом списке.`
     : `Отклонить заявку ${request.display_name} (${request.email})? Бюджет и чат останутся закрыты.`;
   if (!window.confirm(question)) return;
 
-  button.disabled = true;
+  setButtonLoading(button, true, isApproval ? "Одобряем…" : "Отклоняем…");
   const rpcName = isApproval ? "approve_access_request" : "reject_access_request";
   const { error } = await db.rpc(rpcName, { p_request_id: request.id });
   if (error) {
-    button.disabled = false;
+    setButtonLoading(button, false);
     return showElementError(dom.accessRequestError, `Не удалось обработать заявку: ${friendlyError(error)}`);
   }
-  await refreshAccessAdministration();
-  showNotice(isApproval ? "Доступ родителя одобрен ✓" : "Заявка отклонена", "info");
+  request.request_status = isApproval ? "APPROVED" : "REJECTED";
+  request.reviewed_at = new Date().toISOString();
+  renderAccessManagement();
+  showNotice(isApproval ? "Доступ родителя одобрен ✓" : "Заявка отклонена ✓", "info", 5000);
 }
 
 function renderAccessRequestStatus(request) {
