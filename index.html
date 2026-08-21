@@ -49,7 +49,7 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=586">
+  <link rel="stylesheet" href="styles.css?v=587">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -250,7 +250,16 @@
           <p id="liveNotebookMessage" class="living-notebook-message" aria-live="polite">Данные появятся после загрузки бюджета.</p>
         </section>
 
-        <div class="totals-grid">
+        <section id="contributionReminder" class="contribution-reminder hidden" aria-live="polite"></section>
+        <section id="parentOnboardingGuide" class="parent-onboarding-guide hidden" aria-labelledby="parentOnboardingGuideTitle"></section>
+
+        <details class="summary-details">
+          <summary>
+            <span aria-hidden="true">📊</span>
+            <span><strong>Подробная финансовая сводка</strong><small>Общие суммы, фонды, аналитика и отчёт за месяц</small></span>
+          </summary>
+          <div class="summary-details-content">
+          <div class="totals-grid">
           <article class="metric-card chalkboard chalk-blue">
             <span class="metric-icon metric-icon-blue" aria-hidden="true">🪙</span>
             <p>Всего собрано</p>
@@ -268,8 +277,6 @@
           </article>
         </div>
 
-                <section id="contributionReminder" class="contribution-reminder hidden" aria-live="polite"></section>
-        <section id="parentOnboardingGuide" class="parent-onboarding-guide hidden" aria-labelledby="parentOnboardingGuideTitle"></section>
         <section class="paper-card" aria-labelledby="fundsTitle">
           <div class="card-title-row">
             <div>
@@ -339,6 +346,8 @@
             </div>
           </section>
         </div>
+          </div>
+        </details>
       </section>
 
       <section id="view-contributions" class="view" aria-labelledby="contributionsTitle">
@@ -346,28 +355,30 @@
           <div>
             <span class="sticker sticker-pink">Классный журнал</span>
             <h2 id="contributionsTitle">Взносы класса</h2>
+            <p class="section-lead">Выберите сбор, посмотрите общий прогресс и найдите ребёнка в списке.</p>
           </div>
           <label class="field campaign-picker">
-            <span>Выберите сбор</span>
+            <span><b class="step-number" aria-hidden="true">1</b> Выберите сбор</span>
             <select id="campaignSelect"></select>
           </label>
         </div>
 
-        <section class="paper-card campaign-info-card">
+        <section class="paper-card campaign-info-card" aria-label="Шаг 2. План и прогресс выбранного сбора">
           <div>
+            <span class="flow-kicker"><b class="step-number" aria-hidden="true">2</b> План и прогресс сбора</span>
             <span id="campaignTypeTag" class="tag">Сбор</span>
             <h3 id="selectedCampaignName">—</h3>
             <p id="selectedCampaignMeta">Выберите сбор, чтобы увидеть данные.</p>
           </div>
           <div class="campaign-totals">
-            <div class="campaign-total-collected"><span>Собрано</span><strong id="campaignCollectedTotal">0 ₽</strong></div>
-            <div class="campaign-total-plan"><span>План</span><strong id="campaignPlanTotal">0 ₽</strong></div>
+            <div class="campaign-total-plan"><span>Общий план сбора</span><strong id="campaignPlanTotal">0 ₽</strong></div>
+            <div class="campaign-total-collected"><span>Собрано по сбору</span><strong id="campaignCollectedTotal">0 ₽</strong></div>
           </div>
         </section>
 
         <section class="paper-card table-card">
           <div class="table-toolbar">
-            <p class="read-mode-note"><span aria-hidden="true">🔒</span> <span id="editModeText">Режим просмотра</span></p>
+            <p class="read-mode-note"><b class="step-number" aria-hidden="true">3</b> <span id="editModeText">Найдите ребёнка и проверьте статус</span></p>
             <label class="search-field">
               <span aria-hidden="true">🔎</span>
               <input id="studentSearchInput" type="search" placeholder="Найти ученика" aria-label="Найти ученика">
@@ -394,8 +405,8 @@
               <tfoot class="contributions-total-footer">
                 <tr>
                   <th colspan="2" scope="row">Итого</th>
-                  <td class="contributions-total-value contributions-total-collected" data-label="Собрано"><span>Собрано</span><strong id="contributionsPaidFooter">0 ₽</strong></td>
                   <td class="contributions-total-value contributions-total-plan" data-label="План"><span>План</span><strong id="contributionsPlanFooter">0 ₽</strong></td>
+                  <td class="contributions-total-value contributions-total-collected" data-label="Собрано"><span>Собрано</span><strong id="contributionsPaidFooter">0 ₽</strong></td>
                   <td></td>
                 </tr>
               </tfoot>

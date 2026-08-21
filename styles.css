@@ -5734,3 +5734,439 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   .expenses-total-footer th { display: block; padding: 12px 11px !important; border: 2px solid #9ccfc2 !important; border-right: 0 !important; border-radius: 13px 0 0 13px; }
   .expenses-total-footer td#expensesFooter { display: block !important; padding: 12px 11px !important; border: 2px solid #9ccfc2 !important; border-left: 0 !important; border-radius: 0 13px 13px 0; }
 }
+
+/* Final cascade for the approved local notebook redesign. */
+@media screen {
+  html,
+  body { overflow-x: clip; }
+  body {
+    background-color: #f7f4eb;
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  body::before { inset: 0 auto 0 max(18px, calc((100vw - 1240px) / 2)); display: block; width: 2px; background: rgba(200,73,67,.3); }
+  .site-header { border-width: 0; box-shadow: 0 1px 0 rgba(255,255,255,.12); }
+  .header-inner,
+  .nav-inner,
+  .content { width: min(1120px, calc(100% - 40px)); }
+  .header-inner { min-height: 96px; }
+  .brand-icon { width: 54px; height: 54px; flex-basis: 54px; border-radius: 14px; box-shadow: 3px 3px 0 rgba(200,73,67,.85); }
+  .brand h1 { font-size: clamp(1.45rem,2.5vw,1.9rem); }
+  .user-panel { padding: 8px 9px 8px 14px; border-radius: 14px; }
+  .main-nav { border-bottom-color: #d9d8d0; box-shadow: 0 5px 16px rgba(24,43,58,.07); }
+  .nav-inner { gap: 3px; }
+  .nav-button { min-height: 52px; padding: 12px 14px 9px; border-bottom-width: 3px; }
+  .nav-button.active { background: rgba(57,127,169,.08); }
+  .content { padding-block: 30px 64px; }
+  .section-heading { align-items: center; margin-bottom: 18px; }
+  .section-heading h2 { margin-top: 6px; font-size: clamp(1.75rem,3vw,2.25rem); }
+  .section-lead { max-width: 640px; margin: 7px 0 0; color: var(--ink-soft); font-weight: 700; line-height: 1.45; }
+  .sticker { padding: 4px 9px; font-size: .69rem; box-shadow: none; transform: none; }
+  .paper-card { padding: 22px 24px; background: rgba(255,254,250,.96); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+  .paper-card::before,
+  .paper-card::after { display: none; }
+  .button { min-height: 44px; border-radius: 11px; box-shadow: none; }
+  #sendChatButton { min-height: 44px; }
+  .button:hover { transform: translateY(-1px); }
+  #view-summary .section-heading { align-items: flex-start; }
+  #view-summary .mascot-chip { display: none; }
+  .living-notebook { margin-bottom: 18px; padding: 24px; background: linear-gradient(135deg,rgba(255,254,250,.98),rgba(239,247,250,.96)); border: 1px solid #cfdce1; border-left: 4px solid var(--navy); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .living-notebook::before,
+  .living-notebook::after { display: none; }
+  .living-note-card { min-height: 104px; padding: 15px; border: 1px solid #d8e0df; border-radius: 12px; box-shadow: none; transform: none; }
+  .living-action-button { min-height: 74px; padding: 12px 14px; border: 1px solid #cbd9dd; border-radius: 12px; box-shadow: none; transform: none; }
+  #view-summary .totals-grid { gap: 12px; margin-bottom: 18px; }
+  #view-summary .metric-card { min-height: 112px; padding: 17px 18px; color: var(--ink); background: rgba(255,254,250,.96); border: 1px solid var(--border); border-top: 4px solid var(--blue); border-radius: 12px; box-shadow: var(--shadow-sm); transform: none; }
+  #view-summary .metric-card:nth-child(2) { border-top-color: var(--red); }
+  #view-summary .metric-card:nth-child(3) { border-top-color: var(--green); }
+  #view-summary .metric-card p { margin: 4px 0 3px; color: var(--ink-soft); font-size: .78rem; }
+  #view-summary .metric-card strong { font-size: clamp(1.65rem,3vw,2.15rem); }
+  #view-summary .metric-icon { top: 12px; right: 13px; width: 34px; height: 34px; font-size: 1.05rem; filter: none; }
+  #view-summary .metric-card::after { display: none; }
+  #view-summary > .paper-card,
+  #view-summary .dashboard-grid { margin-top: 14px; }
+  .summary-details { margin-top: 18px; }
+  .summary-details > summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 68px;
+    padding: 14px 18px;
+    color: var(--navy-dark);
+    background: rgba(255,254,250,.96);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    list-style: none;
+  }
+  .summary-details > summary::-webkit-details-marker { display: none; }
+  .summary-details > summary::after { margin-left: auto; content: "⌄"; font-size: 1.35rem; transition: transform .18s ease; }
+  .summary-details[open] > summary::after { transform: rotate(180deg); }
+  .summary-details > summary > span:first-child { font-size: 1.35rem; }
+  .summary-details > summary > span:nth-child(2) { display: grid; gap: 2px; }
+  .summary-details > summary strong { font-size: 1rem; }
+  .summary-details > summary small { color: var(--ink-soft); font-size: .76rem; font-weight: 700; }
+  .summary-details-content { padding-top: 14px; }
+  .summary-details[open] .summary-details-content { animation: appear .2s ease-out; }
+  .step-number { display: inline-grid; width: 24px; height: 24px; margin-right: 6px; color: #fff; font-size: .76rem; line-height: 1; background: var(--navy); border-radius: 50%; place-items: center; }
+  .campaign-picker > span,
+  .flow-kicker,
+  .read-mode-note { display: flex; align-items: center; }
+  .flow-kicker { margin-bottom: 10px; color: var(--navy-dark); font-size: .78rem; font-weight: 900; }
+  .campaign-info-card { padding: 22px; border-left: 4px solid var(--blue); }
+  .campaign-info-card h3 { overflow-wrap: anywhere; }
+  .campaign-totals { gap: 10px; }
+  .campaign-totals > div { min-width: 158px; padding: 13px 15px; border: 1px solid; border-radius: 12px; text-align: left; }
+  .campaign-total-plan { order: 1; background: #f5f2e8 !important; border-color: #dcd5be !important; }
+  .campaign-total-collected { order: 2; }
+  .campaign-totals strong { margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .table-card { border-radius: var(--radius); }
+  .table-toolbar { gap: 12px; padding: 15px 17px; background: #f5f3eb; }
+  @media (max-width: 768px) {
+    body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); background-size: 24px 24px; }
+    body::before { left: 23px; }
+    #protectedContent { position: relative; }
+    .header-inner { width: calc(100% - 24px); min-height: 72px; padding-block: 10px; flex-direction: row; align-items: center; }
+    .brand-icon { width: 42px; height: 42px; flex-basis: 42px; }
+    .brand h1 { font-size: 1.12rem; }
+    .eyebrow { font-size: .61rem; }
+    .user-panel { display: flex; width: auto; padding: 0; background: transparent; border: 0; }
+    .user-copy,
+    .avatar { display: none !important; }
+    html body #protectedContent .site-header .user-panel #logoutButton.button { height: 40px !important; min-height: 40px !important; padding: 7px 11px !important; color: #fff; background: rgba(0,0,0,.18); transform: none !important; scale: none !important; }
+    .utility-strip { display: none; }
+    .main-nav { position: fixed; top: auto; right: 0; bottom: 0; left: 0; z-index: 60; padding-bottom: env(safe-area-inset-bottom); background: rgba(255,254,250,.98); box-shadow: 0 -5px 18px rgba(24,43,58,.12); }
+    .nav-inner { display: grid !important; width: 100%; grid-template-columns: repeat(5,minmax(0,1fr)) !important; gap: 0; padding: 0; overflow: hidden; }
+    .main-nav .nav-inner:has(.nav-button.admin-only:not(.hidden)) { grid-template-columns: repeat(6,minmax(0,1fr)) !important; }
+    .nav-button,
+    .main-nav .nav-inner:has(.nav-button.admin-only:not(.hidden)) .nav-button { min-width: 0 !important; min-height: 58px !important; padding: 6px 1px 5px !important; font-size: clamp(.52rem,2.35vw,.68rem) !important; line-height: 1.08; white-space: normal !important; border: 0; }
+    .nav-button span { display: block; margin: 0 0 3px !important; font-size: 1rem !important; }
+    .nav-button.active { box-shadow: inset 0 3px 0 var(--red); }
+    .content { width: calc(100% - 22px); padding-top: 22px; padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
+    .section-heading { align-items: stretch; flex-direction: column; }
+    .section-heading h2 { font-size: 1.7rem; }
+    .paper-card { padding: 17px 15px; }
+    .school-calendar { display: none; }
+    .living-notebook { padding: 17px 14px; }
+    .living-notebook-grid,
+    .living-notebook-actions { grid-template-columns: 1fr; }
+    .living-note-card { min-height: 82px; }
+    .living-action-button { min-height: 64px; }
+    #view-summary .totals-grid { grid-template-columns: 1fr; }
+    #view-summary .metric-card { min-height: 92px; }
+    .campaign-info-card { align-items: stretch; padding: 17px 15px; }
+    .campaign-totals { grid-template-columns: 1fr 1fr !important; gap: 7px; }
+    .campaign-totals > div { min-width: 0; padding: 9px 10px; }
+    .campaign-totals span { font-size: .66rem; }
+    .campaign-totals strong { font-size: 1.05rem; }
+    .legend { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    #view-contributions .contributions-total-footer { display: block !important; width: 100%; }
+    #view-contributions .contributions-total-footer tr { width: 100%; padding: 8px; }
+    #view-contributions .contributions-total-footer th { padding-bottom: 0 !important; font-size: .78rem; }
+    #view-contributions .contributions-total-value { padding: 7px 8px !important; }
+    #chatToggleButton.chat-toggle { position: absolute !important; top: 54px !important; right: 12px !important; bottom: auto !important; width: 44px !important; min-width: 44px !important; max-width: 44px !important; height: 44px !important; min-height: 44px !important; padding: 0 !important; border-radius: 50% !important; transform: none !important; scale: none !important; }
+    #chatToggleButton.chat-toggle > span:not(.chat-toggle-icon):not(.chat-unread-badge) { display: none !important; }
+    #chatToggleButton .chat-toggle-icon { margin: 0 !important; }
+    .class-chat-panel { height: min(760px,calc(100dvh - 12px)); max-height: calc(100dvh - 12px); }
+  }
+  @media (max-width: 380px) {
+    .content { width: calc(100% - 16px); }
+    .campaign-totals,
+    .legend { grid-template-columns: 1fr !important; }
+  }
+}
+
+/* Stage 2: Expenses — calm filterable journal. */
+@media screen {
+  #view-expenses .section-heading { align-items: center; }
+  #view-expenses .filter-row { margin: 0 0 12px; padding: 6px; background: rgba(255,254,250,.82); border: 1px solid var(--border); border-radius: 14px; }
+  #view-expenses .filter-chip { min-height: 38px; padding: 7px 12px; border-width: 1px; box-shadow: none; }
+  #view-expenses .filter-chip.active { box-shadow: none; }
+  #view-expenses .smart-filter-bar { display: grid; grid-template-columns: minmax(260px,1fr) 210px auto; align-items: end; gap: 10px; margin-bottom: 14px; padding: 14px; background: #f5f3eb; border: 1px solid var(--border); border-radius: 14px; }
+  #view-expenses .smart-filter-bar .button { min-height: 44px; }
+  #view-expenses .table-card { border: 1px solid var(--border); }
+  #view-expenses thead th { background: #eef4f5; }
+  #view-expenses .expense-amount { color: var(--red-dark); font-weight: 900; font-variant-numeric: tabular-nums; }
+  #view-expenses .expenses-total-footer th { background: #f5f2e8; border-color: #dcd5be !important; }
+  #view-expenses .expenses-total-footer td#expensesFooter { color: var(--green-dark); background: var(--green-soft); border-color: #9bcfaf !important; font-variant-numeric: tabular-nums; }
+  @media (max-width: 768px) {
+    #view-expenses .section-heading { align-items: stretch; }
+    #view-expenses .filter-row { display: flex; margin-inline: -2px; padding: 5px; overflow-x: auto; flex-wrap: nowrap; scroll-snap-type: x proximity; }
+    #view-expenses .filter-chip { flex: 0 0 auto; scroll-snap-align: start; }
+    #view-expenses .smart-filter-bar { grid-template-columns: 1fr; padding: 11px; }
+    #view-expenses .compact-field { width: 100%; }
+    #view-expenses .responsive-cards { padding: 10px; }
+    #view-expenses .responsive-cards tbody { gap: 10px; }
+    #view-expenses .responsive-cards tbody tr:not(.empty-row) { border-left-color: var(--orange); box-shadow: var(--shadow-sm); }
+    #view-expenses .responsive-cards tbody td { grid-template-columns: 92px minmax(0,1fr); padding: 8px 0; }
+    #view-expenses .expenses-total-footer tr { margin: 8px 10px 10px; }
+    #view-expenses .expenses-total-footer th,
+    #view-expenses .expenses-total-footer td#expensesFooter { padding: 10px !important; }
+  }
+}
+
+/* Fixture review: readable long expense copy on desktop without page overflow. */
+@media screen and (min-width: 769px) {
+  #view-expenses .expenses-table {
+    width: 100%;
+    table-layout: fixed;
+  }
+  #view-expenses .expenses-table th,
+  #view-expenses .expenses-table td {
+    min-width: 0;
+    padding-inline: 9px;
+    overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: auto;
+  }
+  #view-expenses .expenses-table th:nth-child(1) { width: 8%; }
+  #view-expenses .expenses-table th:nth-child(2) { width: 34%; }
+  #view-expenses .expenses-table th:nth-child(3) { width: 9%; }
+  #view-expenses .expenses-table th:nth-child(4) { width: 10%; }
+  #view-expenses .expenses-table th:nth-child(5) { width: 8%; }
+  #view-expenses .expenses-table th:nth-child(6) { width: 16%; }
+  #view-expenses .expenses-table th:nth-child(7) { width: 15%; }
+  #view-expenses .expenses-table td:first-child,
+  #view-expenses .expenses-table .expense-amount {
+    white-space: nowrap;
+  }
+  #view-expenses .expenses-table .expense-description {
+    line-height: 1.35;
+  }
+  #view-expenses .expenses-table .receipt-link {
+    display: inline-block;
+    max-width: 100%;
+  }
+  #view-expenses .expenses-table .row-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  #view-expenses .expenses-table .action-button {
+    width: 100%;
+    padding-inline: 7px;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+}
+
+/* Stage 2: Archive — historical analytics, visually separated from live data. */
+@media screen {
+  #view-archive .section-heading { align-items: center; }
+  #view-archive .section-heading .last-updated { max-width: 440px; padding: 10px 14px; line-height: 1.4; border: 1px solid var(--border); border-radius: 12px; }
+  #view-archive .archive-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+  #view-archive .archive-card { padding: 20px; background: rgba(255,254,250,.96); border: 1px solid var(--border); border-top: 4px solid var(--navy); border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+  #view-archive .archive-card h3 { overflow-wrap: anywhere; }
+  #view-archive .archive-metrics { gap: 8px; }
+  #view-archive .archive-metric { padding: 10px; border: 1px solid #d9ded9; border-radius: 10px; box-shadow: none; }
+  #view-archive .archive-payment-summary { padding: 8px; background: #f8f4e7; border: 1px solid #ddd4b9; }
+  #view-archive .archive-status-group { border-width: 1px; }
+  #view-archive details { border-top: 1px solid var(--border); }
+  #view-archive details summary { min-height: 44px; padding-block: 10px; cursor: pointer; }
+  @media (max-width: 768px) {
+    #view-archive .section-heading { align-items: stretch; }
+    #view-archive .section-heading .last-updated { max-width: none; }
+    #view-archive .archive-grid { grid-template-columns: 1fr; gap: 11px; }
+    #view-archive .archive-card { padding: 15px; }
+    #view-archive .archive-payment-summary { grid-template-columns: 1fr; }
+    #view-archive .archive-status-details { gap: 7px; }
+  }
+}
+
+/* Stage 2: Useful — contacts and schedule as a practical directory. */
+@media screen {
+  #view-useful .section-heading { align-items: center; }
+  #view-useful .section-heading p { margin: 7px 0 0; color: var(--ink-soft); font-weight: 700; }
+  #view-useful .useful-page-mark { padding: 12px; background: rgba(255,254,250,.8); border: 1px solid var(--border); border-radius: 14px; transform: none; }
+  #view-useful .useful-grid { gap: 14px; }
+  #view-useful .useful-card { padding: 20px; }
+  #view-useful .useful-contacts-card { border-top: 4px solid var(--pink); }
+  #view-useful .useful-school-card { border-top: 4px solid var(--blue); }
+  #view-useful .useful-schedule-card { border-top: 4px solid var(--yellow); }
+  #view-useful .useful-contact-item { padding: 11px 12px; background: #fff; border: 1px solid var(--border); border-radius: 11px; }
+  #view-useful .useful-call-button { min-height: 42px; color: var(--navy-dark); background: var(--blue-soft); border: 1px solid #a9cedf; box-shadow: none; }
+  #view-useful .useful-day-card { padding: 12px; background: #fff; border: 1px solid var(--border); border-top: 3px solid var(--blue); border-radius: 11px; }
+  #view-useful .useful-notes-card { margin-top: 14px; border-left: 4px solid var(--orange); }
+  #view-useful .useful-note-item { border-left-width: 4px; border-radius: 8px 11px 11px 8px; }
+  #view-useful .useful-admin-editor { margin-top: 14px; background: #f3f8f7; border: 1px solid #bfd7d1; }
+  #view-useful .useful-editor-form fieldset { background: rgba(255,255,255,.68); border: 1px solid #cbd9d5; }
+  @media (max-width: 768px) {
+    #view-useful .section-heading { align-items: flex-start; }
+    #view-useful .useful-page-mark { display: none; }
+    #view-useful .useful-grid { grid-template-columns: 1fr; gap: 11px; }
+    #view-useful .useful-card { padding: 16px 14px; }
+    #view-useful .useful-contact-item { align-items: center; }
+    #view-useful .useful-call-button { flex: 0 0 44px; width: 44px; padding-inline: 0; overflow: hidden; font-size: 0; }
+    #view-useful .useful-call-button::before { content: "☎"; font-size: 1rem; }
+    #view-useful .useful-schedule-grid { grid-template-columns: 1fr; }
+    #view-useful .useful-day-card h4 { text-align: left; }
+    #view-useful .useful-editor-form fieldset { padding: 12px; }
+  }
+}
+
+/* Stage 2: Settings — task-based admin workspace. */
+@media screen {
+  #view-settings .section-heading { align-items: center; }
+  #view-settings > .paper-card,
+  #view-settings > .settings-search-row,
+  #view-settings > .campaigns-list-heading { margin-top: 14px; }
+  #view-settings .templates-card { border-top: 4px solid var(--yellow); }
+  #view-settings .template-grid { grid-template-columns: repeat(5,minmax(0,1fr)); gap: 8px; }
+  #view-settings .template-button { min-height: 104px; padding: 11px 8px; border: 1px solid var(--border); border-radius: 11px; box-shadow: none; transform: none; }
+  #view-settings .template-button:hover { transform: translateY(-1px); }
+  #view-settings .campaigns-list-heading { padding: 16px 18px; background: rgba(255,254,250,.86); border: 1px solid var(--border); border-radius: 14px; }
+  #view-settings .campaigns-list-heading h3 { margin: 6px 0 2px; }
+  #view-settings .campaigns-list-heading p { margin: 0; color: var(--ink-soft); font-weight: 700; }
+  #view-settings .settings-search-row { padding: 12px; background: #f5f3eb; border: 1px solid var(--border); border-radius: 12px; }
+  #view-settings .student-management-card { border-top: 4px solid var(--green); }
+  #view-settings .access-management-card { border-top: 4px solid var(--blue); }
+  #view-settings .school-year-card { border-top: 4px solid var(--orange); }
+  #view-settings .backup-card { border-top: 4px solid var(--navy); }
+  #view-settings .card-title-row > div > p { max-width: 720px; color: var(--ink-soft); line-height: 1.45; }
+  #view-settings .access-enrollment-controls,
+  #view-settings .school-year-form,
+  #view-settings .backup-actions { gap: 10px; }
+  #view-settings .access-invite-panel { background: #f3f8f7; border: 1px solid #bfd7d1; }
+  @media (max-width: 900px) {
+    #view-settings .template-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    #view-settings .template-button:last-child { grid-column: 1 / -1; }
+  }
+  @media (max-width: 768px) {
+    #view-settings .section-heading { align-items: stretch; }
+    #view-settings .section-heading .button { width: 100%; }
+    #view-settings .template-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 8px !important; }
+    #view-settings .template-grid .template-button { width: 100% !important; min-height: 88px !important; }
+    #view-settings .template-grid .template-button:last-child { grid-column: 1 / -1; }
+    #view-settings .template-button { min-height: 88px; }
+    #view-settings .card-title-row { align-items: stretch; }
+    #view-settings .card-title-row > .button { width: 100%; }
+    #view-settings .access-enrollment-controls,
+    #view-settings .school-year-form { grid-template-columns: 1fr; }
+    #view-settings .access-invite-row { grid-template-columns: 1fr 1fr; }
+    #view-settings .access-invite-input { grid-column: 1 / -1; }
+  }
+}
+
+/* Fixture review: denser mobile rosters while keeping every record visible. */
+@media screen and (max-width: 768px) {
+  #view-settings .student-management-list,
+  #view-settings .access-request-list {
+    gap: 7px !important;
+  }
+  #view-settings .student-management-item,
+  #view-settings .access-request-item {
+    gap: 7px !important;
+    padding: 10px 11px !important;
+    border-radius: 11px !important;
+  }
+  #view-settings .student-management-item > div:first-child {
+    gap: 1px;
+  }
+  #view-settings .student-management-item strong,
+  #view-settings .access-request-copy strong {
+    font-size: .91rem;
+    line-height: 1.18;
+  }
+  #view-settings .student-management-item small,
+  #view-settings .access-request-copy small {
+    font-size: .69rem;
+    line-height: 1.2;
+  }
+  #view-settings .student-management-item .row-actions {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 6px;
+  }
+  #view-settings .student-management-item .row-actions .action-button {
+    min-height: 40px;
+    padding: 6px 7px;
+    font-size: .78rem;
+  }
+  #view-settings .access-request-person {
+    gap: 8px;
+  }
+  #view-settings .access-request-avatar,
+  #view-settings .access-request-initial {
+    width: 36px;
+    height: 36px;
+  }
+  #view-settings .access-request-actions {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 6px;
+  }
+  #view-settings .access-request-actions .access-request-status {
+    align-self: center;
+    justify-self: start;
+  }
+  #view-settings .access-request-actions .button {
+    min-height: 40px;
+    padding: 6px 7px;
+    font-size: .75rem;
+  }
+}
+
+/* Stage 2: Chat — readable side panel without changing realtime behaviour. */
+@media screen {
+  .chat-backdrop { background: rgba(15,38,34,.34); backdrop-filter: blur(3px); }
+  .class-chat-panel { right: 16px; bottom: 16px; width: min(410px,calc(100vw - 32px)); height: min(720px,calc(100dvh - 32px)); border: 1px solid #b9cbc5; border-radius: 18px; box-shadow: 0 24px 70px rgba(18,48,42,.28); }
+  .chat-header { padding: 17px 18px 14px; background: var(--board); border-radius: 17px 17px 0 0; }
+  .chat-header h2 { margin-top: 4px; font-size: 1.35rem; }
+  .chat-status { color: rgba(255,255,255,.78); }
+  .chat-message-list { gap: 9px; padding: 14px; background-color: #f7f5ed; background-size: 24px 24px; }
+  .chat-message { max-width: 88%; padding: 10px 12px; border-radius: 14px 14px 14px 5px; box-shadow: var(--shadow-sm); }
+  .chat-message.is-own { border-radius: 14px 14px 5px 14px; }
+  .chat-form { gap: 8px; padding: 12px 14px 10px; background: #fffefa; }
+  .chat-form textarea { min-height: 68px; max-height: 160px; border: 1px solid #baccc7; border-radius: 11px; }
+  .chat-rules { padding: 0 14px 12px; background: #fffefa; }
+  @media (max-width: 768px) {
+    body.chat-is-open { overflow: hidden; }
+    .class-chat-panel { inset: max(6px,env(safe-area-inset-top)) 6px max(6px,env(safe-area-inset-bottom)); width: auto; height: auto; max-height: none; border-radius: 15px; }
+    .chat-header { padding: 14px 14px 11px; border-radius: 14px 14px 0 0; }
+    .chat-header .icon-button { width: 44px; height: 44px; }
+    .chat-message-list { padding: 11px; }
+    .chat-message { max-width: 94%; }
+    .chat-form { padding: 10px 11px 8px; }
+    .chat-form textarea { min-height: 60px; resize: none; }
+    .chat-form-footer .button { min-height: 44px; }
+    .chat-rules { padding: 0 11px calc(9px + env(safe-area-inset-bottom)); font-size: .67rem; }
+  }
+}
+
+/* Final fixture-review overrides: long expense rows and compact mobile rosters. */
+@media screen and (min-width: 769px) {
+  #view-expenses .expenses-table th:nth-child(1) { width: 10%; }
+  #view-expenses .expenses-table th:nth-child(2) { width: 32%; }
+  #view-expenses .expenses-table th:nth-child(3) { width: 10%; }
+  #view-expenses .expenses-table th:nth-child(4) { width: 10%; }
+  #view-expenses .expenses-table th:nth-child(5) { width: 9%; }
+  #view-expenses .expenses-table th:nth-child(6) { width: 15%; }
+  #view-expenses .expenses-table th:nth-child(7) { width: 14%; }
+  #view-expenses .expenses-table td:first-child {
+    font-size: .78rem;
+    letter-spacing: -.01em;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  #view-settings .student-management-item .row-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 6px !important;
+  }
+  #view-settings .student-management-item .row-actions .action-button {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 40px !important;
+  }
+  #view-settings .access-request-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 6px !important;
+  }
+  #view-settings .access-request-actions .button {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 40px !important;
+  }
+}
