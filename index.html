@@ -49,7 +49,7 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=585">
+  <link rel="stylesheet" href="styles.css?v=586">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -360,8 +360,8 @@
             <p id="selectedCampaignMeta">Выберите сбор, чтобы увидеть данные.</p>
           </div>
           <div class="campaign-totals">
-            <div><span>План</span><strong id="campaignPlanTotal">0 ₽</strong></div>
-            <div><span>Собрано</span><strong id="campaignCollectedTotal">0 ₽</strong></div>
+            <div class="campaign-total-collected"><span>Собрано</span><strong id="campaignCollectedTotal">0 ₽</strong></div>
+            <div class="campaign-total-plan"><span>План</span><strong id="campaignPlanTotal">0 ₽</strong></div>
           </div>
         </section>
 
@@ -391,11 +391,11 @@
                 </tr>
               </thead>
               <tbody id="contributionsTableBody"></tbody>
-              <tfoot>
+              <tfoot class="contributions-total-footer">
                 <tr>
                   <th colspan="2" scope="row">Итого</th>
-                  <td id="contributionsPlanFooter">0 ₽</td>
-                  <td id="contributionsPaidFooter">0 ₽</td>
+                  <td class="contributions-total-value contributions-total-collected" data-label="Собрано"><span>Собрано</span><strong id="contributionsPaidFooter">0 ₽</strong></td>
+                  <td class="contributions-total-value contributions-total-plan" data-label="План"><span>План</span><strong id="contributionsPlanFooter">0 ₽</strong></td>
                   <td></td>
                 </tr>
               </tfoot>
@@ -446,10 +446,10 @@
                 </tr>
               </thead>
               <tbody id="expensesTableBody"></tbody>
-              <tfoot>
+              <tfoot class="expenses-total-footer">
                 <tr>
-                  <th colspan="4" scope="row">Итого по фильтру</th>
-                  <td id="expensesFooter">0 ₽</td>
+                  <th colspan="4" scope="row"><span>Итого по фильтру</span><small>Сумма видимых расходов</small></th>
+                  <td id="expensesFooter" data-label="Итого по фильтру">0 ₽</td>
                   <td></td>
                   <td class="admin-only hidden"></td>
                 </tr>

@@ -5690,3 +5690,47 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   .parent-onboarding-guide-steps { grid-template-columns: 1fr; gap: 7px; }
   .parent-onboarding-guide-step { grid-template-columns: auto auto minmax(0,1fr); padding: 9px; }
 }
+
+
+/* Clear totals hierarchy for contributions and expenses. */
+.campaign-totals { align-items: stretch; }
+.campaign-totals > div { min-width: 0; }
+.campaign-total-collected { order: 1; background: var(--green-soft) !important; border-color: #9bcfaf !important; }
+.campaign-total-plan { order: 2; background: var(--yellow-soft) !important; border-color: #d9bd56 !important; }
+#view-contributions .contributions-total-footer,
+#view-expenses .expenses-total-footer { display: table-footer-group; }
+.contributions-total-footer tr,
+.expenses-total-footer tr { background: transparent; }
+.contributions-total-footer th,
+.contributions-total-footer td,
+.expenses-total-footer th,
+.expenses-total-footer td { border-top: 0; }
+.contributions-total-footer th { color: #245a75; font-size: 1rem; text-transform: uppercase; letter-spacing: .04em; }
+.contributions-total-value { padding: 11px 13px !important; border: 1px solid !important; border-radius: 12px; }
+.contributions-total-value span { display: block; margin-bottom: 3px; color: var(--ink-soft); font-size: .72rem; font-weight: 850; text-transform: uppercase; }
+.contributions-total-value strong { display: block; font-size: 1.12rem; }
+.contributions-total-collected { background: var(--green-soft); border-color: #9bcfaf !important; }
+.contributions-total-collected strong { color: #246243; }
+.contributions-total-plan { background: var(--yellow-soft); border-color: #d9bd56 !important; }
+.contributions-total-plan strong { color: #745514; }
+.expenses-total-footer th { padding: 14px 16px !important; color: #245a75; text-align: left; background: linear-gradient(135deg, #e6f4f0, #fff7cf); border: 2px solid #9ccfc2 !important; border-right: 0 !important; border-radius: 15px 0 0 15px; }
+.expenses-total-footer th span { display: block; font-size: 1rem; font-weight: 950; text-transform: uppercase; letter-spacing: .03em; }
+.expenses-total-footer th small { display: block; margin-top: 3px; color: var(--ink-soft); font-size: .72rem; font-weight: 750; }
+.expenses-total-footer td#expensesFooter { padding: 14px 16px !important; color: #245a75; font-size: 1.35rem; font-weight: 950; text-align: right; background: linear-gradient(135deg, #fff7cf, #e6f4f0); border: 2px solid #9ccfc2 !important; border-left: 0 !important; border-radius: 0 15px 15px 0; }
+.expenses-total-footer td:empty { display: none; }
+@media (max-width: 700px) {
+  .campaign-totals { grid-template-columns: 1fr !important; }
+  .campaign-total-collected { order: 1; }
+  .campaign-total-plan { order: 2; }
+  #view-contributions .contributions-total-footer { display: table-footer-group !important; }
+  .contributions-total-footer tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; padding: 12px; background: #fffdf2; border: 2px dashed #d9bd56; border-radius: 15px; }
+  .contributions-total-footer th { grid-column: 1 / -1; padding: 0 2px 2px !important; text-align: left; }
+  .contributions-total-footer td { display: block !important; width: auto !important; padding: 9px 10px !important; border: 1px solid !important; }
+  .contributions-total-footer td:last-child { display: none !important; }
+  .contributions-total-value span { font-size: .66rem; }
+  .contributions-total-value strong { font-size: 1rem; }
+  #view-expenses .expenses-total-footer { display: table-footer-group !important; }
+  .expenses-total-footer tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0; margin-top: 11px; padding: 0; background: transparent; }
+  .expenses-total-footer th { display: block; padding: 12px 11px !important; border: 2px solid #9ccfc2 !important; border-right: 0 !important; border-radius: 13px 0 0 13px; }
+  .expenses-total-footer td#expensesFooter { display: block !important; padding: 12px 11px !important; border: 2px solid #9ccfc2 !important; border-left: 0 !important; border-radius: 0 13px 13px 0; }
+}
