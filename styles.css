@@ -5566,3 +5566,32 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   .access-invite-input { grid-column: 1 / -1; }
   .access-invite-row .button { width: 100%; }
 }
+
+
+/* V78 mobile navigation final fix: admin settings stays in the same bottom row. */
+@media (max-width: 768px) {
+  .main-nav .nav-inner:has(.nav-button.admin-only:not(.hidden)) {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    grid-auto-flow: column !important;
+    grid-auto-rows: minmax(0, 1fr) !important;
+    align-items: stretch !important;
+    overflow: hidden !important;
+  }
+  .main-nav .nav-inner:has(.nav-button.admin-only:not(.hidden)) .nav-button {
+    min-width: 0 !important;
+    width: 100% !important;
+    min-height: 54px !important;
+    padding-inline: 1px !important;
+    font-size: clamp(.52rem, 2.25vw, .68rem) !important;
+    line-height: 1.05 !important;
+    white-space: normal !important;
+  }
+  .main-nav .nav-inner:has(.nav-button.admin-only:not(.hidden)) .nav-button span {
+    margin: 0 !important;
+    font-size: .92rem !important;
+  }
+  .main-nav .nav-inner:has(.nav-button.admin-only:not(.hidden)) .nav-button.admin-only.hidden {
+    display: none !important;
+  }
+}
