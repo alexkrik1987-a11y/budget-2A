@@ -42,7 +42,7 @@ for (const needle of [
   "TIMED_OUT",
   "state.realtimeGeneration"
 ]) assert(app.includes(needle), `Не найден realtime-механизм: ${needle}`);
-assert(html.includes('app.js?v=76'), "index.html не обновил cache-busting app.js");
-assert(sw.includes('budget-2a-shell-v80'), "sw.js не обновил PWA-кэш до v80");
-assert(sw.includes('./app.js?v=76'), "sw.js не обновил app.js в shell-кэше");
+assert(html.includes('app.js?v=77'), "index.html не обновил cache-busting app.js");
+assert(sw.includes('budget-2a-shell-v81'), "sw.js не обновил PWA-кэш до v81");
+assert(sw.includes('./app.js?v=77'), "sw.js не обновил app.js в shell-кэше");
 console.log("v58 chat realtime checks: PASS");

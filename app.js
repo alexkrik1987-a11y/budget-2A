@@ -242,7 +242,7 @@ function cacheDom() {
     "globalNotice", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated", "schoolCalendar", "schoolCalendarDay", "schoolCalendarMonth",
     "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions", "parentChildOnboardingModal", "parentChildOnboardingForm", "parentChildOnboardingSelect", "parentChildOnboardingError", "parentChildOnboardingSaveButton",
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary",
-    "livingNotebook", "liveNotebookBalance", "liveNotebookBalanceNote", "liveNotebookCampaign", "liveNotebookCampaignNote", "liveNotebookDate", "liveNotebookDateNote", "liveNotebookCalendarMonth", "liveNotebookCalendarDay", "liveNotebookCollected", "liveNotebookSpent", "liveNotebookRemaining", "liveNotebookMessage",
+    "livingNotebook", "liveNotebookBalance", "liveNotebookBalanceNote", "liveNotebookCampaign", "liveNotebookCampaignNote", "liveNotebookDate", "liveNotebookDateNote", "liveNotebookCalendarMonth", "liveNotebookCalendarDay", "liveNotebookCollected", "liveNotebookSpent", "liveNotebookRemaining", "liveNotebookMessage", "parentOnboardingGuide",
     "fundExpenseChart", "categoryExpenseChart", "reportMonthSelect", "downloadCsvButton", "printReportButton", "printReport",
     "usefulContacts", "usefulSchoolName", "usefulSchoolAddress", "usefulSchoolMapLink", "usefulSchedule", "usefulNotes", "usefulAdminEditor", "usefulInfoForm", "usefulTeacherName", "usefulTeacherPhone", "usefulChairName", "usefulChairPhone", "usefulDeputyName", "usefulDeputyPhone", "usefulSchoolNameInput", "usefulSchoolAddressInput", "usefulSchoolMapInput", "usefulScheduleMon", "usefulScheduleTue", "usefulScheduleWed", "usefulScheduleThu", "usefulScheduleFri", "usefulNotesInput", "usefulInfoFormError", "saveUsefulInfoButton",
     "recentExpenses", "campaignSelect", "campaignTypeTag", "selectedCampaignName",
@@ -325,6 +325,7 @@ function bindEvents() {
   if (dom.openAccessInviteLinkButton) dom.openAccessInviteLinkButton.addEventListener("click", openAccessInviteLink);
   if (dom.accessRequestList) dom.accessRequestList.addEventListener("click", handleAccessRequestAction);
   if (dom.parentChildOnboardingForm) dom.parentChildOnboardingForm.addEventListener("submit", saveParentChildOnboarding);
+  if (dom.parentOnboardingGuide) dom.parentOnboardingGuide.addEventListener("click", handleParentOnboardingGuideAction);
   if (dom.usefulInfoForm) dom.usefulInfoForm.addEventListener("submit", saveUsefulInfo);
 
   if (dom.expenseFilters) {
@@ -1428,6 +1429,7 @@ function renderAll() {
   renderCampaignSelect();
   renderSummary();
   renderContributionReminder();
+  renderParentOnboardingGuide();
   renderContributions();
   renderExpenses();
   renderCampaignSettings();
@@ -2373,10 +2375,85 @@ function saveParentChildOnboarding(event) {
 
   setReminderStudentId(student.id);
   renderContributionReminder();
+  renderParentOnboardingGuide();
   dom.parentChildOnboardingModal?.close();
   showNotice(`Готово: будем показывать напоминание для «${student.full_name}».`, "info", 5000);
 }
 
+const PARENT_ONBOARDING_GUIDE_KEY = "budget-2a-parent-onboarding-guide";
+function parentOnboardingGuideStorageKey() {
+  return state.user?.id ? `${PARENT_ONBOARDING_GUIDE_KEY}:${state.user.id}` : null;
+}
+function isParentOnboardingGuideDismissed() {
+  const key = parentOnboardingGuideStorageKey();
+  if (!key) return false;
+  try { return window.localStorage.getItem(key) === "1"; } catch (_) { return false; }
+}
+function setParentOnboardingGuideDismissed(value) {
+  const key = parentOnboardingGuideStorageKey();
+  if (!key) return;
+  try {
+    if (value) window.localStorage.setItem(key, "1");
+    else window.localStorage.removeItem(key);
+  } catch (_) {
+    // Приватный режим не должен мешать основному бюджету.
+  }
+}
+function renderParentOnboardingGuide() {
+  const guide = dom.parentOnboardingGuide;
+  if (!guide) return;
+  guide.replaceChildren();
+  guide.classList.add("hidden");
+  if (!state.session || state.isAdmin || !getReminderStudentId() || isParentOnboardingGuideDismissed()) return;
+  const header = el("div", "parent-onboarding-guide-header");
+  const copy = el("div");
+  copy.append(el("span", "sticker sticker-yellow", "Быстрая подсказка"), el("h3", "", "Куда нажимать дальше"), el("p", "", "Сайт уже знает, какого ребёнка показывать. Вот три полезных места — без лишних окон."));
+  const close = el("button", "button button-secondary button-small", "Скрыть подсказки");
+  close.type = "button";
+  close.dataset.onboardingAction = "dismiss";
+  header.append(copy, close);
+  const steps = el("div", "parent-onboarding-guide-steps");
+  [
+    ["my-contribution", "✏️", "Мой взнос", "Проверить остаток именно по своему ребёнку"],
+    ["contributions", "📋", "Взносы класса", "Посмотреть общую таблицу по сборам"],
+    ["useful", "📌", "Полезное", "Найти телефон учителя, комитет и расписание"]
+  ].forEach(([action, icon, title, description], index) => {
+    const button = el("button", "parent-onboarding-guide-step", "");
+    button.type = "button";
+    button.dataset.onboardingAction = action;
+    button.append(el("span", "parent-onboarding-guide-step-number", String(index + 1)), el("span", "parent-onboarding-guide-step-icon", icon), (() => { const text = el("span", "parent-onboarding-guide-step-copy"); text.append(el("strong", "", title), el("small", "", description)); return text; })());
+    steps.append(button);
+  });
+  guide.append(header, steps);
+  guide.classList.remove("hidden");
+}
+function handleParentOnboardingGuideAction(event) {
+  const button = event.target.closest("[data-onboarding-action]");
+  if (!button) return;
+  const action = button.dataset.onboardingAction;
+  if (action === "dismiss") {
+    setParentOnboardingGuideDismissed(true);
+    renderParentOnboardingGuide();
+    return;
+  }
+  setParentOnboardingGuideDismissed(true);
+  renderParentOnboardingGuide();
+  if (action === "my-contribution") {
+    handleLivingAction("contribution");
+    highlightOnboardingTarget(dom.contributionReminder);
+  } else if (action === "contributions") {
+    switchView("contributions");
+    highlightOnboardingTarget(dom.contributionsTableBody);
+  } else if (action === "useful") {
+    switchView("useful");
+    highlightOnboardingTarget(dom.usefulContacts);
+  }
+}
+function highlightOnboardingTarget(target) {
+  if (!target) return;
+  target.classList.add("onboarding-highlight");
+  window.setTimeout(() => target.classList.remove("onboarding-highlight"), 1800);
+}
 function renderContributionReminder() {
   if (!dom.contributionReminder) return;
   dom.contributionReminder.replaceChildren();

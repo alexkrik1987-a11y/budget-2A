@@ -5654,3 +5654,39 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   .archive-payment-summary .archive-metric small { margin: 0; }
   .archive-status-group { padding: 10px; }
 }
+
+
+/* Parent onboarding guide: inline, calm, and never covering the page. */
+.parent-onboarding-guide {
+  display: grid;
+  gap: 14px;
+  margin: 16px 0 20px;
+  padding: 16px;
+  background: linear-gradient(135deg, #eef8f5, #fffdf2);
+  border: 2px dashed #9ccfc2;
+  border-radius: 16px 19px 14px 18px;
+  box-shadow: 0 5px 0 rgba(39, 104, 80, .10);
+}
+.parent-onboarding-guide-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.parent-onboarding-guide-header h3 { margin: 7px 0 3px; color: #245a75; font-size: 1.08rem; }
+.parent-onboarding-guide-header p { margin: 0; color: var(--ink-soft); font-size: .82rem; font-weight: 700; line-height: 1.4; }
+.parent-onboarding-guide-header .button { flex: 0 0 auto; }
+.parent-onboarding-guide-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+.parent-onboarding-guide-step { display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: center; gap: 7px; min-width: 0; padding: 10px; color: var(--ink); text-align: left; background: rgba(255,255,255,.72); border: 1px solid #b8d5cc; border-radius: 12px; box-shadow: 0 3px 0 rgba(39,104,80,.08); }
+.parent-onboarding-guide-step:hover { background: #fff; border-color: #72b39f; transform: translateY(-1px); }
+.parent-onboarding-guide-step-number { display: grid; width: 22px; height: 22px; color: #fff; font-size: .72rem; font-weight: 900; background: #3d946a; border-radius: 50%; place-items: center; }
+.parent-onboarding-guide-step-icon { font-size: 1.15rem; }
+.parent-onboarding-guide-step-copy { display: grid; gap: 2px; min-width: 0; }
+.parent-onboarding-guide-step-copy strong { color: #245a75; font-size: .82rem; }
+.parent-onboarding-guide-step-copy small { color: var(--ink-soft); font-size: .7rem; font-weight: 700; line-height: 1.25; }
+.onboarding-highlight { animation: onboarding-highlight-pulse .6s ease-in-out 3; outline: 3px solid #f2c347; outline-offset: 4px; }
+@keyframes onboarding-highlight-pulse { 50% { box-shadow: 0 0 0 7px rgba(242,195,71,.22), 0 8px 20px rgba(39,104,80,.16); } }
+@media (max-width: 700px) {
+  .parent-onboarding-guide { margin: 12px 0 16px; padding: 12px; }
+  .parent-onboarding-guide-header { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+  .parent-onboarding-guide-header h3 { font-size: .98rem; }
+  .parent-onboarding-guide-header p { font-size: .75rem; }
+  .parent-onboarding-guide-header .button { min-height: 34px; padding: 6px 8px; font-size: .68rem; }
+  .parent-onboarding-guide-steps { grid-template-columns: 1fr; gap: 7px; }
+  .parent-onboarding-guide-step { grid-template-columns: auto auto minmax(0,1fr); padding: 9px; }
+}
