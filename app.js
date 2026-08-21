@@ -1323,7 +1323,7 @@ function startRealtimeFallback(generation) {
   window.clearInterval(state.realtimeFallbackTimer);
   state.realtimeFallbackTimer = window.setInterval(() => {
     if (generation !== state.realtimeGeneration || !state.session || document.visibilityState === "hidden") return;
-    void loadAllData({ silent: true }).catch((error) => console.error("Realtime fallback refresh error:", error));
+    loadAllData({ silent: true }).catch((error) => console.error("Realtime fallback refresh error:", error));
   }, 60 * 1000);
 }
 
@@ -1408,6 +1408,17 @@ function handleRealtimeVisibilityChange() {
   scheduleRealtimeRefresh();
 }
 
+function refreshAfterMutation() {
+  // Сначала показываем текущий интерфейс, затем обновляем данные в фоне.
+  // Кнопка и уведомление не должны ждать повторной загрузки всего бюджета.
+  renderAll();
+  window.setTimeout(() => {
+    loadAllData({ silent: true }).catch((error) => {
+      console.error("Background mutation refresh error:", error);
+      showNotice("Действие сохранено, но данные обновляются дольше обычного. Проверьте соединение.", "error", 7000);
+    });
+  }, 0);
+}
 function scheduleRealtimeRefresh() {
   window.clearTimeout(state.realtimeRefreshTimer);
   state.realtimeRefreshTimer = window.setTimeout(async () => {
@@ -3074,8 +3085,20 @@ async function saveExpense(event) {
     if (uploadedPath) await db.storage.from("class-receipts").remove([uploadedPath]);
     return showElementError(dom.expenseFormError, `Не удалось сохранить: ${friendlyError(error)}`);
   }
+  const localExpense = {
+    ...payload,
+    id: id || `local-expense-${Date.now()}`,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+  if (id) {
+    const index = state.expenses.findIndex((item) => item.id === id);
+    if (index >= 0) state.expenses[index] = { ...state.expenses[index], ...localExpense };
+  } else {
+    state.expenses.unshift(localExpense);
+  }
   dom.expenseModal.close();
-  await loadAllData({ silent: true });
+  refreshAfterMutation();
   showUndoNotice("Расход сохранён ✓", undoBackupId);
 }
 
@@ -3106,7 +3129,7 @@ async function handleExpenseAction(event) {
     const undoBackupId = await createUndoPoint();
     const { error } = await db.from("expenses").delete().eq("id", expense.id);
     if (error) return showNotice(`Не удалось удалить: ${friendlyError(error)}`, "error");
-    await loadAllData({ silent: true });
+    refreshAfterMutation();
     showUndoNotice("Расход удалён", undoBackupId);
   }
 }
@@ -3247,8 +3270,20 @@ async function saveCampaign(event) {
   setButtonLoading(dom.saveCampaignButton, false);
 
   if (error) return showElementError(dom.campaignFormError, `Не удалось сохранить: ${friendlyError(error)}`);
+  const localCampaign = {
+    ...payload,
+    id: id || `local-campaign-${Date.now()}` ,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+  if (id) {
+    const index = state.campaigns.findIndex((item) => item.id === id);
+    if (index >= 0) state.campaigns[index] = { ...state.campaigns[index], ...localCampaign };
+  } else {
+    state.campaigns.unshift(localCampaign);
+  }
   dom.campaignModal.close();
-  await loadAllData({ silent: true });
+  refreshAfterMutation();
   showUndoNotice("Сбор сохранён ✓", undoBackupId);
 }
 
@@ -3272,7 +3307,7 @@ async function handleCampaignAction(event) {
       button.disabled = false;
       return showNotice(`Не удалось архивировать: ${friendlyError(error)}`, "error");
     }
-    await loadAllData({ silent: true });
+    refreshAfterMutation();
     showUndoNotice("Сбор отправлен в архив ✓", undoBackupId);
   }
   if (button.dataset.action === "delete-campaign") {
@@ -3285,7 +3320,7 @@ async function handleCampaignAction(event) {
     const undoBackupId = await createUndoPoint();
     const { error } = await db.from("campaigns").delete().eq("id", campaign.id);
     if (error) return showNotice(`Не удалось удалить: ${friendlyError(error)}`, "error");
-    await loadAllData({ silent: true });
+    refreshAfterMutation();
     showUndoNotice("Сбор удалён", undoBackupId);
   }
 }
@@ -3304,7 +3339,7 @@ async function handleArchiveAction(event) {
     button.disabled = false;
     return showNotice(`Не удалось вернуть сбор: ${friendlyError(error)}`, "error");
   }
-  await loadAllData({ silent: true });
+  refreshAfterMutation();
   showUndoNotice("Сбор возвращён в активный список ✓", undoBackupId);
 }
 
@@ -3335,7 +3370,7 @@ async function saveStudent(event) {
   setButtonLoading(dom.saveStudentButton, false);
   if (result.error) return showElementError(dom.studentFormError, `Не удалось сохранить: ${friendlyError(result.error)}`);
   dom.studentModal.close();
-  await loadAllData({ silent: true });
+  refreshAfterMutation();
   showUndoNotice(id ? "Данные ученика обновлены ✓" : "Ученик добавлен ✓", undoBackupId);
 }
 
@@ -3361,7 +3396,7 @@ async function handleStudentAction(event) {
     button.disabled = false;
     return showNotice(`Не удалось обновить список: ${friendlyError(error)}`, "error");
   }
-  await loadAllData({ silent: true });
+  refreshAfterMutation();
   showUndoNotice(isDeactivate ? "Ученик отмечен как выбывший" : "Ученик снова в активном списке ✓", undoBackupId);
 }
 
@@ -3379,7 +3414,7 @@ async function startNewSchoolYear(event) {
   const { error } = await db.rpc("prepare_new_school_year", { p_class_name: className, p_school_year: schoolYear });
   setButtonLoading(dom.startSchoolYearButton, false);
   if (error) return showElementError(dom.schoolYearFormError, `Не удалось подготовить учебный год: ${friendlyError(error)}`);
-  await loadAllData({ silent: true });
+  refreshAfterMutation();
   showNotice("Новый учебный год подготовлен. Теперь проверьте список учеников и создайте первый сбор. ✓", "info", 7000);
 }
 
@@ -3531,7 +3566,7 @@ async function createManualBackup() {
     downloadBlob(`budget-2A-backup-${todayIso()}.json`, JSON.stringify(buildSnapshot(), null, 2), "application/json");
     return showNotice(`Копия в Supabase пока не создана: ${friendlyError(error)}. Вместо этого скачан безопасный JSON-файл.`, "error", 7000);
   }
-  await loadAllData({ silent: true });
+  refreshAfterMutation();
   showNotice("Резервная копия сохранена в Supabase ✓", "info");
 }
 
@@ -3564,7 +3599,7 @@ async function undoLastAction(backupId) {
   const { error } = await db.rpc("restore_budget_backup", { p_backup_id: backupId });
   if (error) return showNotice(`Не удалось отменить: ${friendlyError(error)}`, "error");
   state.lastUndoBackupId = null;
-  await loadAllData({ silent: true });
+  refreshAfterMutation();
   showNotice("Последнее действие отменено ✓", "info");
 }
 
@@ -3602,7 +3637,7 @@ async function handleBackupAction(event) {
     button.disabled = false;
     return showNotice(`Не удалось восстановить: ${friendlyError(error)}`, "error");
   }
-  await loadAllData({ silent: true });
+  refreshAfterMutation();
   showNotice("Данные успешно восстановлены ✓", "info");
 }
 
@@ -3617,7 +3652,7 @@ async function restoreBackupFromFile(event) {
     showNotice("Проверяем и восстанавливаем данные…", "info", 0);
     const { error } = await db.rpc("restore_budget_snapshot", { p_snapshot: snapshot });
     if (error) throw error;
-    await loadAllData({ silent: true });
+    refreshAfterMutation();
     showNotice("Данные из файла восстановлены ✓", "info");
   } catch (error) {
     showNotice(`Файл не восстановлен: ${friendlyError(error)}`, "error", 0);
