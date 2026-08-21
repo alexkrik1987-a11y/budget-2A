@@ -25,5 +25,5 @@ for (const needle of [
   ".archive-status-debt"
 ]) assert(css.includes(needle), `Не найден стиль архива: ${needle}`);
 assert(html.includes('styles.css?v=586'), "index.html не обновил cache-busting styles.css");
-assert(fs.readFileSync("sw.js", "utf8").includes("budget-2a-shell-v84"), "sw.js не обновил PWA-кэш до v84");
+assert(fs.readFileSync("sw.js", "utf8").includes("budget-2a-shell-v85"), "sw.js не обновил PWA-кэш до v85");
 console.log("v80 archive status checks: PASS");

@@ -2139,8 +2139,13 @@ async function toggleAccessEnrollment() {
   const { error } = await db.rpc("set_access_enrollment", { p_open: next });
   setButtonLoading(dom.toggleAccessEnrollmentButton, false);
   if (error) return showElementError(dom.accessRequestError, `Не удалось изменить приём заявок: ${friendlyError(error)}`);
-  await refreshAccessAdministration();
-  showNotice(next ? "Приём заявок открыт. Отправьте ссылку родителям. ✓" : "Приём заявок закрыт. ✓", "info", 5000);
+  state.enrollmentOpen = next;
+  renderAccessManagement();
+  void refreshAccessAdministration().catch((refreshError) => {
+    console.error("Access settings background refresh error:", refreshError);
+    showNotice("Приём заявок изменён, но проверка данных занимает больше времени.", "error", 7000);
+  });
+  showNotice(next ? "Приём заявок открыт. ✓" : "Приём заявок закрыт. ✓", "info", 5000);
 }
 
 async function handleAccessRequestAction(event) {
