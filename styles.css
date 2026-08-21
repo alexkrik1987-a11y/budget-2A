@@ -5768,6 +5768,7 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
 
 /* v89: parent-first mobile home; desktop layout remains unchanged. */
 .mobile-budget-details-toggle { display: none; }
+.mobile-contribution-details-button { display: none !important; }
 .mobile-no-open-campaigns { display: none !important; }
 @media (max-width: 700px) {
   #view-summary { display: flex; flex-direction: column; gap: 12px; }
@@ -5785,6 +5786,8 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   #view-summary .mobile-budget-detail.is-mobile-visible { display: block !important; }
   #view-summary .mobile-budget-detail.dashboard-grid.is-mobile-visible { display: grid !important; }
   #view-summary #contributionReminder { margin: 0; }
+  #view-summary .mobile-contribution-details-button { display: inline-flex !important; width: 100%; justify-content: center; margin-top: 10px; font-size: .76rem; }
+  #view-summary .mobile-contribution-details-list { display: none !important; }
   #view-summary #contributionReminder.mobile-no-open-campaigns { display: block !important; }
   #view-summary .contribution-reminder-copy { min-width: 0; }
   #view-summary .contribution-reminder-copy strong { font-size: 1.08rem; }

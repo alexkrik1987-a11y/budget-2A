@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "V1.2 · v89";
+const APP_VERSION = "V1.2 · v90";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -2571,6 +2571,11 @@ function renderContributionReminder() {
       el("b", `contribution-reminder-status${totalRemaining === 0 && openCampaigns.length ? " is-paid" : ""}`, overallStatus)
     );
 
+    const detailsButton = el("button", "button button-primary mobile-contribution-details-button", "Подробнее во вкладке «Взносы класса»");
+    detailsButton.type = "button";
+    detailsButton.addEventListener("click", () => switchView("contributions"));
+    controls.append(detailsButton);
+
     const change = el("button", "contribution-reminder-change", "Изменить ребёнка");
     change.type = "button";
     change.addEventListener("click", () => {
@@ -2583,7 +2588,7 @@ function renderContributionReminder() {
   dom.contributionReminder.append(intro, controls);
 
   if (student && openCampaigns.length) {
-    const campaignList = el("div", "contribution-reminder-list");
+    const campaignList = el("div", "contribution-reminder-list mobile-contribution-details-list");
     openCampaigns.forEach((campaign) => {
       const paid = toNumber(getContribution(student.id, campaign.id)?.amount);
       const expected = toNumber(campaign.expected_amount);
@@ -2916,6 +2921,7 @@ function createContributionInputCell(student, campaign, amount) {
   return cell;
 }
 
+// v90: concise mobile contribution summary; details remain in Contributions tab.
 // v89: parent-first mobile home with collapsible budget details.
 // v88: contribution progress is rendered only by the mobile layout.
 function setContributionTotals(plan, collected) {
