@@ -5766,6 +5766,32 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   .contributions-total-footer td:last-child { display: block !important; }
 }
 
+/* v89: parent-first mobile home; desktop layout remains unchanged. */
+.mobile-budget-details-toggle { display: none; }
+.mobile-no-open-campaigns { display: none !important; }
+@media (max-width: 700px) {
+  #view-summary { display: flex; flex-direction: column; gap: 12px; }
+  #view-summary > .section-heading { order: 1; }
+  #view-summary > #contributionReminder { order: 2; }
+  #view-summary > #parentOnboardingGuide { order: 3; }
+  #view-summary > .living-notebook { order: 4; }
+  #view-summary > .totals-grid { order: 5; }
+  #view-summary > .mobile-budget-details-toggle { order: 6; }
+  #view-summary > .mobile-budget-detail { order: 7; }
+  #view-summary .mobile-budget-details-toggle { display: flex; width: 100%; min-height: 50px; align-items: center; justify-content: center; gap: 8px; margin: 0; padding: 12px 14px; color: #245a75; font-size: .82rem; font-weight: 950; text-align: center; background: linear-gradient(135deg, #fff8d9, #eef9f4); border: 2px dashed #d9bd56; border-radius: 14px; box-shadow: 0 4px 0 rgba(55, 96, 103, .08); }
+  #view-summary .mobile-budget-details-toggle > span:first-child { display: grid; width: 22px; height: 22px; place-items: center; color: #745514; font-size: 1.15rem; line-height: 1; background: #fffdf1; border-radius: 50%; }
+  #view-summary .mobile-budget-details-toggle.is-expanded { background: #eef9f4; border-color: #9bcfaf; }
+  #view-summary .mobile-budget-detail { display: none !important; }
+  #view-summary .mobile-budget-detail.is-mobile-visible { display: block !important; }
+  #view-summary .mobile-budget-detail.dashboard-grid.is-mobile-visible { display: grid !important; }
+  #view-summary #contributionReminder { margin: 0; }
+  #view-summary #contributionReminder.mobile-no-open-campaigns { display: block !important; }
+  #view-summary .contribution-reminder-copy { min-width: 0; }
+  #view-summary .contribution-reminder-copy strong { font-size: 1.08rem; }
+  #view-summary .contribution-reminder-status { display: inline-flex; width: fit-content; margin-top: 7px; padding: 5px 9px; color: #8a4f16; font-size: .72rem; line-height: 1.2; background: #fff1d8; border: 1px solid #e1b269; border-radius: 999px; }
+  #view-summary .contribution-reminder-status.is-paid { color: #246243; background: #e6f6e9; border-color: #9bcfaf; }
+}
+
 /* v87: polished Useful Info cards for desktop and mobile. */
 .useful-grid { align-items: stretch; }
 .useful-card { overflow: hidden; border-color: rgba(55, 96, 103, .24); }

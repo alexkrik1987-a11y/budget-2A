@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "V1.2 · v88";
+const APP_VERSION = "V1.2 · v89";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -242,7 +242,7 @@ function cacheDom() {
     "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "emailPasswordForm", "emailPasswordEmailInput", "emailPasswordInput", "togglePasswordVisibility", "rememberSessionInput", "emailPasswordLoginButton", "requestPasswordSetupButton", "authRequestAccessButton", "emailPasswordStatus", "passwordResetForm", "newPasswordInput", "confirmPasswordInput", "saveNewPasswordButton", "logoutButton", "configWarning", "authError",
     "globalNotice", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated", "schoolCalendar", "schoolCalendarDay", "schoolCalendarMonth",
     "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions", "parentChildOnboardingModal", "parentChildOnboardingForm", "parentChildOnboardingSelect", "parentChildOnboardingError", "parentChildOnboardingSaveButton",
-    "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary",
+    "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary", "mobileBudgetDetailsToggle",
     "livingNotebook", "liveNotebookBalance", "liveNotebookBalanceNote", "liveNotebookCampaign", "liveNotebookCampaignNote", "liveNotebookDate", "liveNotebookDateNote", "liveNotebookCalendarMonth", "liveNotebookCalendarDay", "liveNotebookCollected", "liveNotebookSpent", "liveNotebookRemaining", "liveNotebookMessage", "parentOnboardingGuide",
     "fundExpenseChart", "categoryExpenseChart", "reportMonthSelect", "downloadCsvButton", "printReportButton", "printReport",
     "usefulContacts", "usefulSchoolName", "usefulSchoolAddress", "usefulSchoolMapLink", "usefulSchedule", "usefulNotes", "usefulAdminEditor", "usefulInfoForm", "usefulTeacherName", "usefulTeacherPhone", "usefulChairName", "usefulChairPhone", "usefulDeputyName", "usefulDeputyPhone", "usefulSchoolNameInput", "usefulSchoolAddressInput", "usefulSchoolMapInput", "usefulScheduleMon", "usefulScheduleTue", "usefulScheduleWed", "usefulScheduleThu", "usefulScheduleFri", "usefulNotesInput", "usefulInfoFormError", "saveUsefulInfoButton",
@@ -327,6 +327,7 @@ function bindEvents() {
   if (dom.accessRequestList) dom.accessRequestList.addEventListener("click", handleAccessRequestAction);
   if (dom.parentChildOnboardingForm) dom.parentChildOnboardingForm.addEventListener("submit", saveParentChildOnboarding);
   if (dom.parentOnboardingGuide) dom.parentOnboardingGuide.addEventListener("click", handleParentOnboardingGuideAction);
+  if (dom.mobileBudgetDetailsToggle) dom.mobileBudgetDetailsToggle.addEventListener("click", toggleMobileBudgetDetails);
   if (dom.usefulInfoForm) dom.usefulInfoForm.addEventListener("submit", saveUsefulInfo);
 
   if (dom.expenseFilters) {
@@ -2250,6 +2251,16 @@ function renderStudentManagement() {
   });
 }
 
+function toggleMobileBudgetDetails() {
+  if (!dom.mobileBudgetDetailsToggle) return;
+  const expanded = dom.mobileBudgetDetailsToggle.getAttribute("aria-expanded") === "true";
+  dom.mobileBudgetDetailsToggle.setAttribute("aria-expanded", String(!expanded));
+  dom.mobileBudgetDetailsToggle.classList.toggle("is-expanded", !expanded);
+  dom.mobileBudgetDetailsToggle.querySelector("span")?.replaceChildren(document.createTextNode(!expanded ? "−" : "＋"));
+  dom.mobileBudgetDetailsToggle.querySelectorAll("span")[1]?.replaceChildren(document.createTextNode(!expanded ? "Скрыть подробности бюджета класса" : "Показать подробности бюджета класса"));
+  document.querySelectorAll("#view-summary .mobile-budget-detail").forEach((section) => section.classList.toggle("is-mobile-visible", !expanded));
+}
+
 function renderSummary() {
   const collectedByFund = sumByFund(state.contributions);
   const spentByFund = sumByFund(state.expenses);
@@ -2501,7 +2512,7 @@ function renderContributionReminder() {
     .filter((item) => item.is_open)
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   const students = state.students ?? [];
-  if (!state.session || !openCampaigns.length || !students.length) return;
+  if (!state.session || !students.length) return;
 
   let studentId = getReminderStudentId();
   let student = students.find((item) => item.id === studentId) ?? null;
@@ -2545,9 +2556,19 @@ function renderContributionReminder() {
     picker.append(el("span", "", "Кого показать?"), select, el("em", "", "↓ выберите имя"));
     controls.append(picker);
   } else {
+    const totalPlan = sum(openCampaigns.map((campaign) => toNumber(campaign.expected_amount)));
+    const totalPaid = sum(openCampaigns.map((campaign) => getContribution(student.id, campaign.id)?.amount));
+    const totalRemaining = Math.max(0, totalPlan - totalPaid);
+    const overallStatus = !openCampaigns.length
+      ? "Сейчас открытых сборов нет"
+      : totalRemaining === 0
+        ? "Всё оплачено"
+        : `Осталось внести ${formatMoney(totalRemaining)}`;
     copy.append(
+      el("span", "contribution-reminder-step", "Ваш личный бюджет"),
       el("strong", "", "Мой взнос"),
-      el("small", "", `Открытых сборов: ${openCampaigns.length}. Остаток рассчитан для «${student.full_name}».`)
+      el("small", "", `Ребёнок: ${student.full_name}`),
+      el("b", `contribution-reminder-status${totalRemaining === 0 && openCampaigns.length ? " is-paid" : ""}`, overallStatus)
     );
 
     const change = el("button", "contribution-reminder-change", "Изменить ребёнка");
@@ -2561,7 +2582,7 @@ function renderContributionReminder() {
 
   dom.contributionReminder.append(intro, controls);
 
-  if (student) {
+  if (student && openCampaigns.length) {
     const campaignList = el("div", "contribution-reminder-list");
     openCampaigns.forEach((campaign) => {
       const paid = toNumber(getContribution(student.id, campaign.id)?.amount);
@@ -2581,8 +2602,11 @@ function renderContributionReminder() {
       campaignList.append(item);
     });
     dom.contributionReminder.append(campaignList);
+  } else if (student) {
+    dom.contributionReminder.append(createEmptyContent("🎉", "Открытых сборов сейчас нет", "Когда появится новый сбор, он будет показан здесь."));
   }
 
+  dom.contributionReminder.classList.toggle("mobile-no-open-campaigns", !openCampaigns.length);
   dom.contributionReminder.classList.remove("hidden");
 }
 
@@ -2892,6 +2916,7 @@ function createContributionInputCell(student, campaign, amount) {
   return cell;
 }
 
+// v89: parent-first mobile home with collapsible budget details.
 // v88: contribution progress is rendered only by the mobile layout.
 function setContributionTotals(plan, collected) {
   if (dom.campaignPlanTotal) dom.campaignPlanTotal.textContent = formatMoney(plan);
