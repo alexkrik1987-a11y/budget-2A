@@ -1861,6 +1861,8 @@ function renderArchivedCampaigns() {
     const collected = sum(contributions.map((item) => item.amount));
     const linkedExpenses = state.expenses.filter((item) => item.campaign_id === campaign.id);
     const spent = sum(linkedExpenses.map((item) => item.amount));
+    const archivedStudents = getArchivedCampaignStudents(campaign);
+    const paymentSummary = summarizeArchivedPayments(campaign, archivedStudents);
     const card = el("article", "archive-card");
     const header = el("div", "archive-card-header");
     const title = el("div");
@@ -1879,16 +1881,21 @@ function renderArchivedCampaigns() {
 
     const metrics = el("div", "archive-metrics");
     metrics.append(
-      createArchiveMetric("План", formatMoney(toNumber(campaign.expected_amount) * getArchivedCampaignStudents(campaign).length)),
+      createArchiveMetric("План", formatMoney(paymentSummary.plan)),
       createArchiveMetric("Собрано", formatMoney(collected)),
       createArchiveMetric("Расходы по сбору", linkedExpenses.length ? formatMoney(spent) : "Не привязаны")
     );
+    const paymentBoard = createArchivePaymentSummary(paymentSummary);
+    if (state.isAdmin) paymentBoard.classList.remove("hidden");
 
     const details = document.createElement("details");
     details.className = "archive-details";
     const summary = el("summary", "", `Полная история: ${contributions.length} взносов${linkedExpenses.length ? ` и ${linkedExpenses.length} расходов` : ""}`);
     const history = el("div", "archive-history");
-    const studentRows = getArchivedCampaignStudents(campaign).map((student) => {
+    const statusDetails = createArchiveStatusDetails(paymentSummary);
+    if (state.isAdmin) statusDetails.classList.remove("hidden");
+    history.append(statusDetails);
+    const studentRows = archivedStudents.map((student) => {
       const contribution = getContribution(student.id, campaign.id);
       return `${student.full_name}: ${formatMoney(contribution?.amount || 0)}`;
     });
@@ -1901,11 +1908,51 @@ function renderArchivedCampaigns() {
       history.append(el("p", "form-hint", "Старые расходы до этого обновления не были связаны с отдельными сборами и остаются в общем журнале расходов."));
     }
     details.append(summary, history);
-    card.append(header, metrics, details);
+    card.append(header, metrics, paymentBoard, details);
     dom.archiveCampaigns.append(card);
   });
 }
 
+function summarizeArchivedPayments(campaign, students) {
+  const expected = Math.max(0, toNumber(campaign.expected_amount));
+  const records = students.map((student) => {
+    const amount = Math.max(0, toNumber(getContribution(student.id, campaign.id)?.amount));
+    const status = expected === 0 || amount >= expected ? "paid" : amount > 0 ? "partial" : "debt";
+    return { student, amount, missing: Math.max(0, expected - amount), status };
+  });
+  return {
+    plan: expected * records.length,
+    missing: sum(records.map((item) => item.missing)),
+    paid: records.filter((item) => item.status === "paid"),
+    partial: records.filter((item) => item.status === "partial"),
+    debt: records.filter((item) => item.status === "debt"),
+    records
+  };
+}
+function createArchivePaymentSummary(summary) {
+  const board = el("div", "archive-payment-summary admin-only hidden");
+  board.append(
+    createArchiveMetric("Недособрано", formatMoney(summary.missing)),
+    createArchiveMetric("Должников", String(summary.debt.length)),
+    createArchiveMetric("Частично сдали", String(summary.partial.length))
+  );
+  return board;
+}
+function createArchiveStatusDetails(summary) {
+  const board = el("div", "archive-status-details admin-only hidden");
+  const groups = [
+    ["Сдали полностью", "archive-status-paid", summary.paid],
+    ["Сдали частично", "archive-status-partial", summary.partial],
+    ["Не сдали", "archive-status-debt", summary.debt]
+  ];
+  groups.forEach(([label, className, records]) => {
+    const group = el("section", `archive-status-group ${className}`);
+    group.append(el("strong", "", `${label}: ${records.length}`));
+    group.append(el("p", "", records.length ? records.map((item) => `${item.student.full_name} — ${formatMoney(item.amount)}`).join(" · ") : "Нет таких записей"));
+    board.append(group);
+  });
+  return board;
+}
 function createArchiveMetric(label, value) {
   const metric = el("div", "archive-metric");
   metric.append(el("small", "", label), el("strong", "", value));

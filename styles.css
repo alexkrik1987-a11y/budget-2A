@@ -5621,3 +5621,36 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   .thank-you-message-copy strong { font-size: .9rem; }
   .thank-you-message-copy p { font-size: .76rem; }
 }
+
+
+/* Archive payment statuses and debtor summary. */
+.archive-payment-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 10px;
+  background: #fff8d9;
+  border: 2px solid #e1c86a;
+  border-radius: 14px;
+}
+.archive-payment-summary .archive-metric { background: rgba(255,255,255,.72); border-color: rgba(198,145,24,.35); }
+.archive-payment-summary .archive-metric:first-child strong { color: #a83a30; }
+.archive-payment-summary .archive-metric:nth-child(2) strong { color: #a83a30; }
+.archive-payment-summary .archive-metric:nth-child(3) strong { color: #745514; }
+.archive-status-details { display: grid; gap: 10px; margin-bottom: 14px; }
+.archive-status-group { padding: 11px 13px; border: 1px solid; border-radius: 12px; }
+.archive-status-group strong { display: block; font-size: .88rem; }
+.archive-status-group p { margin: 5px 0 0; color: var(--ink-soft); font-size: .8rem; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.archive-status-paid { background: var(--green-soft); border-color: #9bcfaf; }
+.archive-status-paid strong { color: #245e42; }
+.archive-status-partial { background: var(--yellow-soft); border-color: #dbbd5a; }
+.archive-status-partial strong { color: #745514; }
+.archive-status-debt { background: var(--red-soft); border-color: #e6a097; }
+.archive-status-debt strong { color: #8d3028; }
+@media (max-width: 700px) {
+  .archive-payment-summary { grid-template-columns: 1fr; gap: 7px; padding: 8px; }
+  .archive-payment-summary .archive-metric { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 10px; }
+  .archive-payment-summary .archive-metric small { margin: 0; }
+  .archive-status-group { padding: 10px; }
+}
