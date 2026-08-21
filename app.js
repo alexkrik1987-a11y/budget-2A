@@ -265,7 +265,7 @@ function cacheDom() {
     "schoolYearFormError", "startSchoolYearButton", "expenseCampaign",
     "chatToggleButton", "chatUnreadBadge", "chatBackdrop", "classChatPanel", "closeChatButton", "chatStatus", "chatPinnedAnnouncement",
     "chatMessageList", "chatForm", "chatMessageInput", "chatCharacterCount", "sendChatButton",
-    "accessEnrollmentStatus", "toggleAccessEnrollmentButton", "accessEnrollmentHint", "accessRequestError", "accessRequestList"
+    "accessEnrollmentStatus", "toggleAccessEnrollmentButton", "accessEnrollmentHint", "accessInviteLink", "copyAccessInviteLinkButton", "openAccessInviteLinkButton", "accessInviteLinkStatus", "accessRequestError", "accessRequestList"
   ];
 
   ids.forEach((id) => { dom[id] = document.getElementById(id); });
@@ -321,6 +321,8 @@ function bindEvents() {
   if (dom.chatMessageList) dom.chatMessageList.addEventListener("click", handleChatAction);
   if (dom.chatPinnedAnnouncement) dom.chatPinnedAnnouncement.addEventListener("click", handleChatAction);
   if (dom.toggleAccessEnrollmentButton) dom.toggleAccessEnrollmentButton.addEventListener("click", toggleAccessEnrollment);
+  if (dom.copyAccessInviteLinkButton) dom.copyAccessInviteLinkButton.addEventListener("click", copyAccessInviteLink);
+  if (dom.openAccessInviteLinkButton) dom.openAccessInviteLinkButton.addEventListener("click", openAccessInviteLink);
   if (dom.accessRequestList) dom.accessRequestList.addEventListener("click", handleAccessRequestAction);
   if (dom.parentChildOnboardingForm) dom.parentChildOnboardingForm.addEventListener("submit", saveParentChildOnboarding);
   if (dom.usefulInfoForm) dom.usefulInfoForm.addEventListener("submit", saveUsefulInfo);
@@ -1918,7 +1920,53 @@ function getArchivedCampaignStudents(campaign) {
   return state.allStudents.filter((student) => ids.has(student.id));
 }
 
+function getAccessInviteUrl() {
+  const isLocalPreview = ["localhost", "127.0.0.1"].includes(window.location.hostname) || window.location.protocol === "file:";
+  return isLocalPreview ? "https://rodcomitet.budget2a.kriknexus.pro/" : `${window.location.origin}${window.location.pathname}`;
+}
+
+function renderAccessInviteLink() {
+  if (!dom.accessInviteLink || !state.isAdmin) return;
+  dom.accessInviteLink.value = getAccessInviteUrl();
+  const ready = state.enrollmentReady === true;
+  if (dom.copyAccessInviteLinkButton) dom.copyAccessInviteLinkButton.disabled = !ready;
+  if (dom.openAccessInviteLinkButton) dom.openAccessInviteLinkButton.disabled = !ready;
+  if (dom.accessInviteLinkStatus) {
+    dom.accessInviteLinkStatus.textContent = !ready
+      ? "Сначала примените настройки заявок в базе данных."
+      : state.enrollmentOpen
+        ? "Приём заявок открыт — ссылку можно отправлять родителям."
+        : "Сначала откройте приём заявок, затем отправьте ссылку родителям.";
+  }
+}
+
+async function copyAccessInviteLink() {
+  if (!state.isAdmin || !state.enrollmentReady) return;
+  const url = getAccessInviteUrl();
+  try {
+    await navigator.clipboard.writeText(url);
+  } catch (_) {
+    const helper = document.createElement("textarea");
+    helper.value = url;
+    helper.setAttribute("readonly", "");
+    helper.style.position = "fixed";
+    helper.style.opacity = "0";
+    document.body.append(helper);
+    helper.select();
+    document.execCommand("copy");
+    helper.remove();
+  }
+  if (dom.accessInviteLinkStatus) dom.accessInviteLinkStatus.textContent = "Ссылка скопирована. Можно отправить её родителям.";
+  showNotice("Ссылка для подключения родителей скопирована. ✓", "info", 5000);
+}
+
+function openAccessInviteLink() {
+  if (!state.isAdmin || !state.enrollmentReady) return;
+  window.open(getAccessInviteUrl(), "_blank", "noopener,noreferrer");
+}
+
 function renderAccessManagement() {
+  renderAccessInviteLink();
   if (!dom.accessRequestList || !state.isAdmin) return;
   hideElement(dom.accessRequestError);
   dom.accessRequestList.replaceChildren();
@@ -3566,7 +3614,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=40", window.location.href);
+  const workerUrl = new URL("./sw.js?v=76", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }

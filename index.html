@@ -49,7 +49,7 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=578">
+  <link rel="stylesheet" href="styles.css?v=580">
 </head>
 <body>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -608,6 +608,18 @@
             <button id="toggleAccessEnrollmentButton" class="button button-primary" type="button">Открыть приём заявок</button>
           </div>
           <p id="accessEnrollmentHint" class="form-hint">Приём закрыт: новые люди не могут оставить заявку.</p>
+          <div class="access-invite-panel">
+            <div>
+              <strong>Ссылка для подключения родителей</strong>
+              <p>Скопируйте ссылку и отправьте её в родительский чат. Ссылка ведёт только на вход или заявку — доступ всё равно подтверждает администратор.</p>
+            </div>
+            <div class="access-invite-row">
+              <input id="accessInviteLink" class="access-invite-input" type="text" readonly aria-label="Ссылка для подключения родителей">
+              <button id="copyAccessInviteLinkButton" class="button button-primary button-small" type="button">Скопировать</button>
+              <button id="openAccessInviteLinkButton" class="button button-secondary button-small" type="button">Открыть</button>
+            </div>
+            <p id="accessInviteLinkStatus" class="form-hint" aria-live="polite"></p>
+          </div>
           <div id="accessRequestError" class="notice notice-error hidden" role="alert"></div>
           <div id="accessRequestList" class="access-request-list"></div>
         </section>
@@ -822,6 +834,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=53" defer></script>
+  <script src="app.js?v=76" defer></script>
 </body>
 </html>

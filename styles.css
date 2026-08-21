@@ -5549,3 +5549,17 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   .useful-contact-item { align-items: flex-start; }
   .useful-call-button { margin-top: 2px; }
 }
+
+
+/* Ссылка для подключения родителей */
+.access-invite-panel { display: grid; gap: 12px; margin: 16px 0 18px; padding: 15px; background: #eef8f5; border: 2px dashed #9ccfc2; border-radius: 16px; }
+.access-invite-panel strong { color: #245a75; font-size: 1rem; }
+.access-invite-panel p { margin: 5px 0 0; color: var(--ink-soft); font-weight: 700; line-height: 1.45; }
+.access-invite-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.access-invite-input { flex: 1 1 auto; min-width: 0; width: 100%; padding: 10px 12px; color: var(--ink); background: #fff; border: 2px solid #b8d5cc; border-radius: 10px; font-weight: 800; }
+.access-invite-row .button { flex: 0 0 auto; white-space: nowrap; }
+@media (max-width: 640px) {
+  .access-invite-row { display: grid; grid-template-columns: 1fr 1fr; }
+  .access-invite-input { grid-column: 1 / -1; }
+  .access-invite-row .button { width: 100%; }
+}
