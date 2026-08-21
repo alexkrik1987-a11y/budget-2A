@@ -6106,6 +6106,122 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   }
 }
 
+/* Mobile header and chat launcher approved after production visual review. */
+@media screen and (max-width: 768px) {
+  .site-header {
+    background-image:
+      radial-gradient(circle at 92% 22%,rgba(255,255,255,.09) 0 2px,transparent 3px),
+      linear-gradient(115deg,rgba(255,255,255,.045),transparent 42%) !important;
+  }
+  .site-header .header-inner {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) auto !important;
+    gap: 8px !important;
+  }
+  .site-header .brand {
+    align-items: center;
+    overflow: visible;
+  }
+  .site-header .brand > div {
+    display: grid;
+    min-width: 0;
+    gap: 3px;
+  }
+  .site-header .brand .eyebrow {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+    width: max-content;
+    max-width: 100%;
+    margin: 0;
+    overflow: visible;
+    color: #fff6c9;
+    font-size: clamp(.48rem,2.15vw,.62rem);
+    letter-spacing: .045em;
+    line-height: 1.15;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+  .site-header .brand .eyebrow-label {
+    display: inline-block;
+    padding: 3px 5px 2px;
+    color: #fffdf4 !important;
+    background: #c84943;
+    border: 1px solid rgba(255,255,255,.82);
+    border-radius: 4px 5px 4px 3px;
+    box-shadow: 1px 2px 0 rgba(57,31,24,.24);
+    transform: rotate(-1deg);
+  }
+  .site-header .brand .eyebrow [data-school-year] {
+    color: #ffe783 !important;
+    font-weight: 900;
+  }
+  .site-header .brand h1 {
+    overflow: visible;
+    font-size: clamp(1.02rem,4.5vw,1.22rem);
+    line-height: 1.02;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+  .site-header .user-panel {
+    min-width: 0 !important;
+  }
+  html body #protectedContent .site-header .user-panel #logoutButton.button {
+    min-width: 84px !important;
+    padding-inline: 10px !important;
+  }
+  #chatToggleButton.chat-toggle {
+    position: fixed !important;
+    top: auto !important;
+    right: max(10px,env(safe-area-inset-right)) !important;
+    bottom: calc(70px + env(safe-area-inset-bottom)) !important;
+    z-index: 65 !important;
+    width: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    transform: none !important;
+    scale: none !important;
+  }
+  #chatToggleButton.chat-toggle::after {
+    position: absolute;
+    inset: 5px;
+    content: "";
+    border: 1px dashed rgba(255,255,255,.55);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  #chatToggleButton.chat-toggle > span:not(.chat-toggle-icon):not(.chat-unread-badge) {
+    display: none !important;
+  }
+  #chatToggleButton .chat-toggle-icon {
+    position: relative;
+    z-index: 1;
+    margin: 0 !important;
+  }
+  .content {
+    padding-bottom: calc(122px + env(safe-area-inset-bottom));
+  }
+}
+
+@media screen and (max-width: 350px) {
+  .site-header .brand .eyebrow { font-size: .48rem; }
+  .site-header .brand .eyebrow-label {
+    padding-block: 2px 1px;
+  }
+  .site-header .brand h1 {
+    font-size: .98rem;
+    white-space: normal;
+  }
+  .site-header .brand h1 [data-class-name] {
+    display: block;
+  }
+}
+
 /* Stage 2: Chat — readable side panel without changing realtime behaviour. */
 @media screen {
   .chat-backdrop { background: rgba(15,38,34,.34); backdrop-filter: blur(3px); }
