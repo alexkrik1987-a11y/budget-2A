@@ -10,7 +10,7 @@ const IS_LOCAL_PREVIEW = ["localhost", "127.0.0.1"].includes(window.location.hos
 const SUPABASE_URL = IS_LOCAL_PREVIEW ? DIRECT_SUPABASE_URL : `${window.location.origin}/supabase`;
 const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
-const APP_VERSION = "V1.2 · v91";
+const APP_VERSION = "V1.2 · v92";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -2587,27 +2587,7 @@ function renderContributionReminder() {
 
   dom.contributionReminder.append(intro, controls);
 
-  if (student && openCampaigns.length) {
-    const campaignList = el("div", "contribution-reminder-list mobile-contribution-details-list");
-    openCampaigns.forEach((campaign) => {
-      const paid = toNumber(getContribution(student.id, campaign.id)?.amount);
-      const expected = toNumber(campaign.expected_amount);
-      const remaining = Math.max(0, expected - paid);
-      const isPaid = remaining === 0;
-      const item = el("article", `contribution-reminder-item${isPaid ? " is-paid" : ""}`);
-      const itemHeading = el("div", "contribution-reminder-item-heading");
-      itemHeading.append(
-        el("span", "contribution-reminder-item-icon", FUND_ICONS[campaign.fund] || "🎯"),
-        el("strong", "", campaign.name)
-      );
-      const fundLabel = el("small", "contribution-reminder-item-fund", `Фонд: ${FUND_LABELS[campaign.fund] || "Классный фонд"}`);
-      const amount = el("strong", "contribution-reminder-item-amount", isPaid ? "Внесено" : `Осталось ${formatMoney(remaining)}`);
-      const detail = el("small", "contribution-reminder-item-detail", `План ${formatMoney(expected)} · внесено ${formatMoney(paid)}`);
-      item.append(itemHeading, fundLabel, amount, detail);
-      campaignList.append(item);
-    });
-    dom.contributionReminder.append(campaignList);
-  } else if (student) {
+  if (student && !openCampaigns.length) {
     dom.contributionReminder.append(createEmptyContent("🎉", "Открытых сборов сейчас нет", "Когда появится новый сбор, он будет показан здесь."));
   }
 
@@ -2921,6 +2901,7 @@ function createContributionInputCell(student, campaign, amount) {
   return cell;
 }
 
+// v92: contribution details are rendered only in the Contributions view.
 // v91: mobile summary fix applies through the full 768px mobile breakpoint.
 // v90: concise mobile contribution summary; details remain in Contributions tab.
 // v89: parent-first mobile home with collapsible budget details.
