@@ -6594,3 +6594,45 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   .site-header .chalk-note-left { font-size: .47rem; }
   .site-header .chalk-note-left .chalk-doodles { gap: 4px; }
 }
+
+/* Private Presence count: compact status in the normal content flow. */
+.presence-status-row {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 30px;
+  margin: -12px 0 8px;
+}
+
+.presence-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  gap: 6px;
+  margin: 0;
+  padding: 5px 10px;
+  color: var(--ink-soft);
+  font-size: .76rem;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  background: rgba(255, 253, 245, .86);
+  border: 1px solid rgba(75, 104, 83, .24);
+  border-radius: 999px;
+  box-shadow: 0 2px 0 rgba(24, 48, 68, .06);
+}
+
+.presence-status-dot { color: #87958c; font-size: .68rem; }
+.presence-status.is-online .presence-status-dot { color: #2f9b63; }
+
+@media screen and (max-width: 768px) {
+  .presence-status-row {
+    justify-content: flex-start;
+    min-height: 28px;
+    margin: -8px 0 7px;
+  }
+  .presence-status {
+    min-height: 26px;
+    padding: 4px 9px;
+    font-size: .7rem;
+  }
+}

@@ -165,7 +165,7 @@ async function main() {
     await currentCache.put(makeRequest(path), new FakeResponse(`old-sensitive:${path}`));
   }
 
-  const staticUrl = new URL("/styles.css?v=589", ORIGIN).href;
+  const staticUrl = new URL("/styles.css?v=590", ORIGIN).href;
   assert(currentCache.entries.has(staticUrl), "статический файл должен находиться в app-shell кэше");
 
   const oldCache = await caches.open(OLD_CACHE_NAME);
@@ -224,7 +224,7 @@ async function main() {
 
   operations.length = 0;
   networkRequests.length = 0;
-  const staticResponse = await dispatchFetch("/styles.css?v=589");
+  const staticResponse = await dispatchFetch("/styles.css?v=590");
   assert.equal(staticResponse.body, `cached:${staticUrl}`, "статический asset должен читаться из кэша");
   assert(operations.some((operation) => operation.type === "storage-match" && operation.url === staticUrl));
   assert(operations.some((operation) => operation.type === "put" && operation.url === staticUrl));

@@ -12,6 +12,8 @@ const SUPABASE_ANON_KEY = "sb_publishable_jbRHoAeUQ7N96ybRzQSfHQ_DOzU-sx7";
 const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps.googleusercontent.com";
 const APP_VERSION = "V1.2";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
+const PRESENCE_TOPIC = "class:2a:presence";
+const presenceSessionId = crypto.randomUUID();
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
 
@@ -117,6 +119,13 @@ const state = {
   realtimeGeneration: 0,
   realtimeRefreshTimer: null,
   realtimeLastConnectedAt: 0,
+  accessApproved: false,
+  presenceChannel: null,
+  presenceGeneration: 0,
+  presenceRetryTimer: null,
+  presenceTrackRequested: false,
+  presenceSynced: false,
+  presenceOnlineCount: null,
   noticeTimer: null,
   schoolCalendarTimer: null,
   installPrompt: null,
@@ -134,6 +143,7 @@ const state = {
 };
 
 const dom = {};
+let presenceLifecycleQueue = Promise.resolve();
 
 function setBudgetDataReady(ready) {
   state.budgetDataReady = ready === true;
@@ -170,6 +180,7 @@ document.addEventListener("DOMContentLoaded", init);
 async function init() {
   cacheDom();
   setBudgetDataReady(false);
+  setPresencePending();
   setProtectedAccess(false);
   fillStaticSelects();
   bindEvents();
@@ -269,7 +280,7 @@ function clearOAuthCallbackFromUrl() {
 function cacheDom() {
   const ids = [
     "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "emailPasswordForm", "emailPasswordEmailInput", "emailPasswordInput", "togglePasswordVisibility", "rememberSessionInput", "emailPasswordLoginButton", "requestPasswordSetupButton", "authRequestAccessButton", "emailPasswordStatus", "passwordResetForm", "newPasswordInput", "confirmPasswordInput", "saveNewPasswordButton", "logoutButton", "configWarning", "authError",
-    "globalNotice", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated", "schoolCalendar", "schoolCalendarDay", "schoolCalendarMonth",
+    "globalNotice", "presenceStatus", "presenceStatusText", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated", "schoolCalendar", "schoolCalendarDay", "schoolCalendarMonth",
     "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions", "parentChildOnboardingModal", "parentChildOnboardingForm", "parentChildOnboardingSelect", "parentChildOnboardingError", "parentChildOnboardingSaveButton",
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary",
     "livingNotebook", "liveNotebookBalance", "liveNotebookBalanceNote", "liveNotebookCampaign", "liveNotebookCampaignNote", "liveNotebookDate", "liveNotebookDateNote", "liveNotebookCalendarMonth", "liveNotebookCalendarDay", "liveNotebookCollected", "liveNotebookSpent", "liveNotebookRemaining", "liveNotebookMessage", "parentOnboardingGuide",
@@ -320,7 +331,12 @@ function setSelectOptions(select, options) {
 
 function bindEvents() {
   window.addEventListener("online", handleRealtimeNetworkResume);
+  window.addEventListener("online", handlePresenceNetworkResume);
+  window.addEventListener("offline", handlePresenceOffline);
+  window.addEventListener("pagehide", handlePresencePageHide);
+  window.addEventListener("pageshow", handlePresencePageShow);
   document.addEventListener("visibilitychange", handleRealtimeVisibilityChange);
+  document.addEventListener("visibilitychange", handlePresenceVisibilityChange);
   // Google Identity самостоятельно управляет кнопкой внутри googleLoginButton.
   if (dom.emailPasswordForm) dom.emailPasswordForm.addEventListener("submit", loginWithEmailPassword);
   if (dom.togglePasswordVisibility) dom.togglePasswordVisibility.addEventListener("click", togglePasswordVisibility);
@@ -701,10 +717,39 @@ async function logout() {
     loginWithGoogle();
     return;
   }
+  const logoutUserId = state.session.user?.id;
+  state.accessApproved = false;
   if (dom.logoutButton) setButtonLoading(dom.logoutButton, true, "Выходим…");
+  await cleanupPresence();
   const { error } = await db.auth.signOut();
   if (dom.logoutButton) setButtonLoading(dom.logoutButton, false);
-  if (error) showNotice(`Не удалось выйти: ${error.message}`, "error");
+  if (error) {
+    showNotice(`Не удалось выйти: ${error.message}`, "error");
+    await restorePresenceAfterFailedLogout(logoutUserId);
+  }
+}
+
+async function restorePresenceAfterFailedLogout(logoutUserId) {
+  try {
+    const sessionResult = await db.auth.getSession();
+    if (sessionResult.error) throw sessionResult.error;
+    const remainingSession = sessionResult.data?.session;
+    if (!remainingSession || remainingSession.user?.id !== logoutUserId) return;
+    if (state.session?.user?.id !== logoutUserId) return;
+
+    const accessResult = await withTimeout(
+      () => db.rpc("can_access_budget"),
+      "повторная проверка доступа после ошибки выхода",
+      CORE_DATA_TIMEOUT_MS
+    );
+    if (accessResult.error) throw accessResult.error;
+    if (accessResult.data !== true || state.session?.user?.id !== logoutUserId) return;
+
+    state.accessApproved = true;
+    void subscribePresence();
+  } catch (error) {
+    console.warn("Presence restore after failed logout error:", error);
+  }
 }
 
 function sessionIdentity(session) {
@@ -745,7 +790,10 @@ async function handleSession(session, runId) {
   state.user = session?.user ?? null;
 
   if (!session) {
+    state.accessApproved = false;
     unsubscribeRealtime();
+    await cleanupPresence();
+    if (runId !== state.sessionRunId) return;
     window.clearTimeout(state.chatRefreshTimer);
     clearSessionRestoreHint();
     hideLoadingScreen();
@@ -769,6 +817,9 @@ async function handleSession(session, runId) {
     return;
   }
 
+  state.accessApproved = false;
+  await cleanupPresence();
+  if (!isCurrentSessionRun(runId, session)) return;
   resetBudgetDataState();
   renderUser();
   state.isAdmin = false;
@@ -787,6 +838,9 @@ async function handleSession(session, runId) {
     const canAccess = accessResult.data;
 
     if (canAccess !== true) {
+      state.accessApproved = false;
+      await cleanupPresence();
+      if (!isCurrentSessionRun(runId, session)) return;
       clearSessionRestoreHint();
       hideLoadingScreen();
       state.loadedSessionUserId = null;
@@ -801,6 +855,7 @@ async function handleSession(session, runId) {
       return;
     }
 
+    state.accessApproved = true;
     hideElement(dom.authError);
     state.accessRequestStatus = "APPROVED";
     // Официальная кнопка Google остаётся внутри своего контейнера.
@@ -830,6 +885,9 @@ async function handleSession(session, runId) {
     if (!isCurrentSessionRun(runId, session)) return;
     console.error(error);
     state.isAdmin = false;
+    state.accessApproved = false;
+    await cleanupPresence();
+    if (!isCurrentSessionRun(runId, session)) return;
     // Не оставляем пользователя на бесконечном мобильном загрузчике,
     // если Supabase не ответил или проверка доступа завершилась ошибкой.
     clearSessionRestoreHint();
@@ -849,6 +907,7 @@ async function handleSession(session, runId) {
     rememberSessionRestoreHint();
     setProtectedAccess(true);
     hideLoadingScreen();
+    void subscribePresence();
 
     if (state.loadedSessionUserId !== session.user.id || state.loadedSessionRunId !== runId) {
       state.loadedSessionUserId = session.user.id;
@@ -1295,6 +1354,198 @@ function renderChatUnreadBadge() {
     const suffix = count ? `: ${count > 99 ? "99+" : count} новых сообщений` : "";
     dom.chatToggleButton.setAttribute("aria-label", `Чат класса${suffix}`);
   }
+}
+
+/* =========================================================
+   PRIVATE REALTIME PRESENCE
+   ========================================================= */
+function setPresencePending() {
+  state.presenceSynced = false;
+  state.presenceOnlineCount = null;
+  if (dom.presenceStatusText) dom.presenceStatusText.textContent = "Онлайн: —";
+  if (dom.presenceStatus) {
+    dom.presenceStatus.classList.remove("is-online");
+    dom.presenceStatus.classList.add("is-pending");
+  }
+}
+
+function renderPresenceCount(count) {
+  state.presenceSynced = true;
+  state.presenceOnlineCount = count;
+  if (dom.presenceStatusText) dom.presenceStatusText.textContent = `Онлайн: ${count}`;
+  if (dom.presenceStatus) {
+    dom.presenceStatus.classList.remove("is-pending");
+    dom.presenceStatus.classList.add("is-online");
+  }
+}
+
+function queuePresenceLifecycle(operation) {
+  presenceLifecycleQueue = presenceLifecycleQueue
+    .then(operation, operation)
+    .catch((error) => {
+      console.warn("Presence lifecycle error:", error);
+      setPresencePending();
+      return false;
+    });
+  return presenceLifecycleQueue;
+}
+
+async function cleanupPresenceNow() {
+  window.clearTimeout(state.presenceRetryTimer);
+  state.presenceRetryTimer = null;
+  state.presenceGeneration += 1;
+  state.presenceTrackRequested = false;
+  setPresencePending();
+
+  const channel = state.presenceChannel;
+  if (!channel) {
+    state.presenceChannel = null;
+    return true;
+  }
+  if (!db) {
+    console.error("Presence removeChannel error: Supabase client is unavailable");
+    return false;
+  }
+
+  try {
+    const untrackStatus = await channel.untrack();
+    if (untrackStatus !== "ok") console.warn(`Presence untrack status: ${untrackStatus}`);
+  } catch (error) {
+    console.warn("Presence untrack error:", error);
+  }
+
+  try {
+    const removeStatus = await db.removeChannel(channel);
+    if (removeStatus !== "ok") {
+      console.error(`Presence removeChannel status: ${removeStatus}`);
+      return false;
+    }
+  } catch (error) {
+    console.error("Presence removeChannel error:", error);
+    return false;
+  }
+
+  if (state.presenceChannel === channel) state.presenceChannel = null;
+  return true;
+}
+
+function cleanupPresence() {
+  return queuePresenceLifecycle(cleanupPresenceNow);
+}
+
+function handlePresenceSync(channel, generation) {
+  if (generation !== state.presenceGeneration || channel !== state.presenceChannel) return;
+  if (!state.session || !state.accessApproved || !state.presenceTrackRequested) {
+    setPresencePending();
+    return;
+  }
+  if (navigator.onLine === false) {
+    setPresencePending();
+    return;
+  }
+
+  const currentPresenceState = channel.presenceState();
+  if (!Object.prototype.hasOwnProperty.call(currentPresenceState, presenceSessionId)) {
+    setPresencePending();
+    return;
+  }
+
+  renderPresenceCount(Object.keys(currentPresenceState).length);
+}
+
+function schedulePresenceReconnect(generation) {
+  window.clearTimeout(state.presenceRetryTimer);
+  setPresencePending();
+  if (generation !== state.presenceGeneration || !state.session || !state.accessApproved) return;
+  state.presenceRetryTimer = window.setTimeout(() => {
+    if (generation !== state.presenceGeneration || !state.session || !state.accessApproved) return;
+    void subscribePresence();
+  }, 1500);
+}
+
+async function trackPresence(channel, generation) {
+  if (
+    generation !== state.presenceGeneration
+    || channel !== state.presenceChannel
+    || !state.session
+    || !state.accessApproved
+  ) return;
+  state.presenceTrackRequested = true;
+  setPresencePending();
+
+  try {
+    const trackStatus = await channel.track({ online: true });
+    if (generation !== state.presenceGeneration || channel !== state.presenceChannel) return;
+    if (trackStatus !== "ok") {
+      state.presenceTrackRequested = false;
+      schedulePresenceReconnect(generation);
+    }
+  } catch (error) {
+    if (generation !== state.presenceGeneration || channel !== state.presenceChannel) return;
+    console.warn("Presence track error:", error);
+    state.presenceTrackRequested = false;
+    schedulePresenceReconnect(generation);
+  }
+}
+
+async function subscribePresenceNow() {
+  const cleanupSucceeded = await cleanupPresenceNow();
+  if (!cleanupSucceeded) return;
+  if (!db || !state.session || !state.accessApproved) return;
+
+  const generation = ++state.presenceGeneration;
+  const channel = db.channel(PRESENCE_TOPIC, {
+    config: {
+      private: true,
+      presence: { key: presenceSessionId }
+    }
+  });
+  state.presenceChannel = channel;
+  state.presenceTrackRequested = false;
+  setPresencePending();
+
+  channel
+    .on("presence", { event: "sync" }, () => handlePresenceSync(channel, generation))
+    .subscribe((status) => {
+      if (generation !== state.presenceGeneration || channel !== state.presenceChannel) return;
+      if (status === "SUBSCRIBED") {
+        window.clearTimeout(state.presenceRetryTimer);
+        state.presenceRetryTimer = null;
+        void trackPresence(channel, generation);
+        return;
+      }
+      if (["CHANNEL_ERROR", "TIMED_OUT", "CLOSED"].includes(status)) {
+        state.presenceTrackRequested = false;
+        schedulePresenceReconnect(generation);
+      }
+    });
+}
+
+function subscribePresence() {
+  return queuePresenceLifecycle(subscribePresenceNow);
+}
+
+function handlePresenceNetworkResume() {
+  setPresencePending();
+  if (!state.session || !state.accessApproved) return;
+  void subscribePresence();
+}
+
+function handlePresenceOffline() {
+  setPresencePending();
+}
+
+function handlePresenceVisibilityChange() {
+  if (document.visibilityState !== "visible" || !state.session || !state.accessApproved) return;
+  if (!state.presenceChannel) void subscribePresence();
+}
+
+function handlePresencePageHide() {
+  if (state.presenceChannel) void cleanupPresence();
+}
+
+function handlePresencePageShow() {
+  if (state.session && state.accessApproved) void subscribePresence();
 }
 
 function realtimeSubscriptionKey() {
