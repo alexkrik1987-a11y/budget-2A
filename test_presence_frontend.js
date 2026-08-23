@@ -95,7 +95,7 @@ assert.equal(htmlAppVersion, "83", "index.html должен подключать
 assert.equal(workerAppVersion, htmlAppVersion, "app.js asset version должна совпадать в HTML и Service Worker");
 assert.equal(htmlStyleVersion, "590", "index.html должен подключать styles.css?v=590");
 assert.equal(workerStyleVersion, htmlStyleVersion, "styles.css asset version должна совпадать в HTML и Service Worker");
-assert(serviceWorker.includes('const CACHE_NAME = "budget-2a-v86-artistic-chalkboard-3";'), "Service Worker cache name должен быть обновлён");
+assert(serviceWorker.includes('const CACHE_NAME = "budget-2a-v86-artistic-chalkboard-4";'), "Service Worker cache name должен быть обновлён");
 
 function createCleanupHarness({ removeStatus = "ok", removeError = null, untrackError = null } = {}) {
   const calls = [];
