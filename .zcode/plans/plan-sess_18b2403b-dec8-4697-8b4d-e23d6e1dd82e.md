@@ -1,3 +1,6 @@
+> **HISTORICAL PLAN — DO NOT USE AS CURRENT INSTALLATION INSTRUCTIONS**
+> `setup.sql` and `oauth-protect.sql` have been retired from the current project tree.
+
 # План: Google OAuth для «Классной копилки 2 „А“»
 
 ## 1. `index.html` — авторизация через Google
@@ -37,7 +40,7 @@ REVOKE EXECUTE ON FUNCTION verify_admin_pin(TEXT),
 2. Supabase → Authentication → Providers → Google → включить, вставить Client ID/Secret.
 3. Authentication → URL Configuration: Site URL = адрес сайта, добавить redirect-адреса (продакшен + `http://localhost:8080`).
 4. Модерация: удаление неизвестных почт в Authentication → Users (сессия удалённого пользователя отвалится в течение часа при обновлении токена).
-5. Запуск `oauth-protect.sql`.
+5. ~~Запуск `oauth-protect.sql`.~~ Устаревший исторический шаг — не выполнять.
 
 ## Проверка
 - Локальный сервер (`python3 -m http.server`): до входа — только экран входа, контент и кнопка «Для учителя» скрыты; после входа (эмуляция/реальный редирект) — контент, email и «Выйти»; после выхода — снова гейт.
