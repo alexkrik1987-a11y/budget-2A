@@ -7,7 +7,7 @@ const APP_SHELL = [
   "./",
   "./index.html",
   "./styles.css?v=589",
-  "./app.js?v=81",
+  "./app.js?v=82",
   "./vendor/supabase.min.js?v=10",
   "./manifest.webmanifest",
   "./images/parent-committee.webp",
