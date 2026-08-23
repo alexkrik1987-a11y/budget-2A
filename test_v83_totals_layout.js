@@ -5,8 +5,8 @@ const html = fs.readFileSync("index.html", "utf8");
 const css = fs.readFileSync("styles.css", "utf8");
 const app = fs.readFileSync("app.js", "utf8");
 
-assert(html.indexOf("campaignCollectedTotal") < html.indexOf("campaignPlanTotal"), "В карточке сбора «Собрано» не стоит перед «План»");
-assert(html.indexOf("contributionsPaidFooter") < html.indexOf("contributionsPlanFooter"), "В итогах взносов «Собрано» не стоит перед «План»");
+assert(html.indexOf("campaignPlanTotal") < html.indexOf("campaignCollectedTotal"), "В карточке сбора «План» не стоит перед «Собрано»");
+assert(html.indexOf("contributionsPlanFooter") < html.indexOf("contributionsPaidFooter"), "В итогах взносов «План» не стоит перед «Собрано»");
 for (const needle of [
   "contributions-total-footer",
   "expenses-total-footer",

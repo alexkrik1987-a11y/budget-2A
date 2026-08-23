@@ -101,6 +101,7 @@ const state = {
   chatReadInitialized: false,
   chatReadUserId: null,
   archiveFeaturesReady: false,
+  budgetDataReady: false,
   classProfile: { class_name: "2 «А»", school_year: "", useful_info: {} },
   selectedCampaignId: null,
   studentSearch: "",
@@ -134,6 +135,33 @@ const state = {
 
 const dom = {};
 
+function setBudgetDataReady(ready) {
+  state.budgetDataReady = ready === true;
+  if (dom.exportBackupButton) dom.exportBackupButton.disabled = !state.budgetDataReady;
+}
+
+function resetBudgetDataState() {
+  state.students = [];
+  state.allStudents = [];
+  state.campaigns = [];
+  state.archivedCampaigns = [];
+  state.contributions = [];
+  state.expenses = [];
+  state.backups = [];
+  state.classProfile = { class_name: "2 «А»", school_year: "", useful_info: {} };
+  state.selectedCampaignId = null;
+  state.archiveFeaturesReady = false;
+  state.advancedFeaturesReady = false;
+  state.lastUndoBackupId = null;
+  state.undoNoticeUntil = 0;
+  state.accessRequestStatus = null;
+  state.enrollmentReady = false;
+  state.enrollmentOpen = false;
+  state.pendingEnrollmentMutation = null;
+  state.accessRequests = [];
+  setBudgetDataReady(false);
+}
+
 /* =========================================================
    3. ЗАПУСК ПРИЛОЖЕНИЯ
    ========================================================= */
@@ -141,6 +169,7 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   cacheDom();
+  setBudgetDataReady(false);
   setProtectedAccess(false);
   fillStaticSelects();
   bindEvents();
@@ -731,6 +760,7 @@ async function handleSession(session, runId) {
     state.chatReadInitialized = false;
     state.chatReadUserId = null;
     state.accessRequests = [];
+    resetBudgetDataState();
     window.clearTimeout(state.chatExpiryTimer);
     closeChatPanel();
     if (dom.parentChildOnboardingModal?.open) dom.parentChildOnboardingModal.close();
@@ -739,6 +769,7 @@ async function handleSession(session, runId) {
     return;
   }
 
+  resetBudgetDataState();
   renderUser();
   state.isAdmin = false;
   applyRoleToUi();
@@ -925,6 +956,7 @@ const OPTIONAL_DATA_TIMEOUT_MS = 7_000;
 
 async function loadAllData({ silent = false } = {}) {
   const loadRunId = ++state.loadRunId;
+  setBudgetDataReady(false);
   if (!silent) showNotice(`${APP_VERSION}: загружаем основные данные бюджета…`, "info", 0);
 
   // На мобильной сети один защищённый RPC надёжнее, чем несколько параллельных
@@ -962,6 +994,7 @@ async function loadAllData({ silent = false } = {}) {
     syncChatUnreadState();
     state.archiveFeaturesReady = true;
   state.advancedFeaturesReady = true;
+  setBudgetDataReady(true);
 
   if (!state.campaigns.some((item) => item.id === state.selectedCampaignId)) {
     state.selectedCampaignId = state.campaigns.find((item) => item.is_open)?.id ?? state.campaigns[0]?.id ?? null;
@@ -1420,6 +1453,7 @@ function handleRealtimeVisibilityChange() {
 function refreshAfterMutation() {
   // Сначала показываем текущий интерфейс, затем обновляем данные в фоне.
   // Кнопка и уведомление не должны ждать повторной загрузки всего бюджета.
+  setBudgetDataReady(false);
   renderAll();
   window.setTimeout(() => {
     loadAllData({ silent: true }).catch((error) => {
@@ -3078,7 +3112,7 @@ async function saveExpense(event) {
 
   const receiptFile = dom.expenseReceiptFile.files?.[0] ?? null;
   if (receiptFile && !state.advancedFeaturesReady) {
-    return showElementError(dom.expenseFormError, "Сначала выполните файл upgrade-features.sql в Supabase.");
+    return showElementError(dom.expenseFormError, "Сначала примените archive-features.sql, затем class-receipts-storage.sql в Supabase.");
   }
   const fileError = validateReceiptFile(receiptFile);
   if (fileError) return showElementError(dom.expenseFormError, fileError);
@@ -3105,8 +3139,20 @@ async function saveExpense(event) {
   setButtonLoading(dom.saveExpenseButton, false);
 
   if (error) {
-    if (uploadedPath) await db.storage.from("class-receipts").remove([uploadedPath]);
-    return showElementError(dom.expenseFormError, `Не удалось сохранить: ${friendlyError(error)}`);
+    const saveErrorMessage = `Не удалось сохранить: ${friendlyError(error)}`;
+    let cleanupError = null;
+    if (uploadedPath) {
+      try {
+        const { error: removeError } = await db.storage.from("class-receipts").remove([uploadedPath]);
+        cleanupError = removeError;
+      } catch (unexpectedCleanupError) {
+        cleanupError = unexpectedCleanupError;
+      }
+    }
+    const cleanupWarning = cleanupError
+      ? ` Новый файл чека не удалось автоматически удалить, поэтому он мог остаться в хранилище. Ошибка очистки: ${friendlyError(cleanupError)}`
+      : "";
+    return showElementError(dom.expenseFormError, `${saveErrorMessage}${cleanupWarning}`);
   }
   const localExpense = {
     ...payload,
@@ -3563,11 +3609,12 @@ function printMonthlyReport() {
 
 function buildSnapshot() {
   return {
-    version: 2,
+    version: 3,
     created_at: new Date().toISOString(),
     class_profile: state.classProfile,
     students: state.allStudents,
     campaigns: state.campaigns,
+    archived_campaigns: state.archivedCampaigns,
     contributions: state.contributions,
     expenses: state.expenses
   };
@@ -3575,8 +3622,15 @@ function buildSnapshot() {
 
 function exportBackupJson() {
   if (!state.isAdmin) return;
+  if (!ensureBudgetDataReadyForExport()) return;
   downloadBlob(`budget-2A-backup-${todayIso()}.json`, JSON.stringify(buildSnapshot(), null, 2), "application/json");
   showNotice("Резервная копия скачана ✓", "info");
+}
+
+function ensureBudgetDataReadyForExport() {
+  if (state.budgetDataReady) return true;
+  showNotice("Данные ещё загружаются. Попробуйте через несколько секунд.", "info", 6000);
+  return false;
 }
 
 async function createManualBackup() {
@@ -3586,6 +3640,7 @@ async function createManualBackup() {
   setButtonLoading(dom.createBackupButton, false);
   if (error) {
     // Резервный вариант не оставляет администратора без копии, даже если миграция ещё не применена.
+    if (!ensureBudgetDataReadyForExport()) return;
     downloadBlob(`budget-2A-backup-${todayIso()}.json`, JSON.stringify(buildSnapshot(), null, 2), "application/json");
     return showNotice(`Копия в Supabase пока не создана: ${friendlyError(error)}. Вместо этого скачан безопасный JSON-файл.`, "error", 7000);
   }
@@ -3671,9 +3726,10 @@ async function restoreBackupFromFile(event) {
   try {
     const snapshot = JSON.parse(await file.text());
     validateSnapshot(snapshot);
+    const restoreSnapshot = normalizeSnapshotForRestore(snapshot);
     if (!window.confirm(`Восстановить данные из файла «${file.name}»? Текущие записи будут заменены.`)) return;
     showNotice("Проверяем и восстанавливаем данные…", "info", 0);
-    const { error } = await db.rpc("restore_budget_snapshot", { p_snapshot: snapshot });
+    const { error } = await db.rpc("restore_budget_snapshot", { p_snapshot: restoreSnapshot });
     if (error) throw error;
     refreshAfterMutation();
     showNotice("Данные из файла восстановлены ✓", "info");
@@ -3687,6 +3743,28 @@ function validateSnapshot(snapshot) {
   ["students", "campaigns", "contributions", "expenses"].forEach((key) => {
     if (!Array.isArray(snapshot[key])) throw new Error(`в копии отсутствует раздел «${key}»`);
   });
+  if (snapshot.archived_campaigns !== undefined && !Array.isArray(snapshot.archived_campaigns)) {
+    throw new Error("раздел «archived_campaigns» имеет неверный формат");
+  }
+  const campaignIds = new Set();
+  [...snapshot.campaigns, ...(snapshot.archived_campaigns ?? [])].forEach((campaign) => {
+    const campaignId = String(campaign?.id ?? "").trim().toLowerCase();
+    if (!campaignId) return;
+    if (campaignIds.has(campaignId)) {
+      throw new Error("Файл резервной копии содержит повторяющийся ID сбора и не может быть восстановлен.");
+    }
+    campaignIds.add(campaignId);
+  });
+}
+
+function normalizeSnapshotForRestore(snapshot) {
+  return {
+    ...snapshot,
+    campaigns: [
+      ...snapshot.campaigns,
+      ...(snapshot.archived_campaigns ?? [])
+    ]
+  };
 }
 
 function backupTypeLabel(type) {

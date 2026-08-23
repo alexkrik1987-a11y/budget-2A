@@ -23,11 +23,36 @@ create index if not exists idx_chat_messages_created_at
 
 alter table public.chat_messages enable row level security;
 
--- Читать сообщения могут только родители и администраторы из закрытого списка класса.
-drop policy if exists "Class members read chat messages" on public.chat_messages;
-create policy "Class members read chat messages"
-on public.chat_messages for select to authenticated
-using (public.can_access_budget());
+-- На чистой установке archived_at появится позже, в chat-archive.sql.
+-- При replay после архивации не ослабляем policy обратно: если колонка уже есть,
+-- сразу сохраняем итоговый фильтр активных сообщений и администраторского архива.
+do $$
+begin
+  drop policy if exists "Class members read chat messages" on public.chat_messages;
+
+  if exists (
+    select 1
+    from pg_attribute as attribute
+    where attribute.attrelid = 'public.chat_messages'::regclass
+      and attribute.attname = 'archived_at'
+      and attribute.attnum > 0
+      and not attribute.attisdropped
+  ) then
+    execute $policy$
+      create policy "Class members read chat messages"
+      on public.chat_messages for select to authenticated
+      using (
+        public.can_access_budget()
+        and (archived_at is null or public.is_admin())
+      )
+    $policy$;
+  else
+    create policy "Class members read chat messages"
+    on public.chat_messages for select to authenticated
+    using (public.can_access_budget());
+  end if;
+end
+$$;
 
 -- Прямые INSERT/DELETE из браузера намеренно не разрешены.
 -- Запись и удаление проходят только через функции ниже, которые проверяют

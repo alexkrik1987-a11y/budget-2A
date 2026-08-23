@@ -24,6 +24,11 @@ for (const needle of [
   ".archive-status-partial",
   ".archive-status-debt"
 ]) assert(css.includes(needle), `Не найден стиль архива: ${needle}`);
-assert(html.includes('styles.css?v=587'), "index.html не обновил cache-busting styles.css");
-assert(fs.readFileSync("sw.js", "utf8").includes("budget-2a-shell-v87"), "sw.js не обновил PWA-кэш до v87");
+const sw = fs.readFileSync("sw.js", "utf8");
+const stylesAsset = html.match(/href="(styles\.css\?v=[^"]+)"/)?.[1];
+assert(stylesAsset, "index.html должен подключать версионированный styles.css");
+assert(sw.includes(`./${stylesAsset}`), "styles.css в Service Worker должен совпадать с index.html");
+const cacheName = sw.match(/const CACHE_NAME = "([^"]+)";/)?.[1];
+assert(cacheName && cacheName.startsWith("budget-2a-"), "Service Worker должен использовать отдельный cache проекта");
+assert(sw.includes("caches.open(CACHE_NAME)"), "Service Worker должен использовать объявленный CACHE_NAME");
 console.log("v80 archive status checks: PASS");

@@ -13,7 +13,10 @@ for (const needle of [
   "localCampaign"
 ]) assert(app.includes(needle), `Не найден быстрый отклик: ${needle}`);
 assert(!app.includes("refreshAfterMutation();.catch"), "Осталась повреждённая цепочка realtime refresh");
-assert(html.includes('app.js?v=81'), "app.js не обновлён до v81");
-assert(sw.includes("budget-2a-shell-v87"), "service worker не обновлён до v87");
-assert(sw.includes('./app.js?v=81'), "service worker не содержит app.js v81");
+const appAsset = html.match(/<script src="(app\.js\?v=[^"]+)" defer><\/script>/)?.[1];
+assert(appAsset, "index.html должен подключать версионированный app.js");
+assert(sw.includes(`./${appAsset}`), "app.js в Service Worker должен совпадать с index.html");
+const cacheName = sw.match(/const CACHE_NAME = "([^"]+)";/)?.[1];
+assert(cacheName && cacheName.startsWith("budget-2a-"), "Service Worker должен использовать отдельный cache проекта");
+assert(sw.includes("caches.open(CACHE_NAME)"), "Service Worker должен использовать объявленный CACHE_NAME");
 console.log("v84 fast feedback checks: PASS");

@@ -73,6 +73,7 @@ begin
       from (
         select id, author_id, author_name, body, created_at, is_pinned, pinned_at, archived_at
         from public.chat_messages
+        where archived_at is null or public.is_admin()
         order by created_at desc, id desc
         limit 120
       ) as item

@@ -151,6 +151,68 @@ grant execute on function public.is_admin() to authenticated;
 
 -- Включаем защиту на уровне строк.
 alter table public.class_members enable row level security;
+
+-- class_members читается только через SECURITY DEFINER RPC. Удаляем известную
+-- широкую legacy-policy, но останавливаемся при любом неожиданном определении.
+do $$
+declare
+  v_policy_oid oid;
+  v_policy_permissive boolean;
+  v_policy_command "char";
+  v_policy_roles oid[];
+  v_policy_qual text;
+  v_policy_with_check text;
+begin
+  if not exists (
+    select 1
+    from pg_class as relation
+    where relation.oid = 'public.class_members'::regclass
+      and relation.relkind in ('r', 'p')
+      and relation.relrowsecurity
+  ) then
+    raise exception 'Security conflict: RLS is not enabled for public.class_members';
+  end if;
+
+  select
+    policy.oid,
+    policy.polpermissive,
+    policy.polcmd,
+    policy.polroles,
+    pg_get_expr(policy.polqual, policy.polrelid, false),
+    pg_get_expr(policy.polwithcheck, policy.polrelid, false)
+  into
+    v_policy_oid,
+    v_policy_permissive,
+    v_policy_command,
+    v_policy_roles,
+    v_policy_qual,
+    v_policy_with_check
+  from pg_policy as policy
+  where policy.polrelid = 'public.class_members'::regclass
+    and policy.polname = 'Allow public read';
+
+  if v_policy_oid is not null then
+    if not v_policy_permissive
+       or v_policy_command <> 'r'
+       or v_policy_roles <> array[0::oid]
+       or regexp_replace(
+            lower(coalesce(v_policy_qual, '')),
+            '[[:space:]()]',
+            '',
+            'g'
+          ) <> 'true'
+       or v_policy_with_check is not null
+    then
+      raise exception 'Security conflict: policy "Allow public read" on public.class_members has an unexpected definition';
+    end if;
+
+    drop policy "Allow public read" on public.class_members;
+  end if;
+
+  revoke all on table public.class_members from public, anon, authenticated;
+end
+$$;
+
 alter table public.students enable row level security;
 alter table public.campaigns enable row level security;
 alter table public.contributions enable row level security;

@@ -59,6 +59,88 @@ with check (public.is_admin());
 revoke all on public.class_profile from anon;
 grant select, update on public.class_profile to authenticated;
 
+-- Realtime-подписка frontend на class_profile работает только для таблицы,
+-- полностью включённой в существующую publication Supabase.
+do $$
+declare
+  v_puballtables boolean;
+  v_published_attnames name[];
+  v_expected_attnames name[];
+  v_rowfilter text;
+  v_direct_prattrs int2vector;
+  v_direct_prqual text;
+  v_has_direct_membership boolean := false;
+begin
+  select publication.puballtables
+  into v_puballtables
+  from pg_publication as publication
+  where publication.pubname = 'supabase_realtime';
+
+  if not found then
+    raise exception 'Schema conflict: publication supabase_realtime does not exist';
+  end if;
+
+  if v_puballtables then
+    raise exception 'Schema conflict: supabase_realtime unexpectedly publishes all tables';
+  end if;
+
+  if to_regclass('public.class_profile') is null then
+    raise exception 'Schema conflict: public.class_profile does not exist';
+  end if;
+
+  select array_agg(attribute.attname order by attribute.attnum)::name[]
+  into v_expected_attnames
+  from pg_attribute as attribute
+  where attribute.attrelid = 'public.class_profile'::regclass
+    and attribute.attnum > 0
+    and not attribute.attisdropped
+    and attribute.attgenerated = '';
+
+  select published.attnames, published.rowfilter
+  into v_published_attnames, v_rowfilter
+  from pg_publication_tables as published
+  where published.pubname = 'supabase_realtime'
+    and published.schemaname = 'public'
+    and published.tablename = 'class_profile';
+
+  if found then
+    if v_published_attnames is null
+       or not (v_published_attnames @> v_expected_attnames and v_published_attnames <@ v_expected_attnames)
+       or v_rowfilter is not null then
+      raise exception 'Schema conflict: public.class_profile has an unexpected column list or row filter in supabase_realtime';
+    end if;
+
+    select relation.prattrs, relation.prqual::text
+    into v_direct_prattrs, v_direct_prqual
+    from pg_publication_rel as relation
+    join pg_publication as publication on publication.oid = relation.prpubid
+    where publication.pubname = 'supabase_realtime'
+      and relation.prrelid = 'public.class_profile'::regclass;
+    v_has_direct_membership := found;
+
+    if v_has_direct_membership
+       and (v_direct_prattrs is not null or v_direct_prqual is not null) then
+      raise exception 'Schema conflict: public.class_profile has an explicit column list or row filter in supabase_realtime';
+    end if;
+
+    return;
+  end if;
+
+  if exists (
+    select 1
+    from pg_publication_rel as relation
+    join pg_publication as publication on publication.oid = relation.prpubid
+    where publication.pubname = 'supabase_realtime'
+      and relation.prrelid = 'public.class_profile'::regclass
+  ) then
+    raise exception 'Schema conflict: class_profile publication metadata is inconsistent';
+  end if;
+
+  alter publication supabase_realtime
+    add table public.class_profile;
+end
+$$;
+
 -- 2. Самодостаточное восстановление ручных копий.
 -- Не использует pg_cron, поэтому кнопка ручной копии работает
 -- независимо от наличия планировщика в тарифе Supabase.
@@ -274,6 +356,11 @@ begin
     update public.class_profile
     set class_name = coalesce(p_snapshot #>> '{class_profile,class_name}', class_name),
         school_year = coalesce(p_snapshot #>> '{class_profile,school_year}', school_year),
+        useful_info = case
+          when jsonb_typeof(p_snapshot #> '{class_profile,useful_info}') = 'object'
+            then p_snapshot #> '{class_profile,useful_info}'
+          else useful_info
+        end,
         updated_at = now()
     where id = true;
   end if;

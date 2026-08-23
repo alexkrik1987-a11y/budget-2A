@@ -201,6 +201,47 @@ begin
 end;
 $$;
 
+create or replace function public.revoke_class_access(p_request_id uuid)
+ returns void
+ language plpgsql
+ security definer
+ set search_path to 'public', 'pg_temp'
+as $function$
+declare
+  v_request public.access_requests;
+  v_role public.member_role;
+begin
+  if not public.is_admin() then
+    raise exception 'Administrator access required';
+  end if;
+
+  select * into v_request
+  from public.access_requests
+  where id = p_request_id
+  for update;
+
+  if not found then
+    raise exception 'Access request not found';
+  end if;
+
+  select role into v_role
+  from public.class_members
+  where email = v_request.email;
+
+  if v_role = 'ADMIN'::public.member_role then
+    raise exception 'Administrator accounts cannot be removed in this panel';
+  end if;
+
+  -- Для одобренного родителя это немедленно закрывает бюджет и чат через can_access_budget().
+  delete from public.class_members
+  where email = v_request.email;
+
+  -- Удаляем саму заявку, чтобы случайный или лишний профиль исчез из списка.
+  delete from public.access_requests
+  where id = v_request.id;
+end;
+$function$;
+
 revoke all on function public.request_class_access() from public, anon;
 revoke all on function public.set_access_enrollment(boolean) from public, anon;
 revoke all on function public.approve_access_request(uuid) from public, anon;
@@ -209,6 +250,11 @@ grant execute on function public.request_class_access() to authenticated;
 grant execute on function public.set_access_enrollment(boolean) to authenticated;
 grant execute on function public.approve_access_request(uuid) to authenticated;
 grant execute on function public.reject_access_request(uuid) to authenticated;
+
+revoke execute on function public.revoke_class_access(uuid) from public;
+revoke execute on function public.revoke_class_access(uuid) from anon;
+grant execute on function public.revoke_class_access(uuid) to authenticated;
+grant execute on function public.revoke_class_access(uuid) to service_role;
 
 -- Администратор видит новые заявки на сайте сразу; обычным пользователям
 -- эта публикация ничего не раскрывает, потому что RLS запрещает SELECT.

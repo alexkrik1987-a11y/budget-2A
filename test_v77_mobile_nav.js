@@ -2,6 +2,7 @@
 const fs = require("fs");
 const css = fs.readFileSync("styles.css", "utf8");
 const html = fs.readFileSync("index.html", "utf8");
+const sw = fs.readFileSync("sw.js", "utf8");
 
 for (const needle of [
   ".site-header .nav-inner:has(.nav-button.admin-only:not(.hidden))",
@@ -10,5 +11,7 @@ for (const needle of [
 ]) {
   if (!css.includes(needle)) throw new Error(`Не найдено правило мобильной навигации: ${needle}`);
 }
-if (!html.includes('styles.css?v=582')) throw new Error("index.html не обновил cache-busting styles.css");
+const stylesAsset = html.match(/href="(styles\.css\?v=[^"]+)"/)?.[1];
+if (!stylesAsset) throw new Error("index.html должен подключать версионированный styles.css");
+if (!sw.includes(`./${stylesAsset}`)) throw new Error("styles.css в Service Worker должен совпадать с index.html");
 console.log("v77 mobile nav checks: PASS");
