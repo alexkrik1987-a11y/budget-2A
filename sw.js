@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "budget-2a-v86-artistic-chalkboard-6";
+const CACHE_NAME = "budget-2a-v86-artistic-chalkboard-7";
 const ROOT_PATH = new URL("./", self.location.href).pathname;
 const INDEX_URL = new URL("./index.html", self.location.href).href;
 const INDEX_PATH = new URL(INDEX_URL).pathname;
@@ -8,7 +8,7 @@ const SUPABASE_PATH_PREFIX = "/supabase/";
 const APP_SHELL = [
   "./index.html",
   "./styles.css?v=592",
-  "./app.js?v=83",
+  "./app.js?v=84",
   "./vendor/supabase.min.js?v=10",
   "./manifest.webmanifest",
   "./icons/class-2a.svg",

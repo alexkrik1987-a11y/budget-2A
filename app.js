@@ -158,7 +158,7 @@ function resetBudgetDataState() {
   state.contributions = [];
   state.expenses = [];
   state.backups = [];
-  state.classProfile = { class_name: "2 «А»", school_year: "", useful_info: {} };
+  state.classProfile = { class_name: "2 «А»", school_year: "", useful_info: {}, payment_details: {} };
   state.selectedCampaignId = null;
   state.archiveFeaturesReady = false;
   state.advancedFeaturesReady = false;
@@ -1879,7 +1879,12 @@ function renderPaymentDetails() {
   if (dom.paymentDetailsCard) dom.paymentDetailsCard.classList.toggle("hidden", !filled);
   if (dom.paymentDetailsEmpty) dom.paymentDetailsEmpty.classList.toggle("hidden", filled || !state.isAdmin);
   if (dom.editPaymentDetailsButton) dom.editPaymentDetailsButton.classList.toggle("hidden", !filled || !state.isAdmin);
-  if (!filled) closePaymentEditor();
+  if (!filled) {
+    // Приводим editor к закрытому состоянию напрямую: вызов close-функции здесь
+    // давал бесконечную рекурсию при пустых реквизитах.
+    hideElement(dom.paymentDetailsForm);
+    hideElement(dom.paymentDetailsError);
+  }
   else if (state.isAdmin) fillPaymentEditor(details);
 }
 

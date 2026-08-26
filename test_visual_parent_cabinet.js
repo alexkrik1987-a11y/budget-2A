@@ -65,6 +65,6 @@ assert(!/2×2=5|Не пались|Где деньги, Зин/i.test(html), "в 
 const htmlStyleAsset = html.match(/href="(styles\.css\?v=\d+)"/)?.[1];
 assert.equal(htmlStyleAsset, "styles.css?v=592", "HTML должен подключать новую версию стилей");
 assert(sw.includes(`./${htmlStyleAsset}`), "Service Worker должен кешировать ту же версию CSS");
-assert(sw.includes('const CACHE_NAME = "budget-2a-v86-artistic-chalkboard-6";'), "cache name должен быть обновлён для редизайна");
+assert(sw.includes('const CACHE_NAME = "budget-2a-v86-artistic-chalkboard-7";'), "cache name должен быть обновлён для редизайна");
 
 console.log("visual parent cabinet checks: PASS");

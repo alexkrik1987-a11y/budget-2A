@@ -153,7 +153,7 @@ function makeState(overrides = {}) {
   for (const key of ["students", "allStudents", "campaigns", "archivedCampaigns", "contributions", "expenses", "backups"]) {
     assert.equal(Array.isArray(state[key]) && state[key].length === 0, true, `logout должен очистить state.${key}`);
   }
-  assert.deepEqual(JSON.parse(JSON.stringify(state.classProfile)), { class_name: "2 «А»", school_year: "", useful_info: {} });
+  assert.deepEqual(JSON.parse(JSON.stringify(state.classProfile)), { class_name: "2 «А»", school_year: "", useful_info: {}, payment_details: {} });
   assert.equal(state.selectedCampaignId, null);
   assert.equal(state.lastUndoBackupId, null);
   assert.equal(state.undoNoticeUntil, 0);

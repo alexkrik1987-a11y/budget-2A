@@ -113,9 +113,50 @@ assert(!/\+7 \d{3} \d{3}-\d{2}-\d{2}/.test(migration), "в миграции не
 assert(!/\d{4} \d{4} \d{4} \d{4}/.test(migration), "в миграции не должно быть номеров карт");
 assert(/payment_details = case/.test(migration), "restore_budget_snapshot должен сохранять реквизиты при восстановлении бэкапа");
 
+/* ---------- Регрессия: рекурсия renderPaymentDetails ↔ closePaymentEditor ---------- */
+
+const renderFnSource = app.match(/function renderPaymentDetails\(\) \{[\s\S]*?\n\}/)?.[0];
+assert(renderFnSource, "renderPaymentDetails должен существовать");
+assert(!renderFnSource.includes("closePaymentEditor()"), "renderPaymentDetails НЕ должен вызывать closePaymentEditor (бесконечная рекурсия при пустых реквизитах)");
+assert(/if \(!filled\) \{[\s\S]*?hideElement\(dom\.paymentDetailsForm\);[\s\S]*?hideElement\(dom\.paymentDetailsError\);/.test(renderFnSource), "при пустых реквизитах editor должен закрываться напрямую через hideElement");
+assert(/payment_details: \{\}/.test(app.match(/function resetBudgetDataState\(\) \{[\s\S]*?\n\}/)?.[0] || ""), "resetBudgetDataState должен сбрасывать payment_details");
+
+// Runtime-проверка: renderPaymentDetails с пустыми реквизитами завершается без RangeError.
+{
+  const hidden = [];
+  const elementStub = () => ({ classList: { add: (cls) => { if (cls === "hidden") hidden.push(1); }, remove: () => {}, toggle: () => {} }, textContent: "", disabled: false });
+  const sandboxDom = {};
+  for (const id of ["paymentDetailsCard", "paymentDetailsEmpty", "editPaymentDetailsButton", "paymentDetailsForm", "paymentDetailsError", "paymentBankValue", "paymentPhoneValue", "paymentCardValue", "copyPaymentPhoneButton", "copyPaymentCardButton"]) {
+    sandboxDom[id] = elementStub();
+  }
+  const context = {
+    dom: sandboxDom,
+    state: { isAdmin: true, classProfile: { class_name: "2 «А»", school_year: "", useful_info: {}, payment_details: {} } },
+    hideElement: (el) => el.classList.add("hidden"),
+    normalizePaymentDetails: null,
+    paymentDetailsFilled: null,
+    fillPaymentEditor: () => {},
+    RangeError: null
+  };
+  const normalizeSource = app.match(/function normalizePaymentDetails[\s\S]*?\n\}/)?.[0];
+  const filledSource = app.match(/function paymentDetailsFilled[\s\S]*?\n\}/)?.[0];
+  const vm = require("node:vm");
+  const sandbox = { ...context, normalizePaymentDetails: null, paymentDetailsFilled: null };
+  vm.createContext(sandbox);
+  vm.runInContext(`${normalizeSource}\n${filledSource}\n${renderFnSource}`, sandbox);
+  let recursionError = null;
+  try {
+    vm.runInContext("renderPaymentDetails()", sandbox);
+  } catch (error) {
+    recursionError = error;
+  }
+  assert(!recursionError, `renderPaymentDetails с пустыми реквизитами должен завершаться без ошибки (получено: ${recursionError})`);
+  assert(sandbox.state.classProfile.payment_details && typeof sandbox.state.classProfile.payment_details === "object", "state.classProfile.payment_details должен остаться объектом");
+}
+
 /* ---------- Версии ---------- */
 
 assert.equal(html.match(/styles\.css\?v=(\d+)/)?.[1], "592", "HTML должен подключать styles.css?v=592");
-assert(sw.includes('const CACHE_NAME = "budget-2a-v86-artistic-chalkboard-6";'), "cache name должен быть обновлён для новой версии стилей");
+assert(sw.includes('const CACHE_NAME = "budget-2a-v86-artistic-chalkboard-7";'), "cache name должен быть обновлён для новой версии стилей");
 
 console.log("Theme + payment details checks: PASS");
