@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Бюджет класса",
-  "short_name": "Бюджет класса",
-  "description": "Взносы, расходы и фонды класса — понятно и всегда под рукой.",
+  "name": "Наш дружный класс 2 «А»",
+  "short_name": "Класс 2 «А»",
+  "description": "Дела класса, полезная информация и прозрачный бюджет — всё в одном месте.",
   "lang": "ru",
   "start_url": "./",
   "scope": "./",
@@ -10,7 +10,7 @@
   "orientation": "any",
   "background_color": "#f7f1df",
   "theme_color": "#194f43",
-  "categories": ["education", "finance"],
+  "categories": ["education"],
   "icons": [
     {
       "src": "icons/icon-192.png",

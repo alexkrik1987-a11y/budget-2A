@@ -25,12 +25,12 @@
       }
     })();
   </script>
-  <meta name="description" content="Онлайн-бюджет класса: взносы, расходы, остатки и чеки.">
+  <meta name="description" content="Уютное пространство 2 «А»: дела класса, полезная информация и прозрачный бюджет.">
   <meta name="theme-color" content="#245b46">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Бюджет 2А">
-  <title>Бюджет 2 «А» класса</title>
+  <meta name="apple-mobile-web-app-title" content="Класс 2 «А»">
+  <title>Наш дружный класс 2 «А»</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,9 +49,9 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=590">
+  <link rel="stylesheet" href="styles.css?v=591">
 </head>
-<body>
+<body class="school-cabinet">
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
     <div class="loading-board chalkboard">
       <img class="loading-emblem" src="icons/class-2a.svg" alt="">
@@ -73,25 +73,26 @@
       <div class="notebook-doodle doodle-compass" aria-hidden="true">⌁</div>
       <div class="notebook-doodle doodle-pencil" aria-hidden="true">✎</div>
       <header class="notebook-topbar">
-        <div class="notebook-header"><img class="topbar-emblem" src="icons/class-2a.svg" alt=""><strong>БЮДЖЕТ <span>2 «А»</span> КЛАССА</strong></div>
-        <p class="topbar-copy">Взносы и чеки — прозрачно для родителей</p>
+        <div class="notebook-header"><img class="topbar-emblem" src="icons/class-2a.svg" alt=""><strong>НАШ ДРУЖНЫЙ КЛАСС <span>2 «А»</span></strong></div>
+        <p class="topbar-copy">Школьные дела — в одном месте</p>
       </header>
-      <p class="notebook-note note-money">Где деньги, Зин?<br><b>А + Б = ♥</b></p>
-      <p class="notebook-note note-calm">Тихо!<br>Не пались!</p>
-      <p class="notebook-note note-equation">2×2=5?</p>
-      <p class="notebook-note note-soda">soda + mentos = ?</p>
-      <p class="notebook-note note-zone">ЗАПРЕТНАЯ<br>зона!</p>
-      <p class="notebook-note note-masha">Маша + Паша = ?</p>
+      <p class="notebook-note note-money">Сменка на месте?<br><b>Почти всегда 🙂</b></p>
+      <p class="notebook-note note-calm">Всё важное<br>рядом!</p>
+      <p class="notebook-note note-equation">2 × 2 = 4 ✓</p>
+      <p class="notebook-note note-soda">Опыт + любопытство = открытие</p>
+      <p class="notebook-note note-zone">ТЕРРИТОРИЯ<br>2 «А»</p>
+      <p class="notebook-note note-masha">Дружба + знания = класс!</p>
       <div class="login-showcase monitor-showcase">
         <div class="login-title-block">
           <img class="auth-emblem" src="icons/class-2a.svg" alt="Эмблема 2 А класса">
-          <h1 id="authTitle">Бюджет нашего класса</h1>
-          <p>Взносы, расходы и чеки — понятно и всегда под рукой.</p>
+          <span class="auth-kicker">Здесь живут дела нашего класса</span>
+          <h1 id="authTitle">Наш дружный класс 2 «А»</h1>
+          <p>Всё важное о жизни класса — от расписания и новостей до прозрачной копилки.</p>
         </div>
         <div class="monitor-assembly" aria-label="Экран входа в бюджет класса">
           <div class="monitor-shell">
             <div class="monitor-screen">
-              <section class="login-panel" aria-label="Вход в бюджет класса">
+              <section class="login-panel" aria-label="Вход на сайт класса">
                 <form id="emailPasswordForm" class="email-password-form" novalidate>
                   <label for="emailPasswordEmailInput">Вход по почте и паролю</label>
                   <div class="auth-input-shell">
@@ -125,10 +126,10 @@
           <span class="monitor-neck" aria-hidden="true"></span>
           <span class="monitor-base" aria-hidden="true"></span>
         </div>
-        <p class="mobile-masha-note" aria-hidden="true">Маша + Паша = ?</p>
+        <p class="mobile-masha-note" aria-hidden="true">2 «А» — одна команда!</p>
       </div>
       <p class="auth-load-note"><span aria-hidden="true">⏳</span> Первый вход может занять немного больше времени — проверяем доступ к классу.</p>
-      <p class="auth-note login-footnote">Почта и пароль — для уже зарегистрированных пользователей. Новый родитель: при открытом приёме заявок войдите через Google, и заявка сразу появится у администратора.</p>
+      <p class="auth-note login-footnote">Почта и пароль — для уже зарегистрированных пользователей. Новый родитель: при открытом приёме заявок войдите через Google, и заявка сразу появится у ответственного за доступ.</p>
     </section>
   </main>
 
@@ -138,8 +139,8 @@
         <div class="brand">
           <span class="brand-icon" aria-hidden="true"><img src="icons/class-2a.svg" alt=""></span>
           <div class="brand-copy">
-            <p class="eyebrow"><span class="eyebrow-label">Наш дружный класс</span> <span data-school-year>2026–2027</span></p>
-            <h1>Бюджет <span data-class-name>2 «А»</span></h1>
+            <p class="eyebrow"><span class="eyebrow-label">Школьные дела и важные новости</span> <span data-school-year>2026–2027</span></p>
+            <h1>Наш дружный класс <span data-class-name>2 «А»</span></h1>
           </div>
         </div>
 
@@ -154,24 +155,24 @@
       </div>
       <span class="chalk-note chalk-note-left" aria-hidden="true">
         <span class="chalk-doodles"><i>☀</i><i>✎</i><i>♡</i></span>
-        <span class="chalk-note-line">Копим на мечты!</span>
-        <span class="chalk-note-second">Чеки не кусаются ☺</span>
+        <span class="chalk-note-line">Учимся. Дружим. Растём!</span>
+        <span class="chalk-note-second">И ничего не забываем ☺</span>
       </span>
       <span class="chalk-note chalk-note-right" aria-hidden="true">
         <span class="chalk-doodles"><i>☆</i><i>↗</i><i>₂ₐ</i></span>
-        <span class="chalk-note-line">2 + 2 = бюджет</span>
-        <span class="chalk-note-second">Считаем — и гуляем!</span>
+        <span class="chalk-note-line">2 «А» = одна команда</span>
+        <span class="chalk-note-second">Всё важное рядом. Даже то, что потерялось в чате 🙂</span>
       </span>
     </header>
 
     <nav class="main-nav" aria-label="Основная навигация">
       <div class="nav-inner">
-        <button class="nav-button active" type="button" data-view="summary"><span>📚</span> Главная</button>
-        <button class="nav-button" type="button" data-view="contributions"><span>✏️</span> Взносы класса</button>
+        <button class="nav-button active" type="button" data-view="summary"><span>📚</span> Наш класс</button>
+        <button class="nav-button" type="button" data-view="contributions"><span>✏️</span> Сборы</button>
         <button class="nav-button" type="button" data-view="expenses"><span>🧾</span> Расходы</button>
-        <button class="nav-button" type="button" data-view="archive"><span>🗂️</span> Архив</button>
+        <button class="nav-button" type="button" data-view="archive"><span>🗂️</span> История</button>
         <button class="nav-button" type="button" data-view="useful"><span>📌</span> Полезное</button>
-        <button id="settingsNavButton" class="nav-button admin-only hidden" type="button" data-view="settings"><span>⚙️</span> Настройки</button>
+        <button id="settingsNavButton" class="nav-button admin-only hidden" type="button" data-view="settings"><span>⚙️</span> Ещё</button>
       </div>
     </nav>
 
@@ -190,9 +191,9 @@
       <section id="view-summary" class="view active" aria-labelledby="summaryTitle">
         <div class="section-heading">
           <div>
-            <span class="sticker sticker-yellow">Всё под контролем 🍎</span>
-            <h2 id="summaryTitle">Главная страница класса</h2>
-            <p class="summary-guide">Впервые здесь? Выберите ребёнка, откройте «Мой взнос» и проверьте открытые сборы.</p>
+            <span class="sticker sticker-yellow">Всё под контролем. Ну, почти 🙂</span>
+            <h2 id="summaryTitle">Наш класс сегодня</h2>
+            <p class="summary-guide">Новости, дела класса, текущие сборы и основные суммы — всё на одном листе.</p>
           </div>
           <div class="summary-status">
             <aside id="schoolCalendar" class="school-calendar" aria-label="Школьный календарь Приморского края">
@@ -210,9 +211,9 @@
         <section id="livingNotebook" class="living-notebook" aria-labelledby="livingNotebookTitle">
           <div class="living-notebook-heading">
             <div>
-              <span class="sticker sticker-green">Главное за несколько секунд</span>
-              <h3 id="livingNotebookTitle">Живая тетрадь класса</h3>
-              <p>Бюджет, текущая цель и важные новости — на одной странице.</p>
+              <span class="sticker sticker-green">Самое важное — без долгих поисков</span>
+              <h3 id="livingNotebookTitle">Классная тетрадь</h3>
+              <p>Дела класса, ближайшая цель и прозрачная копилка собраны здесь. Деньги любят порядок, а родительский чат — вдохновение 🙂</p>
             </div>
             <span class="living-notebook-mark" aria-hidden="true">✦</span>
           </div>
@@ -369,8 +370,8 @@
       <section id="view-contributions" class="view" aria-labelledby="contributionsTitle">
         <div class="section-heading">
           <div>
-            <span class="sticker sticker-pink">Классный журнал</span>
-            <h2 id="contributionsTitle">Взносы класса</h2>
+            <span class="sticker sticker-pink">Наша общая копилка</span>
+            <h2 id="contributionsTitle">Сборы класса</h2>
             <p class="section-lead">Выберите сбор, посмотрите общий прогресс и найдите ребёнка в списке.</p>
           </div>
           <label class="field campaign-picker">
@@ -435,7 +436,8 @@
         <div class="section-heading">
           <div>
             <span class="sticker sticker-green">Куда потратили?</span>
-            <h2 id="expensesTitle">Журнал расходов</h2>
+            <h2 id="expensesTitle">Расходы и чеки</h2>
+            <p>Чеки здесь: память хорошая, а чек всё-таки надёжнее.</p>
           </div>
           <button id="openExpenseModalButton" class="button button-primary admin-only hidden" type="button">+ Добавить расход</button>
         </div>
@@ -490,7 +492,7 @@
         <div class="section-heading">
           <div>
             <span class="sticker sticker-blue">Сохраняем историю</span>
-            <h2 id="archiveTitle">Архив закрытых сборов</h2>
+            <h2 id="archiveTitle">История сборов</h2>
           </div>
           <p class="last-updated">Здесь остаются взносы, расходы и история завершённых сборов.</p>
         </div>
@@ -501,8 +503,8 @@
         <div class="section-heading">
           <div>
             <span class="sticker sticker-green">Всегда под рукой</span>
-            <h2 id="usefulTitle">Полезное</h2>
-            <p>Контакты, школа и расписание в одном спокойном месте.</p>
+            <h2 id="usefulTitle">Полезная информация</h2>
+            <p>Контакты, школа и расписание — чтобы не искать их среди сотни сообщений в чате.</p>
           </div>
           <span class="useful-page-mark" aria-hidden="true">📚</span>
         </div>
@@ -561,8 +563,8 @@
       <section id="view-settings" class="view" aria-labelledby="settingsTitle">
         <div class="section-heading">
           <div>
-            <span class="sticker sticker-orange">Учительская</span>
-            <h2 id="settingsTitle">Настройки сборов</h2>
+            <span class="sticker sticker-orange">Для тех, кто всё организует</span>
+            <h2 id="settingsTitle">Управление классом</h2>
           </div>
           <button id="openCampaignModalButton" class="button button-primary" type="button">+ Добавить сбор</button>
         </div>
@@ -690,7 +692,7 @@
     </main>
 
     <footer class="site-footer">
-      <p>Сделано с заботой о нашем классе <span aria-hidden="true">🍎📚</span></p>
+      <p>Наш 2 «А»: учимся, дружим и держим важное под рукой <span aria-hidden="true">🍎📚</span></p>
       <p class="site-version">Версия V1.2</p>
       <button id="installAppButton" class="button install-button hidden" type="button">
         <span aria-hidden="true">📲</span> Установить на телефон
@@ -819,7 +821,7 @@
       <div class="modal-header">
         <div>
           <span class="sticker sticker-yellow">Всегда под рукой</span>
-          <h2 id="installHelpTitle">Установить «Бюджет 2А»</h2>
+          <h2 id="installHelpTitle">Установить сайт 2 «А»</h2>
         </div>
         <button class="icon-button" type="button" data-close-modal="installHelpModal" aria-label="Закрыть">×</button>
       </div>
@@ -852,7 +854,7 @@
         </label>
         <small id="parentChildOnboardingHint">Выбор сохраняется только на этом устройстве и не изменяет данные класса.</small>
         <p id="parentChildOnboardingError" class="notice notice-error hidden" role="alert"></p>
-        <button id="parentChildOnboardingSaveButton" class="button button-primary button-wide" type="submit">Продолжить к бюджету</button>
+        <button id="parentChildOnboardingSaveButton" class="button button-primary button-wide" type="submit">Продолжить на сайт класса</button>
       </form>
     </section>
   </dialog>
