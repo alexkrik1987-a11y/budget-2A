@@ -25,6 +25,21 @@
       }
     })();
   </script>
+  <script>
+    // Тема применяется до отрисовки, чтобы не было вспышки неправильного фона.
+    // Ручной выбор хранится в localStorage и не перебивается системной темой.
+    (() => {
+      try {
+        let theme = window.localStorage.getItem("budget2a-theme");
+        if (theme !== "light" && theme !== "dark") {
+          theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (_) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
   <meta name="description" content="Уютное пространство 2 «А»: дела класса, полезная информация и прозрачный бюджет.">
   <meta name="theme-color" content="#245b46">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -49,7 +64,7 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=591">
+  <link rel="stylesheet" href="styles.css?v=592">
 </head>
 <body class="school-cabinet">
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -150,6 +165,7 @@
             <span id="roleBadge" class="role-badge">Родитель · просмотр</span>
           </div>
           <img id="userAvatar" class="avatar hidden" alt="Аватар пользователя" referrerpolicy="no-referrer">
+          <button id="themeToggleButton" class="theme-toggle" type="button" aria-label="Включить тёмную тему" aria-pressed="false">🌙</button>
           <button id="logoutButton" class="button button-light button-small" type="button">Выйти</button>
         </div>
       </div>
@@ -391,6 +407,51 @@
             <div class="campaign-total-plan"><span>Общий план сбора</span><strong id="campaignPlanTotal">0 ₽</strong></div>
             <div class="campaign-total-collected"><span>Собрано по сбору</span><strong id="campaignCollectedTotal">0 ₽</strong></div>
           </div>
+        </section>
+
+        <section id="paymentDetailsCard" class="paper-card payment-details-card hidden" aria-label="Куда переводить взносы">
+          <div class="card-title-row compact">
+            <div><span class="sticker sticker-yellow">Куда переводить</span><h3>Реквизиты для перевода</h3></div>
+            <span class="payment-paperclip" aria-hidden="true">📎</span>
+          </div>
+          <p class="payment-details-lead">Для текущих сборов класса</p>
+          <dl class="payment-details-list">
+            <div class="payment-detail-item">
+              <dt>Банк</dt>
+              <dd><span id="paymentBankValue" class="payment-detail-value">—</span></dd>
+            </div>
+            <div class="payment-detail-item">
+              <dt>Телефон</dt>
+              <dd class="payment-detail-value-row">
+                <span id="paymentPhoneValue" class="payment-detail-value">—</span>
+                <button id="copyPaymentPhoneButton" class="button button-secondary button-small copy-button hidden" type="button">Скопировать</button>
+              </dd>
+            </div>
+            <div class="payment-detail-item">
+              <dt>Карта</dt>
+              <dd class="payment-detail-value-row">
+                <span id="paymentCardValue" class="payment-detail-value payment-card-number">—</span>
+                <button id="copyPaymentCardButton" class="button button-secondary button-small copy-button hidden" type="button">Скопировать</button>
+              </dd>
+            </div>
+          </dl>
+          <p class="payment-details-note">Перед переводом проверьте назначение текущего сбора 🙂</p>
+          <button id="editPaymentDetailsButton" class="button button-secondary button-small admin-only hidden" type="button">✏️ Изменить реквизиты</button>
+          <form id="paymentDetailsForm" class="payment-details-form hidden" novalidate>
+            <label class="field"><span>Банк</span><input id="paymentBankInput" type="text" maxlength="80" autocomplete="off"></label>
+            <label class="field"><span>Телефон</span><input id="paymentPhoneInput" type="text" maxlength="32" inputmode="tel" autocomplete="off"></label>
+            <label class="field"><span>Номер карты</span><input id="paymentCardInput" type="text" maxlength="32" inputmode="numeric" autocomplete="off"></label>
+            <p id="paymentDetailsError" class="notice notice-error hidden" role="alert"></p>
+            <div class="payment-form-actions">
+              <button id="savePaymentDetailsButton" class="button button-primary" type="submit">Сохранить</button>
+              <button id="cancelPaymentDetailsButton" class="button button-secondary" type="button">Отмена</button>
+            </div>
+          </form>
+        </section>
+
+        <section id="paymentDetailsEmpty" class="paper-card payment-details-empty admin-only hidden">
+          <p>Реквизиты пока не добавлены</p>
+          <button id="addPaymentDetailsButton" class="button button-primary button-small" type="button">Добавить реквизиты</button>
         </section>
 
         <section class="paper-card table-card">

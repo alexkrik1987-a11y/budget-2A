@@ -104,7 +104,7 @@ const state = {
   chatReadUserId: null,
   archiveFeaturesReady: false,
   budgetDataReady: false,
-  classProfile: { class_name: "2 «А»", school_year: "", useful_info: {} },
+  classProfile: { class_name: "2 «А»", school_year: "", useful_info: {}, payment_details: {} },
   selectedCampaignId: null,
   studentSearch: "",
   expenseSearch: "",
@@ -179,6 +179,7 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   cacheDom();
+  syncThemeToggle();
   setBudgetDataReady(false);
   setPresencePending();
   setProtectedAccess(false);
@@ -282,6 +283,7 @@ function cacheDom() {
     "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "emailPasswordForm", "emailPasswordEmailInput", "emailPasswordInput", "togglePasswordVisibility", "rememberSessionInput", "emailPasswordLoginButton", "requestPasswordSetupButton", "authRequestAccessButton", "emailPasswordStatus", "passwordResetForm", "newPasswordInput", "confirmPasswordInput", "saveNewPasswordButton", "logoutButton", "configWarning", "authError",
     "globalNotice", "presenceStatus", "presenceStatusText", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated", "schoolCalendar", "schoolCalendarDay", "schoolCalendarMonth",
     "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions", "parentChildOnboardingModal", "parentChildOnboardingForm", "parentChildOnboardingSelect", "parentChildOnboardingError", "parentChildOnboardingSaveButton",
+    "themeToggleButton", "paymentDetailsCard", "paymentBankValue", "paymentPhoneValue", "paymentCardValue", "copyPaymentPhoneButton", "copyPaymentCardButton", "editPaymentDetailsButton", "paymentDetailsForm", "paymentBankInput", "paymentPhoneInput", "paymentCardInput", "paymentDetailsError", "savePaymentDetailsButton", "cancelPaymentDetailsButton", "addPaymentDetailsButton", "paymentDetailsEmpty",
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary",
     "livingNotebook", "liveNotebookBalance", "liveNotebookBalanceNote", "liveNotebookCampaign", "liveNotebookCampaignNote", "liveNotebookDate", "liveNotebookDateNote", "liveNotebookCalendarMonth", "liveNotebookCalendarDay", "liveNotebookCollected", "liveNotebookSpent", "liveNotebookRemaining", "liveNotebookMessage", "parentOnboardingGuide",
     "fundExpenseChart", "categoryExpenseChart", "reportMonthSelect", "downloadCsvButton", "printReportButton", "printReport",
@@ -373,6 +375,13 @@ function bindEvents() {
   if (dom.parentChildOnboardingForm) dom.parentChildOnboardingForm.addEventListener("submit", saveParentChildOnboarding);
   if (dom.parentOnboardingGuide) dom.parentOnboardingGuide.addEventListener("click", handleParentOnboardingGuideAction);
   if (dom.usefulInfoForm) dom.usefulInfoForm.addEventListener("submit", saveUsefulInfo);
+  if (dom.themeToggleButton) dom.themeToggleButton.addEventListener("click", toggleTheme);
+  if (dom.copyPaymentPhoneButton) dom.copyPaymentPhoneButton.addEventListener("click", () => copyPaymentValue("phone", dom.copyPaymentPhoneButton));
+  if (dom.copyPaymentCardButton) dom.copyPaymentCardButton.addEventListener("click", () => copyPaymentValue("card", dom.copyPaymentCardButton));
+  if (dom.editPaymentDetailsButton) dom.editPaymentDetailsButton.addEventListener("click", openPaymentEditor);
+  if (dom.addPaymentDetailsButton) dom.addPaymentDetailsButton.addEventListener("click", openPaymentEditor);
+  if (dom.cancelPaymentDetailsButton) dom.cancelPaymentDetailsButton.addEventListener("click", closePaymentEditor);
+  if (dom.paymentDetailsForm) dom.paymentDetailsForm.addEventListener("submit", savePaymentDetails);
 
   if (dom.expenseFilters) {
     dom.expenseFilters.addEventListener("click", (event) => {
@@ -1046,6 +1055,7 @@ async function loadAllData({ silent = false } = {}) {
     .sort((a, b) => new Date(b.archived_at) - new Date(a.archived_at));
   state.classProfile = snapshot.class_profile?.class_name ? snapshot.class_profile : state.classProfile;
   state.classProfile.useful_info = normalizeUsefulInfo(state.classProfile.useful_info);
+  state.classProfile.payment_details = normalizePaymentDetails(state.classProfile.payment_details);
     state.chatMessages = Array.isArray(snapshot.chat_messages)
       ? snapshot.chat_messages.filter((message) => !message?.archived_at)
       : [];
@@ -1181,7 +1191,7 @@ async function fetchArchiveAwareData() {
 
 async function fetchClassProfile() {
   const result = await db.from("class_profile")
-    .select("class_name, school_year, useful_info, updated_at")
+    .select("class_name, school_year, useful_info, payment_details, updated_at")
     .eq("id", true)
     .maybeSingle();
   if (result.error && /class_profile|does not exist|relation .* does not exist/i.test(result.error.message || "")) {
@@ -1731,6 +1741,7 @@ function scheduleRealtimeRefresh() {
 function renderAll() {
   renderClassProfile();
   renderUsefulInfo();
+  renderPaymentDetails();
   renderCampaignSelect();
   renderSummary();
   renderContributionReminder();
@@ -1797,6 +1808,165 @@ function safeUsefulUrl(value) {
   } catch {
     return "";
   }
+}
+
+/* =========================================================
+   ТЕМА (светлая / вечерняя). К Supabase и бизнес-логике отношения не имеет.
+   ========================================================= */
+function currentTheme() {
+  return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+}
+
+function syncThemeToggle() {
+  if (!dom.themeToggleButton) return;
+  const dark = currentTheme() === "dark";
+  dom.themeToggleButton.textContent = dark ? "☀️" : "🌙";
+  dom.themeToggleButton.setAttribute("aria-pressed", String(dark));
+  dom.themeToggleButton.setAttribute("aria-label", dark ? "Включить светлую тему" : "Включить тёмную тему");
+}
+
+function toggleTheme() {
+  const next = currentTheme() === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try {
+    localStorage.setItem("budget2a-theme", next);
+  } catch (_) {
+    // В приватном режиме тема просто не сохраняется между сессиями.
+  }
+  syncThemeToggle();
+}
+
+/* =========================================================
+   РЕКВИЗИТЫ ДЛЯ ПЕРЕВОДА. Хранятся в class_profile.payment_details.
+   Читают все участники класса, изменяет только администратор (RLS).
+   ========================================================= */
+function normalizePaymentDetails(value) {
+  const details = value && typeof value === "object" ? value : {};
+  const clean = (field) => String(details[field] || "").replace(/\s+/g, " ").trim().slice(0, 80);
+  return {
+    bank: clean("bank"),
+    phone: clean("phone"),
+    card: clean("card").replace(/[^0-9 ]/g, "").trim()
+  };
+}
+
+function paymentDetailsFilled(details) {
+  return Boolean(details.bank || details.phone || details.card);
+}
+
+function renderPaymentDetails() {
+  const details = normalizePaymentDetails(state.classProfile?.payment_details);
+  state.classProfile.payment_details = details;
+  const filled = paymentDetailsFilled(details);
+  const values = [
+    [dom.paymentBankValue, details.bank],
+    [dom.paymentPhoneValue, details.phone],
+    [dom.paymentCardValue, details.card]
+  ];
+  values.forEach(([node, value]) => {
+    if (node) node.textContent = value || "—";
+  });
+  const copyButtons = [
+    [dom.copyPaymentPhoneButton, details.phone],
+    [dom.copyPaymentCardButton, details.card]
+  ];
+  copyButtons.forEach(([button, value]) => {
+    if (!button) return;
+    button.classList.toggle("hidden", !value);
+    button.disabled = false;
+    button.textContent = "Скопировать";
+  });
+  if (dom.paymentDetailsCard) dom.paymentDetailsCard.classList.toggle("hidden", !filled);
+  if (dom.paymentDetailsEmpty) dom.paymentDetailsEmpty.classList.toggle("hidden", filled || !state.isAdmin);
+  if (dom.editPaymentDetailsButton) dom.editPaymentDetailsButton.classList.toggle("hidden", !filled || !state.isAdmin);
+  if (!filled) closePaymentEditor();
+  else if (state.isAdmin) fillPaymentEditor(details);
+}
+
+function fillPaymentEditor(details = normalizePaymentDetails(state.classProfile?.payment_details)) {
+  const values = {
+    paymentBankInput: details.bank,
+    paymentPhoneInput: details.phone,
+    paymentCardInput: details.card
+  };
+  Object.entries(values).forEach(([id, value]) => {
+    if (dom[id] && document.activeElement !== dom[id]) dom[id].value = value;
+  });
+}
+
+function openPaymentEditor() {
+  if (!state.isAdmin) return;
+  hideElement(dom.paymentDetailsError);
+  fillPaymentEditor();
+  dom.paymentDetailsForm?.classList.remove("hidden");
+  if (dom.paymentDetailsCard) dom.paymentDetailsCard.classList.remove("hidden");
+  if (dom.paymentDetailsEmpty) dom.paymentDetailsEmpty.classList.add("hidden");
+  if (dom.editPaymentDetailsButton) dom.editPaymentDetailsButton.classList.add("hidden");
+  dom.paymentBankInput?.focus();
+}
+
+function closePaymentEditor() {
+  hideElement(dom.paymentDetailsForm);
+  hideElement(dom.paymentDetailsError);
+  renderPaymentDetails();
+}
+
+async function savePaymentDetails(event) {
+  event.preventDefault();
+  if (!state.isAdmin) return showNotice("Изменять реквизиты может только администратор.", "error");
+  const clean = (id, limit) => String(dom[id]?.value || "").replace(/\s+/g, " ").trim().slice(0, limit);
+  const payload = {
+    bank: clean("paymentBankInput", 80),
+    phone: clean("paymentPhoneInput", 32),
+    card: String(dom.paymentCardInput?.value || "").replace(/[^0-9 ]/g, "").trim().slice(0, 32)
+  };
+  if (!payload.bank && !payload.phone && !payload.card) {
+    return showElementError(dom.paymentDetailsError, "Заполните хотя бы одно поле или нажмите «Отмена».");
+  }
+  hideElement(dom.paymentDetailsError);
+  setButtonLoading(dom.savePaymentDetailsButton, true, "Сохраняем…");
+  const { error } = await db.from("class_profile").update({ payment_details: payload, updated_by: state.session?.user?.id || null, updated_at: new Date().toISOString() }).eq("id", true);
+  setButtonLoading(dom.savePaymentDetailsButton, false);
+  if (error) return showElementError(dom.paymentDetailsError, `Не удалось сохранить реквизиты: ${friendlyError(error)}`);
+  state.classProfile.payment_details = normalizePaymentDetails(payload);
+  closePaymentEditor();
+  showNotice("Реквизиты сохранены ✓", "info");
+}
+
+async function copyPaymentValue(field, button) {
+  const details = normalizePaymentDetails(state.classProfile?.payment_details);
+  const value = details[field];
+  if (!value || !button) return;
+  let copied = false;
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      copied = true;
+    }
+  } catch (_) {
+    copied = false;
+  }
+  if (!copied) {
+    try {
+      const helper = document.createElement("textarea");
+      helper.value = value;
+      helper.setAttribute("readonly", "");
+      helper.className = "visually-hidden-copy-helper";
+      document.body.append(helper);
+      helper.select();
+      copied = document.execCommand("copy");
+      helper.remove();
+    } catch (_) {
+      copied = false;
+    }
+  }
+  if (!copied) {
+    button.textContent = "Не удалось скопировать";
+    window.setTimeout(() => { button.textContent = "Скопировать"; }, 1600);
+    return;
+  }
+  button.textContent = "Скопировано ✓";
+  window.setTimeout(() => { button.textContent = "Скопировать"; }, 1600);
 }
 
 function createUsefulContact(label, name, phone) {

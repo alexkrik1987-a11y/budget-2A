@@ -7557,3 +7557,420 @@ body.school-cabinet .chat-toggle {
     transition-duration: .01ms !important;
   }
 }
+
+/* =========================================================
+   ДОПОЛНЕНИЕ: РЕКВИЗИТЫ, ТЕМА, КОМПАКТНЫЙ ИТОГО
+   ========================================================= */
+
+/* --- Реквизиты для перевода --- */
+.payment-details-card { margin-top: 18px; }
+.payment-paperclip { font-size: 1.3rem; transform: rotate(12deg); opacity: .8; }
+.payment-details-lead { margin: 2px 0 14px; color: var(--ink-soft); font-size: .86rem; font-weight: 700; }
+.payment-details-list { display: grid; gap: 10px; margin: 0; }
+.payment-detail-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, .6);
+  border: 1px dashed #cfc6a8;
+  border-radius: 12px;
+}
+.payment-detail-item dt { color: var(--ink-soft); font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
+.payment-detail-item dd { margin: 0; }
+.payment-detail-value { color: var(--ink); font-size: 1.05rem; font-weight: 900; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.payment-detail-value-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.payment-detail-value-row .payment-detail-value { flex: 0 1 auto; min-width: 0; }
+.copy-button { flex: 0 0 auto; margin-left: auto; min-height: 38px; }
+.payment-details-note { margin: 12px 0 0; color: var(--ink-soft); font-size: .78rem; font-weight: 700; }
+.payment-details-form { display: grid; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1.5px dashed #cfc6a8; }
+.payment-form-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.payment-details-empty { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 18px; padding: 14px 18px; }
+.payment-details-empty p { margin: 0; color: var(--ink-soft); font-weight: 800; }
+.visually-hidden-copy-helper { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+@media screen and (max-width: 768px) {
+  .payment-detail-item { padding: 10px 12px; }
+  .payment-detail-value-row { align-items: flex-start; }
+  .payment-detail-value-row .payment-detail-value { flex: 1 1 100%; }
+  .copy-button { margin-left: 0; min-height: 44px; }
+}
+
+/* --- Переключатель темы --- */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  background: rgba(255, 255, 255, .16);
+  border: 2px solid rgba(255, 255, 255, .35);
+  border-radius: 999px;
+  transition: transform .15s ease, background-color .15s ease;
+}
+.theme-toggle:hover { transform: rotate(-12deg) scale(1.05); background: rgba(255, 255, 255, .26); }
+.theme-toggle:focus-visible { outline: 3px solid #ffe376; outline-offset: 2px; }
+
+body.school-cabinet .site-header .user-panel { grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; }
+body.school-cabinet .site-header .theme-toggle { width: 38px; height: 38px; font-size: 1rem; }
+
+@media screen and (max-width: 900px) {
+  body.school-cabinet .site-header .user-panel { gap: 6px; }
+  body.school-cabinet .site-header .theme-toggle { width: 40px; height: 40px; }
+}
+
+/* --- Компактный «Итого по фильтру» на мобильном ---
+   Одна карточка: подпись слева, сумма справа. Убираем вложенные рамки
+   старых правил .responsive-cards tfoot (3968/4633) — нужна id-специфичность. */
+@media screen and (max-width: 768px) {
+  #view-expenses .table-scroll table.responsive-cards tfoot tr {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 10px !important;
+    align-items: center !important;
+    margin-top: 12px !important;
+    padding: 11px 14px !important;
+    background: var(--yellow-soft) !important;
+    border: 1.5px solid #d8cba0 !important;
+    border-radius: 14px !important;
+  }
+  #view-expenses .expenses-total-footer th,
+  #view-expenses .expenses-total-footer td#expensesFooter {
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+  #view-expenses .expenses-total-footer { background: transparent !important; }
+  #view-expenses .expenses-total-footer th span { font-size: .84rem; letter-spacing: .02em; }
+  #view-expenses .expenses-total-footer th small { margin-top: 2px; font-size: .68rem; }
+  #view-expenses .expenses-total-footer td#expensesFooter {
+    font-size: 1.18rem;
+    text-align: right;
+  }
+  html[data-theme="dark"] #view-expenses .table-scroll table.responsive-cards tfoot tr {
+    background: rgba(232, 201, 106, .12) !important;
+    border-color: #4d6b5e !important;
+  }
+  /* Одна карточка = один смысловой блок: на мобильном карточки расходов
+   и «Итого» живут прямо на тетрадном фоне, без внешней коробки. */
+  #view-expenses .table-card {
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+/* =========================================================
+   ТЁМНАЯ ТЕМА — «ВЕЧЕРНЯЯ ШКОЛЬНАЯ ТЕТРАДЬ»
+   Спокойный графитово-синий фон, тёмная бумага, узнаваемая доска.
+   Селекторы усилены префиксом body.school-cabinet, чтобы переигрывать
+   базовые правила редизайна; !important — только там, где у оригинала он есть.
+   ========================================================= */
+html[data-theme="dark"] { color-scheme: dark; }
+
+html[data-theme="dark"] {
+  --ink: #e9e4d6;
+  --ink-soft: #aab6c2;
+  --paper: #243040;
+  --paper-deep: #2c3949;
+  --paper-blue: #243444;
+  --board: #14382f;
+  --board-dark: #0e2a24;
+  --navy: #7fb2d4;
+  --navy-dark: #5d93b8;
+  --blue: #7fb2d4;
+  --blue-soft: rgba(127, 178, 212, .14);
+  --green: #6cb591;
+  --green-dark: #4c9370;
+  --green-soft: rgba(108, 181, 145, .14);
+  --red: #e08a7d;
+  --red-dark: #c96b5d;
+  --red-soft: rgba(224, 138, 125, .14);
+  --yellow: #e8c96a;
+  --yellow-dark: #d4b052;
+  --yellow-soft: rgba(232, 201, 106, .13);
+  --pink: #dd93ab;
+  --pink-soft: rgba(221, 147, 171, .14);
+  --orange: #e3a06b;
+  --orange-soft: rgba(227, 160, 107, .14);
+  --border: #3a4a5c;
+  --line: rgba(127, 178, 212, .1);
+  --shadow-sm: 0 4px 0 rgba(0, 0, 0, .25), 0 10px 24px rgba(0, 0, 0, .3);
+  --shadow: 0 9px 0 rgba(0, 0, 0, .25), 0 22px 48px rgba(0, 0, 0, .38);
+  --shadow-raised: 0 12px 0 rgba(0, 0, 0, .28), 0 30px 65px rgba(0, 0, 0, .42);
+  /* Системы переменных редизайна: переопределяем, чтобы перекрасить всё,
+     что построено на var(--cabinet-*) и var(--v55-*). */
+  --cabinet-ink: #e9e4d6;
+  --cabinet-muted: #aab6c2;
+  --cabinet-board: #14382f;
+  --cabinet-board-deep: #0e2a24;
+  --cabinet-paper: #243040;
+  --cabinet-paper-warm: #2c3949;
+  --cabinet-line: rgba(127, 178, 212, .1);
+  --cabinet-red-line: rgba(224, 138, 125, .2);
+  --cabinet-border: #3a4a5c;
+  --cabinet-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  --cabinet-shadow-soft: 0 4px 14px rgba(0, 0, 0, .3);
+  --v55-ink: #e9e4d6;
+  --v55-muted: #aab6c2;
+  --v55-board: #14382f;
+  --v55-board-deep: #0e2a24;
+  --v55-paper: #243040;
+  --v55-cream: #1a222d;
+  --v55-line: rgba(127, 178, 212, .1);
+  --v55-red-margin: rgba(224, 138, 125, .22);
+  --v55-blue-card: #243444;
+  --v55-pink-card: #382b33;
+  --v55-yellow-card: #38331f;
+  --v55-green-card: #22362c;
+  --v55-shadow: 0 12px 28px rgba(0, 0, 0, .4);
+}
+
+html[data-theme="dark"] body,
+html[data-theme="dark"] body.school-cabinet {
+  color: var(--ink);
+  background-color: #1a222d;
+  background-image:
+    radial-gradient(circle at 5% 13%, rgba(232, 201, 106, .07) 0 85px, transparent 87px),
+    radial-gradient(circle at 97% 76%, rgba(224, 138, 125, .05) 0 125px, transparent 127px),
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+}
+
+html[data-theme="dark"] .paper-card,
+html[data-theme="dark"] body.school-cabinet .paper-card {
+  color: var(--ink);
+  background-color: rgba(36, 48, 64, .97) !important;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 34px, rgba(127, 178, 212, .07) 35px 36px) !important;
+  border-color: rgba(255, 255, 255, .16) !important;
+}
+html[data-theme="dark"] .paper-card::before { background: rgba(224, 138, 125, .3); }
+html[data-theme="dark"] .paper-card::after {
+  background: #1a222d;
+  box-shadow: 0 46px 0 #1a222d, 0 46px 0 1px #33435a, 0 92px 0 #1a222d, 0 92px 0 1px #33435a;
+}
+
+html[data-theme="dark"] body.school-cabinet .site-header.chalkboard { background: linear-gradient(160deg, #17423a, #0f312a) !important; border-color: #0c2620; }
+html[data-theme="dark"] body.school-cabinet .site-header .brand h1 { color: #fdf8e4 !important; }
+html[data-theme="dark"] body.school-cabinet .site-header .user-copy { opacity: .85; }
+html[data-theme="dark"] body.school-cabinet .site-header .theme-toggle { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .3); }
+
+html[data-theme="dark"] body.school-cabinet .main-nav { background: rgba(20, 27, 36, .97) !important; border-color: rgba(255, 255, 255, .12); }
+html[data-theme="dark"] #protectedContent.is-authenticated > .main-nav {
+  background: rgba(20, 27, 36, .97) !important;
+  border-top-color: rgba(255, 255, 255, .12) !important;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, .35) !important;
+}
+html[data-theme="dark"] #view-contributions .campaign-totals .campaign-total-plan strong { color: var(--blue) !important; }
+html[data-theme="dark"] #view-contributions .campaign-totals .campaign-total-collected strong { color: var(--green) !important; }
+html[data-theme="dark"] body.school-cabinet .expenses-total-footer { background: transparent !important; }
+html[data-theme="dark"] body.school-cabinet .table-card { background: var(--cabinet-paper) !important; border-color: rgba(255, 255, 255, .14) !important; }
+html[data-theme="dark"] body.school-cabinet .main-nav .nav-button {
+  color: var(--ink-soft) !important;
+  background: rgba(255, 255, 255, .06) !important;
+  border-color: rgba(255, 255, 255, .14);
+}
+html[data-theme="dark"] body.school-cabinet .main-nav .nav-button span { background: rgba(255, 255, 255, .1); }
+html[data-theme="dark"] body.school-cabinet .main-nav .nav-button.active {
+  color: #fdf8e4 !important;
+  background: #1d5a45 !important;
+  border-color: #164a38;
+}
+
+html[data-theme="dark"] body.school-cabinet .utility-strip { background: rgba(36, 48, 64, .8); border-color: rgba(255, 255, 255, .12); }
+html[data-theme="dark"] body.school-cabinet .season-badge { background: var(--yellow-soft); color: var(--yellow); }
+
+html[data-theme="dark"] body.school-cabinet .section-heading h2,
+html[data-theme="dark"] body.school-cabinet .card-title-row h3,
+html[data-theme="dark"] body.school-cabinet .paper-card h3,
+html[data-theme="dark"] body.school-cabinet .paper-card h4,
+html[data-theme="dark"] body.school-cabinet .paper-card strong,
+html[data-theme="dark"] body.school-cabinet .paper-card dt { color: var(--ink); }
+html[data-theme="dark"] body.school-cabinet .section-lead,
+html[data-theme="dark"] body.school-cabinet .section-heading p,
+html[data-theme="dark"] body.school-cabinet .last-updated,
+html[data-theme="dark"] body.school-cabinet .paper-card p,
+html[data-theme="dark"] body.school-cabinet .paper-card dd { color: var(--ink-soft); }
+
+html[data-theme="dark"] body.school-cabinet .sticker { border-color: rgba(255, 255, 255, .2); }
+html[data-theme="dark"] body.school-cabinet .sticker-green { background: var(--green-soft) !important; color: var(--green) !important; }
+html[data-theme="dark"] body.school-cabinet .sticker-pink { background: var(--pink-soft) !important; color: var(--pink) !important; }
+html[data-theme="dark"] body.school-cabinet .sticker-blue { background: var(--blue-soft) !important; color: var(--blue) !important; }
+html[data-theme="dark"] body.school-cabinet .sticker-yellow { background: var(--yellow-soft) !important; color: var(--yellow) !important; }
+
+html[data-theme="dark"] body.school-cabinet input,
+html[data-theme="dark"] body.school-cabinet select,
+html[data-theme="dark"] body.school-cabinet textarea,
+html[data-theme="dark"] body.school-cabinet .search-field input {
+  color: var(--ink) !important;
+  background: #1e2936 !important;
+  border-color: rgba(255, 255, 255, .22) !important;
+}
+html[data-theme="dark"] body.school-cabinet .field > span,
+html[data-theme="dark"] body.school-cabinet .search-field span { color: var(--ink-soft); }
+
+html[data-theme="dark"] body.school-cabinet .filter-chip { background: rgba(255, 255, 255, .06) !important; border-color: var(--border) !important; color: var(--ink-soft) !important; }
+html[data-theme="dark"] body.school-cabinet .filter-chip.active { background: #1d5a45 !important; border-color: var(--green-dark) !important; color: #fdf8e4 !important; }
+html[data-theme="dark"] body.school-cabinet #view-expenses .smart-filter-bar,
+html[data-theme="dark"] body.school-cabinet .smart-filter-bar { background: rgba(36, 48, 64, .85) !important; border-color: var(--border) !important; }
+html[data-theme="dark"] body.school-cabinet #view-expenses .filter-row { background: rgba(36, 48, 64, .85) !important; border-color: var(--border) !important; }
+
+html[data-theme="dark"] body.school-cabinet .responsive-cards th {
+  color: #cfe0da !important;
+  background: #2b3949 !important;
+  border-color: rgba(255, 255, 255, .16) !important;
+}
+html[data-theme="dark"] body.school-cabinet .responsive-cards td {
+  color: var(--ink) !important;
+  border-color: rgba(255, 255, 255, .1) !important;
+  background: rgba(36, 48, 64, .97) !important;
+}
+html[data-theme="dark"] body.school-cabinet .responsive-cards tbody tr { background: rgba(36, 48, 64, .97) !important; border-color: rgba(255, 255, 255, .14) !important; }
+html[data-theme="dark"] body.school-cabinet .responsive-cards tbody td::before { color: var(--ink-soft); }
+
+html[data-theme="dark"] body.school-cabinet .expenses-total-footer th,
+html[data-theme="dark"] body.school-cabinet .expenses-total-footer td#expensesFooter {
+  color: #ffe9a8 !important;
+  background: linear-gradient(135deg, #2c3a35, #3a3d2c) !important;
+  border-color: #4d6b5e !important;
+}
+html[data-theme="dark"] #view-expenses .table-scroll table.responsive-cards tfoot tr {
+  background: rgba(232, 201, 106, .12) !important;
+  border-color: #4d6b5e !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-expenses .responsive-cards tfoot tr { background: rgba(232, 201, 106, .12) !important; border-color: #4d6b5e !important; }
+
+html[data-theme="dark"] body.school-cabinet .campaign-total-plan { background: var(--blue-soft) !important; color: var(--blue) !important; }
+html[data-theme="dark"] body.school-cabinet .campaign-total-collected { background: var(--green-soft) !important; color: var(--green) !important; }
+html[data-theme="dark"] body.school-cabinet .tag { background: var(--blue-soft) !important; color: var(--blue) !important; }
+
+html[data-theme="dark"] body.school-cabinet .notice-info { background: var(--blue-soft) !important; color: var(--blue) !important; }
+html[data-theme="dark"] body.school-cabinet .notice-warning { background: var(--yellow-soft) !important; color: var(--yellow) !important; }
+html[data-theme="dark"] body.school-cabinet .notice-error { background: var(--red-soft) !important; color: var(--red) !important; }
+html[data-theme="dark"] body.school-cabinet .notice-success { background: var(--green-soft) !important; color: var(--green) !important; }
+
+html[data-theme="dark"] body.school-cabinet .status-paid { background: var(--green-soft) !important; color: var(--green) !important; }
+html[data-theme="dark"] body.school-cabinet .status-partial { background: var(--yellow-soft) !important; color: var(--yellow) !important; }
+html[data-theme="dark"] body.school-cabinet .status-debt { background: var(--red-soft) !important; color: var(--red) !important; }
+html[data-theme="dark"] body.school-cabinet .status-closed { background: var(--blue-soft) !important; color: var(--blue) !important; }
+
+html[data-theme="dark"] body.school-cabinet .button-secondary { color: var(--ink) !important; background: rgba(255, 255, 255, .07) !important; border-color: rgba(255, 255, 255, .25) !important; box-shadow: 0 3px 0 rgba(0, 0, 0, .3) !important; }
+html[data-theme="dark"] body.school-cabinet .button-light { color: #1a222d !important; }
+
+html[data-theme="dark"] body.school-cabinet .site-footer { color: var(--ink-soft); }
+
+html[data-theme="dark"] .auth-screen,
+html[data-theme="dark"] body.school-cabinet .monitor-showcase { color: var(--ink); }
+html[data-theme="dark"] body.school-cabinet .monitor-showcase .login-card,
+html[data-theme="dark"] body.school-cabinet .monitor-showcase .auth-side,
+html[data-theme="dark"] .auth-screen .paper-card {
+  color: var(--ink);
+  background-color: rgba(36, 48, 64, .97) !important;
+  border-color: rgba(255, 255, 255, .16) !important;
+}
+html[data-theme="dark"] .auth-screen h1,
+html[data-theme="dark"] .auth-screen h2,
+html[data-theme="dark"] .auth-screen h3 { color: var(--ink); }
+html[data-theme="dark"] .auth-screen p,
+html[data-theme="dark"] body.school-cabinet .monitor-showcase p { color: var(--ink-soft); }
+
+html[data-theme="dark"] body.school-cabinet .presence-status { background: rgba(36, 48, 64, .85); color: var(--ink-soft); border-color: rgba(255, 255, 255, .14); }
+
+html[data-theme="dark"] body.school-cabinet .useful-contact-item,
+html[data-theme="dark"] body.school-cabinet .useful-day-card,
+html[data-theme="dark"] body.school-cabinet .useful-note-item { background: rgba(255, 255, 255, .05) !important; border-color: rgba(255, 255, 255, .12) !important; }
+
+html[data-theme="dark"] body.school-cabinet .payment-detail-item { background: rgba(255, 255, 255, .05) !important; border-color: rgba(255, 255, 255, .2) !important; }
+html[data-theme="dark"] body.school-cabinet .payment-details-form { border-top-color: rgba(255, 255, 255, .2); }
+html[data-theme="dark"] body.school-cabinet .payment-details-lead,
+html[data-theme="dark"] body.school-cabinet .payment-details-note,
+html[data-theme="dark"] body.school-cabinet .payment-detail-item dt { color: var(--ink-soft); }
+
+html[data-theme="dark"] .loading-screen { background: #1a222d; }
+
+/* --- Тёмная тема: поверхности вне .paper-card --- */
+html[data-theme="dark"] body.school-cabinet .section-heading,
+html[data-theme="dark"] body.school-cabinet #view-summary .section-heading {
+  background: rgba(36, 48, 64, .97) !important;
+  border-color: rgba(255, 255, 255, .14) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-summary .section-heading h2 { color: var(--ink) !important; }
+html[data-theme="dark"] body.school-cabinet .living-notebook {
+  background: rgba(36, 48, 64, .97) !important;
+  border-color: rgba(255, 255, 255, .14) !important;
+}
+html[data-theme="dark"] body.school-cabinet .chart-panel { background: rgba(255, 255, 255, .05) !important; border-color: rgba(255, 255, 255, .18) !important; }
+html[data-theme="dark"] body.school-cabinet .archive-card {
+  background: rgba(36, 48, 64, .97) !important;
+  border-color: rgba(255, 255, 255, .16) !important;
+}
+html[data-theme="dark"] body.school-cabinet .archive-card h3,
+html[data-theme="dark"] body.school-cabinet .archive-card strong { color: var(--ink); }
+
+/* --- Тёмная тема: карточки фондов и календарь на «Наш класс» --- */
+html[data-theme="dark"] #view-summary .fund-card:nth-child(1) { background: var(--blue-soft) !important; border-left-color: var(--blue) !important; }
+html[data-theme="dark"] #view-summary .fund-card:nth-child(2) { background: var(--pink-soft) !important; border-left-color: var(--pink) !important; }
+html[data-theme="dark"] #view-summary .fund-card:nth-child(3) { background: var(--yellow-soft) !important; border-left-color: var(--yellow) !important; }
+html[data-theme="dark"] #view-summary .fund-card p,
+html[data-theme="dark"] #view-summary .fund-card small { color: var(--ink-soft) !important; }
+html[data-theme="dark"] #view-summary .fund-card strong { color: var(--ink) !important; }
+html[data-theme="dark"] #view-summary .school-calendar,
+html[data-theme="dark"] #view-summary .calendar-chip { background: rgba(255, 255, 255, .08) !important; color: var(--ink) !important; border-color: rgba(255, 255, 255, .16) !important; }
+
+/* --- Тёмная тема: карточки «Классной тетради» --- */
+html[data-theme="dark"] body.school-cabinet .living-note-card { background: rgba(255, 255, 255, .06) !important; }
+html[data-theme="dark"] body.school-cabinet .living-note-balance { background: var(--green-soft) !important; }
+html[data-theme="dark"] body.school-cabinet .living-note-campaign { background: var(--blue-soft) !important; }
+html[data-theme="dark"] body.school-cabinet .living-note-calendar { background: var(--yellow-soft) !important; }
+html[data-theme="dark"] body.school-cabinet .living-note-label,
+html[data-theme="dark"] body.school-cabinet .living-note-card small { color: var(--ink-soft) !important; }
+html[data-theme="dark"] body.school-cabinet .living-note-card strong { color: var(--ink) !important; }
+html[data-theme="dark"] body.school-cabinet .living-note-balance strong { color: var(--green) !important; }
+
+/* --- Тёмная тема: «Ещё» (шаблоны, таблица управления), поиск --- */
+html[data-theme="dark"] body.school-cabinet .template-button {
+  color: var(--ink);
+  background: rgba(255, 255, 255, .06) !important;
+  border-color: rgba(255, 255, 255, .22) !important;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .3) !important;
+}
+html[data-theme="dark"] body.school-cabinet .template-button small { color: var(--ink-soft); }
+html[data-theme="dark"] body.school-cabinet .template-button:hover { background: var(--yellow-soft) !important; }
+html[data-theme="dark"] #view-settings .table-card {
+  background: rgba(36, 48, 64, .97) !important;
+  border-color: rgba(255, 255, 255, .16) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .3) !important;
+}
+html[data-theme="dark"] #view-settings .table-card .table-toolbar {
+  background: linear-gradient(90deg, rgba(127, 178, 212, .12), rgba(232, 201, 106, .1)) !important;
+  border-bottom-color: rgba(255, 255, 255, .14) !important;
+}
+html[data-theme="dark"] body.school-cabinet .search-field { background: transparent !important; border-color: rgba(255, 255, 255, .18) !important; }
+html[data-theme="dark"] body.school-cabinet .search-field span { background: transparent !important; }
+html[data-theme="dark"] #view-settings .campaigns-list-heading {
+  background: rgba(36, 48, 64, .97) !important;
+  border-color: rgba(255, 255, 255, .14) !important;
+}
+html[data-theme="dark"] #view-settings .campaigns-list-heading h3 { color: var(--ink) !important; }
+html[data-theme="dark"] #view-settings .campaigns-list-heading p { color: var(--ink-soft) !important; }
+html[data-theme="dark"] #view-settings .table-card .table-scroll { background: rgba(255, 255, 255, .04) !important; }
+html[data-theme="dark"] #view-settings .table-card thead th { color: #cfe0da !important; background: #2b3949 !important; border-bottom-color: rgba(255, 255, 255, .16) !important; }
+html[data-theme="dark"] #view-settings .table-card tbody td { background: rgba(36, 48, 64, .97) !important; color: var(--ink) !important; }
+html[data-theme="dark"] #view-settings .table-card .search-field,
+html[data-theme="dark"] #view-settings .search-field { background: transparent !important; border-color: rgba(255, 255, 255, .18) !important; }
+html[data-theme="dark"] body.school-cabinet .settings-search-row { background: rgba(255, 255, 255, .06) !important; border-color: rgba(255, 255, 255, .14) !important; }
+
+/* Touch target переключателя темы на мобильном — минимум 44px. */
+@media screen and (max-width: 900px) {
+  body.school-cabinet .site-header .theme-toggle { width: 44px; height: 44px; font-size: 1.05rem; }
+}
+
+/* Лист входа остаётся светлой бумагой — текст на нём остаётся тёмным. */
+html[data-theme="dark"] body.school-cabinet .notebook-login .notebook-header { color: #172737; }
+html[data-theme="dark"] body.school-cabinet .notebook-login .notebook-header span { color: #4c9859; }
+html[data-theme="dark"] body.school-cabinet .notebook-login .topbar-copy { color: #315d4c; }

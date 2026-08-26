@@ -7,10 +7,10 @@ const vm = require("node:vm");
 const ORIGIN = "https://budget.example";
 const SW_URL = `${ORIGIN}/sw.js?v=86`;
 const OLD_CACHE_NAME = "budget-2a-v86-artistic-chalkboard-4";
-const EXPECTED_CACHE_NAME = "budget-2a-v86-artistic-chalkboard-5";
+const EXPECTED_CACHE_NAME = "budget-2a-v86-artistic-chalkboard-6";
 const EXPECTED_APP_SHELL = [
   "./index.html",
-  "./styles.css?v=591",
+  "./styles.css?v=592",
   "./app.js?v=83",
   "./vendor/supabase.min.js?v=10",
   "./manifest.webmanifest",
@@ -202,7 +202,7 @@ async function main() {
     await currentCache.put(makeRequest(path), new FakeResponse(`old-sensitive:${path}`));
   }
 
-  const staticUrl = new URL("/styles.css?v=591", ORIGIN).href;
+  const staticUrl = new URL("/styles.css?v=592", ORIGIN).href;
   assert(currentCache.entries.has(staticUrl), "статический файл должен находиться в app-shell кэше");
 
   const oldCache = await caches.open(OLD_CACHE_NAME);
@@ -263,7 +263,7 @@ async function main() {
   assert.deepEqual(networkRequests, [new URL("/supabase/auth/v1/token", ORIGIN).href]);
   assert.equal(operations.length, 0, "POST Auth не должен обращаться к Cache Storage");
 
-  for (const path of ["/styles.css?v=591", "/app.js?v=83"]) {
+  for (const path of ["/styles.css?v=592", "/app.js?v=83"]) {
     operations.length = 0;
     networkRequests.length = 0;
     const url = new URL(path, ORIGIN).href;
