@@ -7975,6 +7975,53 @@ html[data-theme="dark"] body.school-cabinet .notebook-login .notebook-header { c
 html[data-theme="dark"] body.school-cabinet .notebook-login .notebook-header span { color: #4c9859; }
 html[data-theme="dark"] body.school-cabinet .notebook-login .topbar-copy { color: #315d4c; }
 
+/* Dark contrast polish: preserve the evening notebook palette while lifting text. */
+html[data-theme="dark"] {
+  --ink: #f7f1df;
+  --ink-soft: #d0dbd4;
+  --cabinet-ink: #f7f1df;
+  --cabinet-muted: #d0dbd4;
+  --v55-ink: #f7f1df;
+  --v55-muted: #d0dbd4;
+}
+html[data-theme="dark"] body.school-cabinet .section-lead,
+html[data-theme="dark"] body.school-cabinet .section-heading p,
+html[data-theme="dark"] body.school-cabinet .last-updated,
+html[data-theme="dark"] body.school-cabinet .paper-card p,
+html[data-theme="dark"] body.school-cabinet .paper-card dd,
+html[data-theme="dark"] body.school-cabinet .living-note-label,
+html[data-theme="dark"] body.school-cabinet .living-note-card small,
+html[data-theme="dark"] body.school-cabinet .payment-details-lead,
+html[data-theme="dark"] body.school-cabinet .payment-details-note,
+html[data-theme="dark"] body.school-cabinet .payment-detail-item dt { color: #d0dbd4 !important; }
+html[data-theme="dark"] body.school-cabinet .paper-card h3,
+html[data-theme="dark"] body.school-cabinet .paper-card h4,
+html[data-theme="dark"] body.school-cabinet .paper-card strong,
+html[data-theme="dark"] body.school-cabinet .paper-card dd strong,
+html[data-theme="dark"] body.school-cabinet .living-note-card strong,
+html[data-theme="dark"] body.school-cabinet .campaign-total-plan strong,
+html[data-theme="dark"] body.school-cabinet .campaign-total-collected strong { color: #fff8e8 !important; }
+html[data-theme="dark"] body.school-cabinet .living-note-balance strong { color: #b8f0cb !important; }
+html[data-theme="dark"] body.school-cabinet .living-note-campaign strong { color: #c6e8ff !important; }
+html[data-theme="dark"] body.school-cabinet .living-note-calendar strong { color: #ffeab0 !important; }
+html[data-theme="dark"] body.school-cabinet .responsive-cards td,
+html[data-theme="dark"] body.school-cabinet .responsive-cards td strong,
+html[data-theme="dark"] body.school-cabinet .responsive-cards tbody td::before,
+html[data-theme="dark"] body.school-cabinet .responsive-cards th { color: #eef5ed !important; }
+html[data-theme="dark"] body.school-cabinet .field > span,
+html[data-theme="dark"] body.school-cabinet .search-field span,
+html[data-theme="dark"] body.school-cabinet input::placeholder,
+html[data-theme="dark"] body.school-cabinet textarea::placeholder { color: #c8d5ce !important; opacity: 1; }
+html[data-theme="dark"] body.school-cabinet .button-secondary,
+html[data-theme="dark"] body.school-cabinet .button-light,
+html[data-theme="dark"] body.school-cabinet .filter-chip,
+html[data-theme="dark"] body.school-cabinet .tag,
+html[data-theme="dark"] body.school-cabinet .status-paid,
+html[data-theme="dark"] body.school-cabinet .status-partial,
+html[data-theme="dark"] body.school-cabinet .status-debt,
+html[data-theme="dark"] body.school-cabinet .status-closed { text-shadow: 0 1px 1px rgba(0,0,0,.35); }
+html[data-theme="dark"] body.school-cabinet .payment-detail-value { color: #fff8e8 !important; font-weight: 800; }
+
 /* Friendly class polish */
 body.school-cabinet { --cabinet-radius:18px; --cabinet-shadow:0 8px 22px rgba(39,72,58,.09); background-color:#f4efdf; background-image:linear-gradient(rgba(73,117,91,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(73,117,91,.045) 1px,transparent 1px); background-size:24px 24px; }
 body.school-cabinet .paper-card, body.school-cabinet .living-notebook, body.school-cabinet .table-card, body.school-cabinet .useful-admin-editor { border-radius:var(--cabinet-radius); box-shadow:var(--cabinet-shadow); }
