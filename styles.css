@@ -8042,6 +8042,11 @@ html[data-theme="dark"] body.school-cabinet .summary-status .last-updated { colo
 html[data-theme="dark"] body.school-cabinet .school-calendar { color: #304555 !important; background: linear-gradient(135deg, #f8f2df, #ead59b) !important; }
 html[data-theme="dark"] body.school-cabinet .school-calendar-day,
 html[data-theme="dark"] body.school-cabinet .school-calendar-month { color: #304555 !important; }
+html[data-theme="dark"] body.school-cabinet .summary-status .last-updated { color: #304555 !important; }
+html[data-theme="dark"] #view-summary .school-calendar {
+  color: #304555 !important;
+  background: linear-gradient(135deg, #f8f2df, #ead59b) !important;
+}
 
 /* Friendly class polish */
 body.school-cabinet { --cabinet-radius:18px; --cabinet-shadow:0 8px 22px rgba(39,72,58,.09); background-color:#f4efdf; background-image:linear-gradient(rgba(73,117,91,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(73,117,91,.045) 1px,transparent 1px); background-size:24px 24px; }

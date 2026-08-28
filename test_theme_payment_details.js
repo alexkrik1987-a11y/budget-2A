@@ -156,7 +156,7 @@ assert(/payment_details: \{\}/.test(app.match(/function resetBudgetDataState\(\)
 
 /* ---------- Версии ---------- */
 
-assert.equal(html.match(/styles\.css\?v=(\d+)/)?.[1], "595", "HTML должен подключать styles.css?v=595");
-assert(sw.includes('const CACHE_NAME = "budget-2a-v86-artistic-chalkboard-10";'), "cache name должен быть обновлён для новой версии стилей");
+assert.equal(html.match(/styles\.css\?v=(\d+)/)?.[1], "596", "HTML должен подключать styles.css?v=596");
+assert(sw.includes('const CACHE_NAME = "budget-2a-v86-artistic-chalkboard-11";'), "cache name должен быть обновлён для новой версии стилей");
 
 console.log("Theme + payment details checks: PASS");
