@@ -7974,3 +7974,30 @@ html[data-theme="dark"] body.school-cabinet .settings-search-row { background: r
 html[data-theme="dark"] body.school-cabinet .notebook-login .notebook-header { color: #172737; }
 html[data-theme="dark"] body.school-cabinet .notebook-login .notebook-header span { color: #4c9859; }
 html[data-theme="dark"] body.school-cabinet .notebook-login .topbar-copy { color: #315d4c; }
+
+/* Friendly class polish */
+body.school-cabinet { --cabinet-radius:18px; --cabinet-shadow:0 8px 22px rgba(39,72,58,.09); background-color:#f4efdf; background-image:linear-gradient(rgba(73,117,91,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(73,117,91,.045) 1px,transparent 1px); background-size:24px 24px; }
+body.school-cabinet .paper-card, body.school-cabinet .living-notebook, body.school-cabinet .table-card, body.school-cabinet .useful-admin-editor { border-radius:var(--cabinet-radius); box-shadow:var(--cabinet-shadow); }
+body.school-cabinet .paper-card + .paper-card { margin-top:18px; }
+body.school-cabinet .living-notebook { padding:clamp(18px,2.4vw,30px); background:#fffaf0; border:2px solid #d9cda9; }
+body.school-cabinet .living-note-card { min-height:126px; border:0; border-bottom:4px solid rgba(36,91,70,.25); border-radius:14px; box-shadow:none; }
+body.school-cabinet .living-note-card strong { font-size:clamp(1.45rem,2vw,2rem); }
+body.school-cabinet .living-notebook-flow { margin-top:18px; padding-top:16px; border-top:1px dashed #c9b98c; }
+body.school-cabinet .campaign-info-card { border-left:6px solid var(--green); }
+body.school-cabinet .campaign-total-plan, body.school-cabinet .campaign-total-collected { border:0; border-radius:12px; box-shadow:none; }
+body.school-cabinet .payment-details-card { position:relative; border:2px solid #d8c78d; background:#fff9df; }
+body.school-cabinet .payment-details-card::before { content:""; position:absolute; top:-8px; left:28px; width:74px; height:18px; background:rgba(235,202,117,.58); transform:rotate(-3deg); }
+body.school-cabinet .payment-detail-item { border:0; border-bottom:1px dashed #d9cda9; border-radius:0; background:transparent; padding:10px 0; }
+body.school-cabinet .payment-detail-item:last-child { border-bottom:0; }
+body.school-cabinet .payment-details-card button, body.school-cabinet .button { min-height:44px; }
+body.school-cabinet .smart-filter-bar, body.school-cabinet .filter-row { border-radius:14px; box-shadow:none; }
+body.school-cabinet .table-card { overflow:hidden; } body.school-cabinet .table-toolbar { padding-bottom:14px; border-bottom:1px dashed #c9b98c; }
+body.school-cabinet .archive-card { border-left:5px solid var(--blue); box-shadow:none; }
+body.school-cabinet .useful-grid { gap:18px; } body.school-cabinet .useful-card, body.school-cabinet .useful-notes-card { border:1px solid #d9cda9; }
+body.school-cabinet .useful-card:nth-child(2) { transform:rotate(.35deg); } body.school-cabinet .useful-card:nth-child(3) { transform:rotate(-.25deg); }
+body.school-cabinet .useful-admin-editor fieldset { border:0; border-top:1px dashed #c9b98c; border-radius:0; padding:16px 0 0; }
+@media screen and (max-width:768px) { body.school-cabinet { background-size:20px 20px; } body.school-cabinet .paper-card + .paper-card { margin-top:14px; } body.school-cabinet .living-notebook { padding:16px; } body.school-cabinet .living-notebook-grid, body.school-cabinet .campaign-totals, body.school-cabinet .living-notebook-actions { grid-template-columns:1fr; gap:10px; } body.school-cabinet .living-note-card { min-height:96px; padding:14px; } body.school-cabinet .payment-detail-value-row { display:grid; grid-template-columns:1fr; gap:8px; align-items:start; } body.school-cabinet .payment-detail-value { overflow-wrap:anywhere; } body.school-cabinet .payment-detail-value-row .button { width:fit-content; min-width:120px; } body.school-cabinet .useful-card:nth-child(2), body.school-cabinet .useful-card:nth-child(3) { transform:none; } }
+@media screen and (max-width:420px) { body.school-cabinet .section-heading h2 { font-size:1.45rem; } body.school-cabinet .paper-card { padding:14px; } body.school-cabinet .payment-details-card::before { left:18px; width:58px; } }
+html[data-theme="dark"] body.school-cabinet { background-color:#1b252d; background-image:linear-gradient(rgba(193,215,202,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(193,215,202,.035) 1px,transparent 1px); }
+html[data-theme="dark"] body.school-cabinet .living-notebook { background:#25332f; border-color:#49665a; } html[data-theme="dark"] body.school-cabinet .payment-details-card { background:#3b3826; border-color:#897944; }
+html[data-theme="dark"] body.school-cabinet .payment-detail-item, html[data-theme="dark"] body.school-cabinet .useful-card, html[data-theme="dark"] body.school-cabinet .useful-notes-card { border-color:rgba(220,231,211,.22); }
