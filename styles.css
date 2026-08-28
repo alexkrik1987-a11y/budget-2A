@@ -8022,6 +8022,27 @@ html[data-theme="dark"] body.school-cabinet .status-debt,
 html[data-theme="dark"] body.school-cabinet .status-closed { text-shadow: 0 1px 1px rgba(0,0,0,.35); }
 html[data-theme="dark"] body.school-cabinet .payment-detail-value { color: #fff8e8 !important; font-weight: 800; }
 
+/* Targeted dark contrast hotfix for the remaining low-contrast components. */
+html[data-theme="dark"] body.school-cabinet #livingNotebookTitle { color: #fff8e8 !important; }
+html[data-theme="dark"] body.school-cabinet .living-action-button { color: #203b4e !important; border-color: rgba(255,255,255,.24) !important; }
+html[data-theme="dark"] body.school-cabinet .living-action-button strong,
+html[data-theme="dark"] body.school-cabinet .living-action-button small { color: #203b4e !important; }
+html[data-theme="dark"] body.school-cabinet .living-action-contribution { background: #f2dce6 !important; }
+html[data-theme="dark"] body.school-cabinet .living-action-campaign { background: #f7e7ad !important; }
+html[data-theme="dark"] body.school-cabinet .living-action-chat { background: #d9ebf3 !important; }
+html[data-theme="dark"] body.school-cabinet .summary-details summary {
+  color: #fff8e8 !important;
+  background: #293847 !important;
+  border-color: #53677a !important;
+}
+html[data-theme="dark"] body.school-cabinet .summary-details summary small,
+html[data-theme="dark"] body.school-cabinet .summary-details summary span { color: #dce8e1 !important; }
+html[data-theme="dark"] body.school-cabinet .summary-details-content { color: #edf5ed !important; }
+html[data-theme="dark"] body.school-cabinet .summary-status .last-updated { color: #e8f2eb !important; }
+html[data-theme="dark"] body.school-cabinet .school-calendar { color: #304555 !important; background: linear-gradient(135deg, #f8f2df, #ead59b) !important; }
+html[data-theme="dark"] body.school-cabinet .school-calendar-day,
+html[data-theme="dark"] body.school-cabinet .school-calendar-month { color: #304555 !important; }
+
 /* Friendly class polish */
 body.school-cabinet { --cabinet-radius:18px; --cabinet-shadow:0 8px 22px rgba(39,72,58,.09); background-color:#f4efdf; background-image:linear-gradient(rgba(73,117,91,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(73,117,91,.045) 1px,transparent 1px); background-size:24px 24px; }
 body.school-cabinet .paper-card, body.school-cabinet .living-notebook, body.school-cabinet .table-card, body.school-cabinet .useful-admin-editor { border-radius:var(--cabinet-radius); box-shadow:var(--cabinet-shadow); }
