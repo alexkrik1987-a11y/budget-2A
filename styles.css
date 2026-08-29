@@ -8074,3 +8074,15 @@ body.school-cabinet .useful-admin-editor fieldset { border:0; border-top:1px das
 html[data-theme="dark"] body.school-cabinet { background-color:#1b252d; background-image:linear-gradient(rgba(193,215,202,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(193,215,202,.035) 1px,transparent 1px); }
 html[data-theme="dark"] body.school-cabinet .living-notebook { background:#25332f; border-color:#49665a; } html[data-theme="dark"] body.school-cabinet .payment-details-card { background:#3b3826; border-color:#897944; }
 html[data-theme="dark"] body.school-cabinet .payment-detail-item, html[data-theme="dark"] body.school-cabinet .useful-card, html[data-theme="dark"] body.school-cabinet .useful-notes-card { border-color:rgba(220,231,211,.22); }
+html[data-theme="dark"] body.school-cabinet #view-useful .useful-admin-editor .useful-editor-form fieldset {
+  background: rgba(20, 32, 45, .72) !important;
+  border-color: rgba(208, 219, 212, .28) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-useful .useful-editor-form legend {
+  color: #dce9df !important;
+  opacity: 1;
+}
+html[data-theme="dark"] body.school-cabinet #view-useful .useful-editor-form label {
+  color: #d0dbd4 !important;
+  opacity: 1;
+}
