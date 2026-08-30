@@ -8086,3 +8086,324 @@ html[data-theme="dark"] body.school-cabinet #view-useful .useful-editor-form lab
   color: #d0dbd4 !important;
   opacity: 1;
 }
+
+/* Full dark UI polish: shared tokens and narrowly-scoped fixes for the
+   audited light-surface leaks and mobile accessibility gaps. */
+html[data-theme="dark"] body.school-cabinet {
+  --dark-surface: #243040;
+  --dark-surface-raised: #2b3949;
+  --dark-surface-tint: rgba(255, 255, 255, .08);
+  --dark-text-primary: #f7f1df;
+  --dark-text-secondary: #d0dbd4;
+  --dark-text-on-light: #304555;
+  --dark-border: rgba(220, 231, 211, .28);
+  --dark-focus: #ffe376;
+}
+
+/* Financial details: keep the outer disclosure and its body on the same
+   dark paper surface; individual metric/card colors remain untouched. */
+html[data-theme="dark"] body.school-cabinet .summary-details {
+  color: var(--dark-text-primary) !important;
+  background: var(--dark-surface) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] body.school-cabinet .summary-details-content {
+  color: var(--dark-text-primary) !important;
+  background: transparent !important;
+}
+
+/* Archive explanatory/history surfaces. */
+html[data-theme="dark"] body.school-cabinet #view-archive .section-heading .last-updated {
+  color: var(--dark-text-secondary) !important;
+  background: var(--dark-surface-tint) !important;
+  border-color: var(--dark-border) !important;
+  opacity: 1 !important;
+}
+html[data-theme="dark"] body.school-cabinet .archive-history {
+  color: var(--dark-text-primary) !important;
+  background: var(--dark-surface) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] body.school-cabinet .archive-history .archive-metric {
+  background: var(--dark-surface-tint) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] body.school-cabinet .archive-card .thank-you-message-copy strong {
+  color: #745514 !important;
+}
+html[data-theme="dark"] body.school-cabinet .archive-card .thank-you-message-copy p {
+  color: var(--dark-text-on-light) !important;
+}
+
+/* Contributions toolbar/totals: pair dark paper with light copy, while
+   retaining the green/yellow meaning of the value cards. */
+html[data-theme="dark"] body.school-cabinet #view-contributions .table-toolbar {
+  color: var(--dark-text-primary) !important;
+  background: var(--dark-surface-raised) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-contributions .table-toolbar .read-mode-note {
+  color: var(--dark-text-secondary) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-contributions .contributions-total-footer {
+  color: var(--dark-text-primary) !important;
+  background: var(--dark-surface) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-contributions .contributions-total-footer th,
+html[data-theme="dark"] body.school-cabinet #view-contributions .contributions-total-footer td {
+  color: var(--dark-text-primary) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-contributions .campaign-total-plan span,
+html[data-theme="dark"] body.school-cabinet #view-contributions .campaign-total-collected span {
+  color: var(--dark-text-secondary) !important;
+}
+
+/* Preserve semantic edit/delete colors but provide a readable text/border
+   pair on the dark tinted row-action surfaces. */
+html[data-theme="dark"] body.school-cabinet .action-edit {
+  color: #b8f0cb !important;
+  background: rgba(108, 181, 145, .2) !important;
+  border-color: #6cb591 !important;
+}
+html[data-theme="dark"] body.school-cabinet .action-delete {
+  color: #ffd0c8 !important;
+  background: rgba(224, 138, 125, .2) !important;
+  border-color: #e08a7d !important;
+}
+html[data-theme="dark"] body.school-cabinet .status-paid {
+  color: #b8f0cb !important;
+  background: rgba(108, 181, 145, .2) !important;
+  border-color: #6cb591 !important;
+}
+html[data-theme="dark"] body.school-cabinet .status-partial {
+  color: #ffeab0 !important;
+  background: rgba(232, 201, 106, .18) !important;
+  border-color: #e8c96a !important;
+}
+html[data-theme="dark"] body.school-cabinet .status-debt {
+  color: #ffd0c8 !important;
+  background: rgba(224, 138, 125, .2) !important;
+  border-color: #e08a7d !important;
+}
+html[data-theme="dark"] body.school-cabinet .status-closed {
+  color: #c6e8ff !important;
+  background: rgba(127, 178, 212, .18) !important;
+  border-color: #7fb2d4 !important;
+}
+
+/* Keyboard focus must cover every native and disclosure control, including
+   textarea/summary which were absent from the original shared selector. */
+html[data-theme="dark"] body.school-cabinet button:focus-visible,
+html[data-theme="dark"] body.school-cabinet a:focus-visible,
+html[data-theme="dark"] body.school-cabinet input:focus-visible,
+html[data-theme="dark"] body.school-cabinet select:focus-visible,
+html[data-theme="dark"] body.school-cabinet textarea:focus-visible,
+html[data-theme="dark"] body.school-cabinet summary:focus-visible,
+html[data-theme="dark"] body.school-cabinet .living-action-button:focus-visible {
+  outline: 3px solid var(--dark-focus) !important;
+  outline-offset: 3px !important;
+}
+
+@media screen and (max-width: 900px) {
+  /* Keep the existing compact geometry while bringing primary controls to
+     the 44px touch target minimum. */
+  html[data-theme="dark"] body.school-cabinet .site-header .user-panel #logoutButton.button,
+  html[data-theme="dark"] body.school-cabinet .filter-chip,
+  html[data-theme="dark"] body.school-cabinet .action-button,
+  html[data-theme="dark"] body.school-cabinet .money-input,
+  html[data-theme="dark"] body.school-cabinet .useful-call-button,
+  html[data-theme="dark"] body.school-cabinet #copyPaymentPhoneButton,
+  html[data-theme="dark"] body.school-cabinet #copyPaymentCardButton,
+  html[data-theme="dark"] body.school-cabinet #editPaymentDetailsButton {
+    min-height: 44px !important;
+  }
+
+  /* Six compact nav items still fit at 360px while avoiding the 8px label
+     size reported by the audit. */
+  html[data-theme="dark"] body.school-cabinet .main-nav .nav-button,
+  html[data-theme="dark"] body.school-cabinet .main-nav .nav-inner:has(.nav-button.admin-only:not(.hidden)) .nav-button {
+    font-size: clamp(.62rem, 2.65vw, .72rem) !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  html[data-theme="dark"] body.school-cabinet .template-button small,
+  html[data-theme="dark"] body.school-cabinet .archive-metric small,
+  html[data-theme="dark"] body.school-cabinet .archive-status-group p {
+    font-size: .75rem !important;
+  }
+}
+
+/* Remaining analytics/admin surfaces discovered by the effective-background
+   pass.  Keep the existing semantic colors, but ensure their labels sit on
+   readable dark paper rather than legacy light cards. */
+html[data-theme="dark"] body.school-cabinet #view-summary .chart-panel h4,
+html[data-theme="dark"] body.school-cabinet #view-summary .budget-overview-total span,
+html[data-theme="dark"] body.school-cabinet #view-summary .budget-overview-row-heading span,
+html[data-theme="dark"] body.school-cabinet #view-summary .expense-distribution-label,
+html[data-theme="dark"] body.school-cabinet #view-summary .chart-legend-label {
+  color: var(--dark-text-primary) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-summary .budget-overview-row-heading strong,
+html[data-theme="dark"] body.school-cabinet #view-summary .expense-distribution-heading strong,
+html[data-theme="dark"] body.school-cabinet #view-summary .budget-overview-note,
+html[data-theme="dark"] body.school-cabinet #view-summary .expense-distribution-note,
+html[data-theme="dark"] body.school-cabinet #view-summary .chart-legend-item small {
+  color: var(--dark-text-secondary) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-summary .budget-overview-total strong {
+  color: #b8f0cb !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-summary .budget-bar-track,
+html[data-theme="dark"] body.school-cabinet #view-summary .expense-distribution-track {
+  background: rgba(255, 255, 255, .12) !important;
+  border-color: var(--dark-border) !important;
+}
+
+html[data-theme="dark"] body.school-cabinet .archive-history .archive-metric small,
+html[data-theme="dark"] body.school-cabinet .archive-history .archive-status-group p {
+  color: var(--dark-text-secondary) !important;
+}
+html[data-theme="dark"] body.school-cabinet .archive-history .archive-metric strong,
+html[data-theme="dark"] body.school-cabinet .archive-history .archive-status-group strong {
+  color: var(--dark-text-primary) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-archive .archive-metric {
+  color: var(--dark-text-primary) !important;
+  background: var(--dark-surface-raised) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-archive .archive-metric small {
+  color: var(--dark-text-secondary) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-archive .archive-metric strong {
+  color: var(--dark-text-primary) !important;
+}
+
+html[data-theme="dark"] body.school-cabinet .student-management-item,
+html[data-theme="dark"] body.school-cabinet .backup-item,
+html[data-theme="dark"] body.school-cabinet .access-request-item {
+  color: var(--dark-text-primary) !important;
+  background: var(--dark-surface-tint) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] body.school-cabinet .student-management-item small,
+html[data-theme="dark"] body.school-cabinet .backup-item small,
+html[data-theme="dark"] body.school-cabinet .access-request-copy small {
+  color: var(--dark-text-secondary) !important;
+}
+
+html[data-theme="dark"] body.school-cabinet .action-archive {
+  color: #ffeab0 !important;
+  background: rgba(232, 201, 106, .18) !important;
+  border-color: #e8c96a !important;
+}
+html[data-theme="dark"] body.school-cabinet .action-reactivate {
+  color: #c6e8ff !important;
+  background: rgba(127, 178, 212, .18) !important;
+  border-color: #7fb2d4 !important;
+}
+
+html[data-theme="dark"] body.school-cabinet #view-contributions .contributions-total-footer tr {
+  background: var(--dark-surface) !important;
+}
+
+/* Close the remaining legacy light-surface leaks in dashboard progress and
+   admin access controls.  These rules are dark-theme only; the notebook
+   palette and geometry in the light theme remain unchanged. */
+html[data-theme="dark"] body.school-cabinet #view-summary .campaign-progress-card {
+  color: var(--dark-text-primary) !important;
+  background: var(--dark-surface) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-summary .campaign-progress-identity strong,
+html[data-theme="dark"] body.school-cabinet #view-summary .campaign-progress-stat strong {
+  color: var(--dark-text-primary) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-summary .campaign-progress-identity small,
+html[data-theme="dark"] body.school-cabinet #view-summary .campaign-progress-stat small {
+  color: var(--dark-text-secondary) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-summary .campaign-progress-stat {
+  color: var(--dark-text-primary) !important;
+  background: var(--dark-surface-raised) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-summary .campaign-progress-icon {
+  background: rgba(232, 201, 106, .22) !important;
+  border-color: #e8c96a !important;
+}
+
+html[data-theme="dark"] body.school-cabinet #view-settings .access-enrollment-controls,
+html[data-theme="dark"] body.school-cabinet #view-settings .access-invite-panel {
+  color: var(--dark-text-primary) !important;
+  background: var(--dark-surface-raised) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-settings .access-invite-panel strong,
+html[data-theme="dark"] body.school-cabinet #view-settings .access-enrollment-status {
+  color: var(--dark-text-primary) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-settings .access-invite-panel p,
+html[data-theme="dark"] body.school-cabinet #view-settings .access-invite-panel .form-hint,
+html[data-theme="dark"] body.school-cabinet #view-settings #accessEnrollmentHint {
+  color: var(--dark-text-secondary) !important;
+}
+html[data-theme="dark"] body.school-cabinet #view-settings .access-invite-input {
+  color: var(--dark-text-primary) !important;
+  background: #1e2936 !important;
+  border-color: var(--dark-border) !important;
+}
+
+/* Sticker captions are meaningful labels, not decorative text. */
+html[data-theme="dark"] body.school-cabinet .sticker-orange {
+  color: #ffd8a8 !important;
+  background: rgba(227, 160, 107, .22) !important;
+  border-color: rgba(227, 160, 107, .55) !important;
+}
+html[data-theme="dark"] body.school-cabinet .sticker-green {
+  color: #b8f0cb !important;
+}
+html[data-theme="dark"] body.school-cabinet .flow-kicker {
+  color: #a9d5f2 !important;
+}
+
+/* Final mobile touch-target pass.  The legacy shell and roster rules use
+   higher-specificity 40px heights, so these dark-only selectors raise the
+   hit area without changing typography, colors, or business behavior. */
+@media screen and (max-width: 768px) {
+  html[data-theme="dark"] body.school-cabinet #protectedContent .site-header .user-panel #logoutButton.button {
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+  html[data-theme="dark"] body.school-cabinet #view-settings .student-management-item .row-actions .action-button {
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+  html[data-theme="dark"] body.school-cabinet #view-settings .access-request-actions .button {
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+  html[data-theme="dark"] body.school-cabinet .chat-message-header {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  html[data-theme="dark"] body.school-cabinet .chat-pin-button,
+  html[data-theme="dark"] body.school-cabinet .chat-pinned-unpin,
+  html[data-theme="dark"] body.school-cabinet .chat-delete-button {
+    display: inline-flex;
+    flex: 0 0 44px;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 7px 5px;
+    border: 1px dashed currentColor;
+    border-radius: 8px;
+    line-height: 1.1;
+    text-align: center;
+  }
+}
