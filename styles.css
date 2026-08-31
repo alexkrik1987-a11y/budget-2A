@@ -5887,6 +5887,11 @@ th, td { overflow-wrap: anywhere; word-break: break-word; }
   #view-expenses .smart-filter-bar .button { min-height: 44px; }
   #view-expenses .table-card { border: 1px solid var(--border); }
   #view-expenses thead th { background: #eef4f5; }
+  html[data-theme="light"] body.school-cabinet #view-expenses .expenses-table thead th {
+    color: #294554;
+    border-color: #c3d4d7;
+    opacity: 1;
+  }
   #view-expenses .expense-amount { color: var(--red-dark); font-weight: 900; font-variant-numeric: tabular-nums; }
   #view-expenses .expenses-total-footer th { background: #f5f2e8; border-color: #dcd5be !important; }
   #view-expenses .expenses-total-footer td#expensesFooter { color: var(--green-dark); background: var(--green-soft); border-color: #9bcfaf !important; font-variant-numeric: tabular-nums; }
