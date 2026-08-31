@@ -8371,6 +8371,18 @@ html[data-theme="dark"] body.school-cabinet .flow-kicker {
   color: #a9d5f2 !important;
 }
 
+/* Keep two-digit dates on one line inside the compact calendar icon. */
+body.school-cabinet .living-calendar-icon > strong {
+  font-size: 1.08rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  body.school-cabinet .living-calendar-icon > strong {
+    font-size: .9rem;
+  }
+}
+
 /* Final mobile touch-target pass.  The legacy shell and roster rules use
    higher-specificity 40px heights, so these dark-only selectors raise the
    hit area without changing typography, colors, or business behavior. */
