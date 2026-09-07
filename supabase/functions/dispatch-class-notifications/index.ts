@@ -250,4 +250,4 @@ export async function handleWorkerRequest(req: Request, ctx: { supabaseAdmin: Ba
 // Pinned SDK checks the apikey against configured backend secrets. No user-JWT,
 // publishable-key or auth:none fallback. Production secret -> service_role
 // capability must still be verified independently before any deployment.
-export default { fetch: withSupabase({ auth: "secret" }, handleWorkerRequest) };
+export default { fetch: withSupabase({ auth: "secret", cors: "disabled" }, handleWorkerRequest) };

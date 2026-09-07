@@ -9,6 +9,9 @@ const root = __dirname;
 const dir = path.join(root, "supabase/functions");
 const sql = fs.readFileSync(path.join(root, "push-notifications-durable-dispatch.sql"), "utf8");
 const workerSource = fs.readFileSync(path.join(dir, "dispatch-class-notifications/index.ts"), "utf8");
+assert.match(workerSource, /withSupabase\(\{ auth: "secret", cors: "disabled" \}/,
+  "worker must disable SDK wildcard CORS, including auth errors and OPTIONS");
+assert.doesNotMatch(workerSource, /access-control-allow-origin|withAdminCors/i);
 const contractPath = path.join(dir, "_shared/notification-contract.ts");
 async function loadWorker() {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "budget2a-durable-worker-test-"));

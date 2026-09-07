@@ -63,6 +63,7 @@ async function importFunctionWithLocalStubs() {
   fs.mkdirSync(serverPackagePath, { recursive: true });
   fs.mkdirSync(webPushPackagePath, { recursive: true });
   fs.copyFileSync(contractPath, path.join(sharedPath, "notification-contract.ts"));
+  fs.copyFileSync(path.join(root, "supabase/functions/_shared/cors.ts"), path.join(sharedPath, "cors.ts"));
   fs.copyFileSync(webPushPath, path.join(sharedPath, "web-push.ts"));
   fs.copyFileSync(functionPath, path.join(functionDirectory, "index.ts"));
   fs.writeFileSync(path.join(serverPackagePath, "package.json"), JSON.stringify({ type: "module", exports: "./index.js" }));
@@ -84,6 +85,39 @@ async function importFunctionWithLocalStubs() {
 
 (async () => {
   const contract = await import(pathToFileURL(contractPath).href);
+  const { withAdminCors, ADMIN_ORIGIN } = await import(pathToFileURL(path.join(root, "supabase/functions/_shared/cors.ts")).href);
+  let corsCalls = 0;
+  const corsHandler = withAdminCors(() => {
+    corsCalls++;
+    return Response.json({ error: "unauthorized" }, { status: 401, headers: { vary: "Accept" } });
+  });
+  const corsRequest = (origin, method = "POST", extra = {}) => new Request("http://localhost/admin", {
+    method, headers: { ...(origin === undefined ? {} : { origin }), ...extra },
+  });
+  for (const origin of [ADMIN_ORIGIN, undefined]) {
+    const result = await corsHandler(corsRequest(origin));
+    assert.equal(result.status, 401, "CORS must not bypass authentication");
+    assert.equal(result.headers.get("access-control-allow-origin"), origin ?? null);
+    assert.equal(result.headers.get("vary"), "Accept, Origin");
+  }
+  for (const origin of ["https://evil.invalid", "null", ADMIN_ORIGIN + ".evil.invalid"]) {
+    const result = await corsHandler(corsRequest(origin));
+    assert.equal(result.status, 403);
+    assert.equal(result.headers.get("access-control-allow-origin"), null);
+  }
+  const preflight = { "access-control-request-method": "POST",
+    "access-control-request-headers": "Authorization, apikey, Content-Type, x-client-info" };
+  const accepted = await corsHandler(corsRequest(ADMIN_ORIGIN, "OPTIONS", preflight));
+  assert.equal(accepted.status, 204);
+  assert.equal(accepted.headers.get("access-control-allow-origin"), ADMIN_ORIGIN);
+  assert.equal(accepted.headers.get("access-control-allow-methods"), "POST");
+  for (const [origin, extra] of [["https://evil.invalid", preflight], [undefined, preflight],
+    [ADMIN_ORIGIN, { ...preflight, "access-control-request-method": "DELETE" }],
+    [ADMIN_ORIGIN, { ...preflight, "access-control-request-headers": "x-unapproved" }]]) {
+    assert.equal((await corsHandler(corsRequest(origin, "OPTIONS", extra))).status, 403);
+  }
+  assert.equal(corsCalls, 2, "preflight/rejected origins never invoke authenticated handler");
+  assert.match(functionSource, /withAdminCors\(withSupabase\(\{ auth: "user", cors: "disabled" \}/);
   const { buildEventDraft, buildPushPayload, canonicalJson, FIXED_SOURCE_IDS, parseNotificationRequest,
     validateNotificationRequest } = contract;
   const { loadVapidConfig } = await importWebPushWithLocalStub();

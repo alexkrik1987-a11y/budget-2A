@@ -1,4 +1,5 @@
 import { withSupabase } from "@supabase/server";
+import { withAdminCors } from "../_shared/cors.ts";
 import {
   buildEventDraft, ContractError, type NotificationRequest, parseNotificationRequest, REQUEST_MAX_BYTES,
   type BackendClient, createBudget, bounded, durableRpc, RpcFailure, UUID_PATTERN,
@@ -89,4 +90,4 @@ export async function handleAdminRequest(req: Request, ctx: {
 }
 // JWT verification remains the pinned SDK's responsibility. Membership/admin
 // authorization above is trusted DB state, never user_metadata.
-export default { fetch: withSupabase({ auth: "user" }, handleAdminRequest) };
+export default { fetch: withAdminCors(withSupabase({ auth: "user", cors: "disabled" }, handleAdminRequest)) };
