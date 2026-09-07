@@ -63,8 +63,8 @@ assert(html.includes("память хорошая, а чек всё-таки н�
 assert(!/2×2=5|Не пались|Где деньги, Зин/i.test(html), "в новых декоративных текстах не должно быть намеренных ошибок или резких формулировок");
 
 const htmlStyleAsset = html.match(/href="(styles\.css\?v=\d+)"/)?.[1];
-assert.equal(htmlStyleAsset, "styles.css?v=602", "HTML должен подключать новую версию стилей");
+assert.equal(htmlStyleAsset, "styles.css?v=603", "HTML должен подключать новую версию стилей");
 assert(sw.includes(`./${htmlStyleAsset}`), "Service Worker должен кешировать ту же версию CSS");
-assert(sw.includes('const CACHE_NAME = "budget-2a-v88-household-funds-1";'), "cache name должен быть обновлён для редизайна");
+assert(sw.includes('const CACHE_NAME = "budget-2a-v89-household-funds-card-2";'), "cache name должен быть обновлён для редизайна");
 
 console.log("visual parent cabinet checks: PASS");
