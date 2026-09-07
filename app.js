@@ -316,7 +316,7 @@ function cacheDom() {
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary",
     "livingNotebook", "liveNotebookBalance", "liveNotebookBalanceNote", "liveNotebookCampaign", "liveNotebookCampaignNote", "liveNotebookDate", "liveNotebookDateNote", "liveNotebookCalendarMonth", "liveNotebookCalendarDay", "liveNotebookCollected", "liveNotebookSpent", "liveNotebookRemaining", "liveNotebookMessage", "parentOnboardingGuide",
     "fundExpenseChart", "categoryExpenseChart", "reportMonthSelect", "downloadCsvButton", "printReportButton", "printReport",
-    "usefulContacts", "usefulSchoolName", "usefulSchoolAddress", "usefulSchoolMapLink", "usefulSchedule", "usefulNotes", "pushNotificationStatus", "pushNotificationHint", "enablePushNotificationsButton", "disablePushNotificationsButton", "notificationPreferencesForm", "notificationScheduleEnabled", "notificationMemosEnabled", "notificationAnnouncementsEnabled", "notificationPreferencesStatus", "saveNotificationPreferencesButton", "usefulAdminEditor", "usefulInfoForm", "usefulTeacherName", "usefulTeacherPhone", "usefulChairName", "usefulChairPhone", "usefulDeputyName", "usefulDeputyPhone", "usefulSchoolNameInput", "usefulSchoolAddressInput", "usefulSchoolMapInput", "usefulScheduleMon", "usefulScheduleTue", "usefulScheduleWed", "usefulScheduleThu", "usefulScheduleFri", "usefulNotesInput", "notifyScheduleParents", "notifyMemoParents", "usefulInfoFormError", "saveUsefulInfoButton",
+    "usefulContacts", "usefulSchoolName", "usefulSchoolAddress", "usefulSchoolMapLink", "usefulSchedule", "usefulNotes", "copyHouseholdFundsPhoneButton", "pushNotificationStatus", "pushNotificationHint", "enablePushNotificationsButton", "disablePushNotificationsButton", "notificationPreferencesForm", "notificationScheduleEnabled", "notificationMemosEnabled", "notificationAnnouncementsEnabled", "notificationPreferencesStatus", "saveNotificationPreferencesButton", "usefulAdminEditor", "usefulInfoForm", "usefulTeacherName", "usefulTeacherPhone", "usefulChairName", "usefulChairPhone", "usefulDeputyName", "usefulDeputyPhone", "usefulSchoolNameInput", "usefulSchoolAddressInput", "usefulSchoolMapInput", "usefulScheduleMon", "usefulScheduleTue", "usefulScheduleWed", "usefulScheduleThu", "usefulScheduleFri", "usefulNotesInput", "notifyScheduleParents", "notifyMemoParents", "usefulInfoFormError", "saveUsefulInfoButton",
     "recentExpenses", "campaignSelect", "campaignTypeTag", "selectedCampaignName",
     "selectedCampaignMeta", "campaignPlanTotal", "campaignCollectedTotal", "editModeText",
     "contributionsTableBody", "contributionsPlanFooter", "contributionsPaidFooter", "studentSearchInput",
@@ -410,6 +410,7 @@ function bindEvents() {
   if (dom.themeToggleButton) dom.themeToggleButton.addEventListener("click", toggleTheme);
   if (dom.copyPaymentPhoneButton) dom.copyPaymentPhoneButton.addEventListener("click", () => copyPaymentValue("phone", dom.copyPaymentPhoneButton));
   if (dom.copyPaymentCardButton) dom.copyPaymentCardButton.addEventListener("click", () => copyPaymentValue("card", dom.copyPaymentCardButton));
+  if (dom.copyHouseholdFundsPhoneButton) dom.copyHouseholdFundsPhoneButton.addEventListener("click", () => copyHouseholdFundsPhone(dom.copyHouseholdFundsPhoneButton));
   if (dom.editPaymentDetailsButton) dom.editPaymentDetailsButton.addEventListener("click", openPaymentEditor);
   if (dom.addPaymentDetailsButton) dom.addPaymentDetailsButton.addEventListener("click", openPaymentEditor);
   if (dom.cancelPaymentDetailsButton) dom.cancelPaymentDetailsButton.addEventListener("click", closePaymentEditor);
@@ -2005,6 +2006,41 @@ async function copyPaymentValue(field, button) {
   }
   button.textContent = "Скопировано ✓";
   window.setTimeout(() => { button.textContent = "Скопировать"; }, 1600);
+}
+
+async function copyHouseholdFundsPhone(button) {
+  if (!button) return;
+  const value = "+7 914 979-14-12";
+  let copied = false;
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      copied = true;
+    }
+  } catch (_) {
+    copied = false;
+  }
+  if (!copied) {
+    try {
+      const helper = document.createElement("textarea");
+      helper.value = value;
+      helper.setAttribute("readonly", "");
+      helper.className = "visually-hidden-copy-helper";
+      document.body.append(helper);
+      helper.select();
+      copied = document.execCommand("copy");
+      helper.remove();
+    } catch (_) {
+      copied = false;
+    }
+  }
+  if (!copied) {
+    button.textContent = "Не удалось скопировать";
+    window.setTimeout(() => { button.textContent = "Скопировать номер"; }, 1600);
+    return;
+  }
+  button.textContent = "Скопировано ✓";
+  window.setTimeout(() => { button.textContent = "Скопировать номер"; }, 1600);
 }
 
 function createUsefulContact(label, name, phone) {
@@ -4674,7 +4710,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=87", window.location.href);
+  const workerUrl = new URL("./sw.js?v=88", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }

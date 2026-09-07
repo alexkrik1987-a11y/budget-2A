@@ -1,14 +1,14 @@
 "use strict";
 
-const CACHE_NAME = "budget-2a-v87-push-notifications-1";
+const CACHE_NAME = "budget-2a-v88-household-funds-1";
 const ROOT_PATH = new URL("./", self.location.href).pathname;
 const INDEX_URL = new URL("./index.html", self.location.href).href;
 const INDEX_PATH = new URL(INDEX_URL).pathname;
 const SUPABASE_PATH_PREFIX = "/supabase/";
 const APP_SHELL = [
   "./index.html",
-  "./styles.css?v=601",
-  "./app.js?v=85",
+  "./styles.css?v=602",
+  "./app.js?v=86",
   "./vendor/supabase.min.js?v=10",
   "./manifest.webmanifest",
   "./icons/class-2a.svg",

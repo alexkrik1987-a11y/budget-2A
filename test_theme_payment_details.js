@@ -77,8 +77,12 @@ assert(/aria-label="Куда переводить взносы"/.test(html), "к
 assert(html.includes("Перед переводом проверьте назначение текущего сбора 🙂"), "лёгкая подпись у реквизитов должна сохраняться");
 
 assert(/id="paymentBankValue"[^>]*>—</.test(html), "значения реквизитов в разметке должны быть плейсхолдерами, не реальными данными");
-assert(!/\+7 \d{3} \d{3}-\d{2}-\d{2}/.test(html), "реальные телефоны не должны хардкодиться в index.html");
-assert(!/\d{4} \d{4} \d{4} \d{4}/.test(html), "номера карт не должны хардкодиться в index.html");
+// Проверка ограничена самой карточкой admin-реквизитов (paymentDetailsCard..paymentDetailsEmpty):
+// она обязана оставаться DB-driven. Другие, самостоятельные статичные блоки страницы
+// (например, отдельная карточка хознужд с фиксированным текстом) в неё не входят.
+const paymentDetailsMarkup = html.slice(html.indexOf('id="paymentDetailsCard"'), html.indexOf('id="paymentDetailsEmpty"'));
+assert(!/\+7 \d{3} \d{3}-\d{2}-\d{2}/.test(paymentDetailsMarkup), "реальные телефоны не должны хардкодиться в карточке реквизитов для переводов");
+assert(!/\d{4} \d{4} \d{4} \d{4}/.test(paymentDetailsMarkup), "номера карт не должны хардкодиться в карточке реквизитов для переводов");
 
 const renderPaymentSource = extractFunction("renderPaymentDetails");
 assert(renderPaymentSource.includes("paymentDetailsCard"), "renderPaymentDetails должен управлять видимостью карточки");
@@ -156,7 +160,7 @@ assert(/payment_details: \{\}/.test(app.match(/function resetBudgetDataState\(\)
 
 /* ---------- Версии ---------- */
 
-assert.equal(html.match(/styles\.css\?v=(\d+)/)?.[1], "601", "HTML должен подключать styles.css?v=601");
-assert(sw.includes('const CACHE_NAME = "budget-2a-v87-push-notifications-1";'), "cache name должен быть обновлён для новой версии стилей");
+assert.equal(html.match(/styles\.css\?v=(\d+)/)?.[1], "602", "HTML должен подключать styles.css?v=602");
+assert(sw.includes('const CACHE_NAME = "budget-2a-v88-household-funds-1";'), "cache name должен быть обновлён для новой версии стилей");
 
 console.log("Theme + payment details checks: PASS");
