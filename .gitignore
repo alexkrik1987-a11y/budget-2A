@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.example
+
+supabase/.branches/
+supabase/.temp/
+supabase/functions/.env
+supabase/functions/.env.*
+!supabase/functions/.env.example

@@ -1,0 +1,10 @@
+project_id = "budget2a"
+
+[functions.send-class-notification]
+enabled = true
+verify_jwt = true
+
+[functions.dispatch-class-notifications]
+enabled = true
+# Backend-only apikey authentication is enforced by withSupabase auth:secret.
+verify_jwt = false
