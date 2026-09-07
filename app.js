@@ -13,6 +13,11 @@ const GOOGLE_WEB_CLIENT_ID = "572053102514-fhg5i79488bf3romhul65bktoenhg7d4.apps
 const APP_VERSION = "V1.2";
 const SESSION_RESTORE_HINT_KEY = "budget-2a-session-hint";
 const PRESENCE_TOPIC = "class:2a:presence";
+const VAPID_PUBLIC_KEY = "BByY5uYOHQePDhz-wMJGKx6hi3CDveYjZ6GuTKHudRViEI04Kxbbe4k4psZtlvjvaaVqVdr6QXfWn42K4tSWD2o";
+const NOTIFICATION_SOURCE_IDS = {
+  schedule: "class_profile:useful_info.schedule",
+  memo: "class_profile:useful_info.notes"
+};
 const presenceSessionId = crypto.randomUUID();
 const INITIAL_AUTH_HASH = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 const IS_INITIAL_PASSWORD_RECOVERY = INITIAL_AUTH_HASH.get("type") === "recovery";
@@ -139,7 +144,19 @@ const state = {
   loadedSessionRunId: 0,
   loadRunId: 0,
   sessionRunId: 0,
-  handledSessionIdentity: null
+  handledSessionIdentity: null,
+  pushSupported: false,
+  pushPermission: "default",
+  browserPushSubscription: null,
+  pushSubscriptionEnabled: false,
+  pushBusy: false,
+  notificationPreferences: {
+    schedule_enabled: true,
+    memos_enabled: true,
+    announcements_enabled: true
+  },
+  notificationPreferencesReady: false,
+  notificationPreferencesError: null
 };
 
 const dom = {};
@@ -169,6 +186,18 @@ function resetBudgetDataState() {
   state.enrollmentOpen = false;
   state.pendingEnrollmentMutation = null;
   state.accessRequests = [];
+  state.pushSupported = false;
+  state.pushPermission = "default";
+  state.browserPushSubscription = null;
+  state.pushSubscriptionEnabled = false;
+  state.pushBusy = false;
+  state.notificationPreferences = {
+    schedule_enabled: true,
+    memos_enabled: true,
+    announcements_enabled: true
+  };
+  state.notificationPreferencesReady = false;
+  state.notificationPreferencesError = null;
   setBudgetDataReady(false);
 }
 
@@ -287,7 +316,7 @@ function cacheDom() {
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary",
     "livingNotebook", "liveNotebookBalance", "liveNotebookBalanceNote", "liveNotebookCampaign", "liveNotebookCampaignNote", "liveNotebookDate", "liveNotebookDateNote", "liveNotebookCalendarMonth", "liveNotebookCalendarDay", "liveNotebookCollected", "liveNotebookSpent", "liveNotebookRemaining", "liveNotebookMessage", "parentOnboardingGuide",
     "fundExpenseChart", "categoryExpenseChart", "reportMonthSelect", "downloadCsvButton", "printReportButton", "printReport",
-    "usefulContacts", "usefulSchoolName", "usefulSchoolAddress", "usefulSchoolMapLink", "usefulSchedule", "usefulNotes", "usefulAdminEditor", "usefulInfoForm", "usefulTeacherName", "usefulTeacherPhone", "usefulChairName", "usefulChairPhone", "usefulDeputyName", "usefulDeputyPhone", "usefulSchoolNameInput", "usefulSchoolAddressInput", "usefulSchoolMapInput", "usefulScheduleMon", "usefulScheduleTue", "usefulScheduleWed", "usefulScheduleThu", "usefulScheduleFri", "usefulNotesInput", "usefulInfoFormError", "saveUsefulInfoButton",
+    "usefulContacts", "usefulSchoolName", "usefulSchoolAddress", "usefulSchoolMapLink", "usefulSchedule", "usefulNotes", "pushNotificationStatus", "pushNotificationHint", "enablePushNotificationsButton", "disablePushNotificationsButton", "notificationPreferencesForm", "notificationScheduleEnabled", "notificationMemosEnabled", "notificationAnnouncementsEnabled", "notificationPreferencesStatus", "saveNotificationPreferencesButton", "usefulAdminEditor", "usefulInfoForm", "usefulTeacherName", "usefulTeacherPhone", "usefulChairName", "usefulChairPhone", "usefulDeputyName", "usefulDeputyPhone", "usefulSchoolNameInput", "usefulSchoolAddressInput", "usefulSchoolMapInput", "usefulScheduleMon", "usefulScheduleTue", "usefulScheduleWed", "usefulScheduleThu", "usefulScheduleFri", "usefulNotesInput", "notifyScheduleParents", "notifyMemoParents", "usefulInfoFormError", "saveUsefulInfoButton",
     "recentExpenses", "campaignSelect", "campaignTypeTag", "selectedCampaignName",
     "selectedCampaignMeta", "campaignPlanTotal", "campaignCollectedTotal", "editModeText",
     "contributionsTableBody", "contributionsPlanFooter", "contributionsPaidFooter", "studentSearchInput",
@@ -307,7 +336,7 @@ function cacheDom() {
     "studentFormError", "saveStudentButton", "startSchoolYearForm", "nextClassName", "nextSchoolYear",
     "schoolYearFormError", "startSchoolYearButton", "expenseCampaign",
     "chatToggleButton", "chatUnreadBadge", "chatBackdrop", "classChatPanel", "closeChatButton", "chatStatus", "chatPinnedAnnouncement",
-    "chatMessageList", "chatForm", "chatMessageInput", "chatCharacterCount", "sendChatButton",
+    "chatMessageList", "chatForm", "chatMessageInput", "chatCharacterCount", "sendChatButton", "chatNotifyParentsInput",
     "accessEnrollmentStatus", "toggleAccessEnrollmentButton", "accessEnrollmentHint", "accessInviteLink", "copyAccessInviteLinkButton", "openAccessInviteLinkButton", "accessInviteLinkStatus", "accessRequestError", "accessRequestList"
   ];
 
@@ -375,6 +404,9 @@ function bindEvents() {
   if (dom.parentChildOnboardingForm) dom.parentChildOnboardingForm.addEventListener("submit", saveParentChildOnboarding);
   if (dom.parentOnboardingGuide) dom.parentOnboardingGuide.addEventListener("click", handleParentOnboardingGuideAction);
   if (dom.usefulInfoForm) dom.usefulInfoForm.addEventListener("submit", saveUsefulInfo);
+  if (dom.enablePushNotificationsButton) dom.enablePushNotificationsButton.addEventListener("click", enablePushNotifications);
+  if (dom.disablePushNotificationsButton) dom.disablePushNotificationsButton.addEventListener("click", disablePushNotifications);
+  if (dom.notificationPreferencesForm) dom.notificationPreferencesForm.addEventListener("submit", saveNotificationPreferences);
   if (dom.themeToggleButton) dom.themeToggleButton.addEventListener("click", toggleTheme);
   if (dom.copyPaymentPhoneButton) dom.copyPaymentPhoneButton.addEventListener("click", () => copyPaymentValue("phone", dom.copyPaymentPhoneButton));
   if (dom.copyPaymentCardButton) dom.copyPaymentCardButton.addEventListener("click", () => copyPaymentValue("card", dom.copyPaymentCardButton));
@@ -917,6 +949,7 @@ async function handleSession(session, runId) {
     setProtectedAccess(true);
     hideLoadingScreen();
     void subscribePresence();
+    void loadNotificationSettings();
 
     if (state.loadedSessionUserId !== session.user.id || state.loadedSessionRunId !== runId) {
       state.loadedSessionUserId = session.user.id;
@@ -2049,9 +2082,318 @@ function fillUsefulEditor(info = normalizeUsefulInfo(state.classProfile?.useful_
   });
 }
 
+function supportsPushNotifications() {
+  return typeof window.Notification !== "undefined"
+    && "serviceWorker" in navigator
+    && "PushManager" in window;
+}
+
+function isIosPushInstallationRequired() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) && !isStandalone();
+}
+
+function urlBase64ToUint8Array(value) {
+  const normalized = String(value || "").replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+  const bytes = window.atob(padded);
+  return Uint8Array.from(bytes, (character) => character.charCodeAt(0));
+}
+
+function arrayBufferToBase64Url(value) {
+  const bytes = new Uint8Array(value);
+  let binary = "";
+  bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+  return window.btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/u, "");
+}
+
+function pushSubscriptionKey(subscription, name) {
+  const jsonValue = subscription.toJSON?.().keys?.[name];
+  if (typeof jsonValue === "string" && jsonValue) return jsonValue;
+  const key = subscription.getKey?.(name);
+  return key ? arrayBufferToBase64Url(key) : "";
+}
+
+function currentDeviceLabel() {
+  const source = `${navigator.platform || ""} ${navigator.userAgent || ""}`.toLowerCase();
+  if (/iphone|ipad|ipod/.test(source)) return "iPhone / iPad";
+  if (/android/.test(source)) return "Android";
+  if (/windows/.test(source)) return "Windows";
+  if (/macintosh|mac os/.test(source)) return "Mac";
+  return "Браузер";
+}
+
+function setNotificationPreferencesMessage(message = "", type = "info") {
+  if (!dom.notificationPreferencesStatus) return;
+  dom.notificationPreferencesStatus.textContent = message;
+  dom.notificationPreferencesStatus.classList.toggle("hidden", !message);
+  dom.notificationPreferencesStatus.classList.toggle("notice-error", type === "error");
+  dom.notificationPreferencesStatus.classList.toggle("notice-info", type !== "error");
+}
+
+function renderNotificationPreferences() {
+  const preferences = state.notificationPreferences;
+  const fields = [
+    [dom.notificationScheduleEnabled, "schedule_enabled"],
+    [dom.notificationMemosEnabled, "memos_enabled"],
+    [dom.notificationAnnouncementsEnabled, "announcements_enabled"]
+  ];
+  fields.forEach(([input, key]) => {
+    if (input && document.activeElement !== input) input.checked = preferences[key] !== false;
+  });
+  if (dom.notificationPreferencesForm) {
+    dom.notificationPreferencesForm.classList.toggle("is-loading", !state.notificationPreferencesReady);
+  }
+  if (dom.saveNotificationPreferencesButton) {
+    dom.saveNotificationPreferencesButton.disabled = !state.session || !state.notificationPreferencesReady;
+  }
+  if (state.notificationPreferencesError) {
+    setNotificationPreferencesMessage("Настройки пока не загрузились. Проверьте интернет и попробуйте снова.", "error");
+  } else if (!state.notificationPreferencesReady) {
+    setNotificationPreferencesMessage("Загружаем настройки…", "info");
+  } else {
+    setNotificationPreferencesMessage();
+  }
+}
+
+function renderPushNotificationStatus() {
+  if (!dom.pushNotificationStatus) return;
+  const supported = state.pushSupported;
+  const denied = state.pushPermission === "denied";
+  const active = Boolean(state.browserPushSubscription && state.pushSubscriptionEnabled);
+  let message = "Уведомления на этом устройстве выключены.";
+  let status = "off";
+  if (!state.session) {
+    message = "Войдите в аккаунт, чтобы настроить уведомления.";
+  } else if (!supported) {
+    message = isIosPushInstallationRequired()
+      ? "На iPhone и iPad сначала установите сайт на экран «Домой», затем откройте его как приложение."
+      : "Этот браузер не поддерживает push-уведомления.";
+    status = "unavailable";
+  } else if (denied) {
+    message = "Уведомления запрещены в настройках браузера. Разрешите их для этого сайта.";
+    status = "denied";
+  } else if (active) {
+    message = "Уведомления включены на этом устройстве.";
+    status = "on";
+  } else if (state.browserPushSubscription) {
+    message = "Подписка браузера найдена. Нажмите «Включить», чтобы активировать её для класса.";
+  }
+  dom.pushNotificationStatus.textContent = message;
+  dom.pushNotificationStatus.dataset.status = status;
+  if (dom.pushNotificationHint) {
+    dom.pushNotificationHint.textContent = isIosPushInstallationRequired()
+      ? "На iOS push работает только у сайта, установленного на экран «Домой»."
+      : "Разрешение браузер запросит только после нажатия кнопки «Включить».";
+  }
+  if (dom.enablePushNotificationsButton) {
+    dom.enablePushNotificationsButton.disabled = state.pushBusy || !state.session || !supported || denied || active;
+  }
+  if (dom.disablePushNotificationsButton) {
+    dom.disablePushNotificationsButton.disabled = state.pushBusy || !state.session || !state.browserPushSubscription;
+  }
+}
+
+async function activeServiceWorkerRegistration() {
+  const registration = await withTimeout(
+    () => navigator.serviceWorker.ready,
+    "подготовка уведомлений",
+    CORE_DATA_TIMEOUT_MS
+  );
+  if (!registration?.active) throw new Error("Service Worker ещё не готов. Обновите страницу и попробуйте снова.");
+  return registration;
+}
+
+async function refreshPushSubscriptionStatus() {
+  state.pushSupported = supportsPushNotifications();
+  state.pushPermission = state.pushSupported ? window.Notification.permission : "default";
+  state.browserPushSubscription = null;
+  state.pushSubscriptionEnabled = false;
+  renderPushNotificationStatus();
+  if (!state.session || !state.pushSupported) return;
+
+  try {
+    const registration = await activeServiceWorkerRegistration();
+    const subscription = await registration.pushManager.getSubscription();
+    state.browserPushSubscription = subscription;
+    if (subscription) {
+      const { data, error } = await db.from("push_subscriptions")
+        .select("enabled")
+        .eq("user_id", state.user.id)
+        .eq("endpoint", subscription.endpoint)
+        .maybeSingle();
+      if (error) throw error;
+      state.pushSubscriptionEnabled = data?.enabled === true;
+    }
+  } catch (error) {
+    console.warn("Push subscription status unavailable:", friendlyError(error));
+  }
+  renderPushNotificationStatus();
+}
+
+async function loadNotificationSettings() {
+  state.pushSupported = supportsPushNotifications();
+  state.pushPermission = state.pushSupported ? window.Notification.permission : "default";
+  state.notificationPreferencesReady = false;
+  state.notificationPreferencesError = null;
+  renderNotificationPreferences();
+  renderPushNotificationStatus();
+  if (!state.session) return;
+
+  const { data, error } = await db.from("notification_preferences")
+    .select("schedule_enabled, memos_enabled, announcements_enabled")
+    .eq("user_id", state.user.id)
+    .maybeSingle();
+  if (error) {
+    state.notificationPreferencesError = error;
+  } else {
+    state.notificationPreferences = {
+      schedule_enabled: data?.schedule_enabled !== false,
+      memos_enabled: data?.memos_enabled !== false,
+      announcements_enabled: data?.announcements_enabled !== false
+    };
+    state.notificationPreferencesReady = true;
+  }
+  renderNotificationPreferences();
+  await refreshPushSubscriptionStatus();
+}
+
+async function enablePushNotifications() {
+  if (!state.session || !state.user?.id) return showNotice("Сначала войдите в аккаунт.", "error");
+  state.pushSupported = supportsPushNotifications();
+  if (!state.pushSupported) {
+    renderPushNotificationStatus();
+    return showNotice(isIosPushInstallationRequired()
+      ? "На iPhone сначала установите сайт на экран «Домой» и откройте его как приложение."
+      : "Этот браузер не поддерживает push-уведомления.", "error", 8000);
+  }
+
+  state.pushBusy = true;
+  renderPushNotificationStatus();
+  let createdSubscription = false;
+  let subscription = null;
+  try {
+    let permission = window.Notification.permission;
+    if (permission === "default") permission = await window.Notification.requestPermission();
+    state.pushPermission = permission;
+    if (permission !== "granted") {
+      renderPushNotificationStatus();
+      return showNotice("Без разрешения браузера уведомления включить нельзя.", "error", 7000);
+    }
+
+    const registration = await activeServiceWorkerRegistration();
+    subscription = await registration.pushManager.getSubscription();
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+      createdSubscription = true;
+    }
+    const p256dh = pushSubscriptionKey(subscription, "p256dh");
+    const auth = pushSubscriptionKey(subscription, "auth");
+    if (!subscription.endpoint?.startsWith("https://") || !p256dh || !auth) {
+      throw new Error("Браузер вернул неполную push-подписку.");
+    }
+    const { error } = await db.from("push_subscriptions").upsert({
+      user_id: state.user.id,
+      endpoint: subscription.endpoint,
+      p256dh,
+      auth,
+      enabled: true,
+      user_agent: String(navigator.userAgent || "").slice(0, 500) || null,
+      device_label: currentDeviceLabel()
+    }, { onConflict: "endpoint", defaultToNull: false });
+    if (error) throw error;
+    state.browserPushSubscription = subscription;
+    state.pushSubscriptionEnabled = true;
+    showNotice("Уведомления включены на этом устройстве ✓", "info");
+  } catch (error) {
+    if (createdSubscription && subscription) {
+      try { await subscription.unsubscribe(); } catch (_) { /* Локальная очистка best effort. */ }
+    }
+    state.browserPushSubscription = createdSubscription ? null : subscription;
+    state.pushSubscriptionEnabled = false;
+    showNotice(`Не удалось включить уведомления: ${friendlyError(error)}`, "error", 9000);
+  } finally {
+    state.pushBusy = false;
+    renderPushNotificationStatus();
+  }
+}
+
+async function disablePushNotifications() {
+  if (!state.session || !state.user?.id) return showNotice("Сначала войдите в аккаунт.", "error");
+  state.pushBusy = true;
+  renderPushNotificationStatus();
+  try {
+    const registration = await activeServiceWorkerRegistration();
+    const subscription = await registration.pushManager.getSubscription();
+    if (!subscription) {
+      state.browserPushSubscription = null;
+      state.pushSubscriptionEnabled = false;
+      return showNotice("Уведомления на этом устройстве уже выключены.", "info");
+    }
+    const { error } = await db.from("push_subscriptions")
+      .update({ enabled: false })
+      .eq("user_id", state.user.id)
+      .eq("endpoint", subscription.endpoint);
+    if (error) throw error;
+    state.pushSubscriptionEnabled = false;
+    let unsubscribed = false;
+    try { unsubscribed = await subscription.unsubscribe(); } catch (_) { /* DB disable remains authoritative. */ }
+    state.browserPushSubscription = unsubscribed ? null : subscription;
+    showNotice(unsubscribed
+      ? "Уведомления на этом устройстве выключены."
+      : "Рассылка отключена. Браузер не удалил локальную подписку, но уведомления больше не отправляются.", "info", 8000);
+  } catch (error) {
+    showNotice(`Не удалось выключить уведомления: ${friendlyError(error)}`, "error", 9000);
+  } finally {
+    state.pushBusy = false;
+    renderPushNotificationStatus();
+  }
+}
+
+async function saveNotificationPreferences(event) {
+  event.preventDefault();
+  if (!state.session || !state.user?.id) return setNotificationPreferencesMessage("Сначала войдите в аккаунт.", "error");
+  const preferences = {
+    schedule_enabled: dom.notificationScheduleEnabled?.checked === true,
+    memos_enabled: dom.notificationMemosEnabled?.checked === true,
+    announcements_enabled: dom.notificationAnnouncementsEnabled?.checked === true
+  };
+  setButtonLoading(dom.saveNotificationPreferencesButton, true, "Сохраняем…");
+  const { error } = await db.from("notification_preferences").upsert({
+    user_id: state.user.id,
+    ...preferences
+  }, { onConflict: "user_id", defaultToNull: false });
+  setButtonLoading(dom.saveNotificationPreferencesButton, false);
+  if (error) return setNotificationPreferencesMessage(`Настройки не сохранены: ${friendlyError(error)}`, "error");
+  state.notificationPreferences = preferences;
+  state.notificationPreferencesReady = true;
+  state.notificationPreferencesError = null;
+  setNotificationPreferencesMessage("Настройки уведомлений сохранены ✓", "info");
+}
+
+async function requestClassNotification(eventType, sourceId) {
+  if (!state.session || !state.isAdmin) return { ok: false, message: "Ошибка уведомления: требуется роль администратора." };
+  try {
+    const { data, error } = await db.functions.invoke("send-class-notification", {
+      body: { eventType, sourceId, notify: true }
+    });
+    if (error || data?.ok !== true) return { ok: false, message: "Ошибка уведомления: рассылка не принята." };
+    if (data.alreadySent === true || data.duplicate === true) {
+      return { ok: true, message: "Уведомление уже было отправлено или поставлено ранее." };
+    }
+    return { ok: true, message: "Уведомление принято." };
+  } catch (_) {
+    return { ok: false, message: "Ошибка уведомления: проверьте соединение." };
+  }
+}
+
 async function saveUsefulInfo(event) {
   event.preventDefault();
   if (!state.isAdmin) return showNotice("Редактировать «Полезное» может только администратор.", "error");
+  const notifySchedule = dom.notifyScheduleParents?.checked === true;
+  const notifyMemo = dom.notifyMemoParents?.checked === true;
   const read = (id) => String(dom[id]?.value || "").trim();
   const payload = {
     teacher: { name: read("usefulTeacherName"), phone: read("usefulTeacherPhone") },
@@ -2070,7 +2412,17 @@ async function saveUsefulInfo(event) {
   if (error) return showElementError(dom.usefulInfoFormError, `Не удалось сохранить полезную информацию: ${friendlyError(error)}`);
   state.classProfile.useful_info = normalizeUsefulInfo(payload);
   renderUsefulInfo();
-  showNotice("Полезная информация сохранена ✓", "info");
+  if (dom.notifyScheduleParents) dom.notifyScheduleParents.checked = false;
+  if (dom.notifyMemoParents) dom.notifyMemoParents.checked = false;
+  const notificationResults = [];
+  if (notifySchedule) notificationResults.push(await requestClassNotification("schedule", NOTIFICATION_SOURCE_IDS.schedule));
+  if (notifyMemo) notificationResults.push(await requestClassNotification("memo", NOTIFICATION_SOURCE_IDS.memo));
+  const notificationCopy = notificationResults.map((result) => result.message).join(" ");
+  showNotice(
+    `Полезная информация сохранена ✓${notificationCopy ? ` ${notificationCopy}` : ""}`,
+    notificationResults.some((result) => !result.ok) ? "error" : "info",
+    notificationResults.length ? 9000 : 4000
+  );
 }
 
 function renderChat() {
@@ -2289,6 +2641,7 @@ async function handleChatAction(event) {
 
   if (action === "pin" || action === "unpin") {
     if (!state.isAdmin || !message) return;
+    const shouldNotifyParents = action === "pin" && dom.chatNotifyParentsInput?.checked === true;
     const question = action === "pin"
       ? `Закрепить сообщение ${message.author_name} сверху чата? Предыдущее закрепление будет заменено.`
       : "Снять закреплённое объявление?";
@@ -2302,11 +2655,22 @@ async function handleChatAction(event) {
       button.disabled = false;
       return showNotice(`Не удалось изменить закрепление: ${friendlyError(error)}`, "error");
     }
+    let notificationResult = null;
+    if (shouldNotifyParents) {
+      if (dom.chatNotifyParentsInput) dom.chatNotifyParentsInput.checked = false;
+      notificationResult = await requestClassNotification("announcement", message.id);
+    }
     try {
       await refreshChatMessagesNow();
-      showNotice(action === "pin" ? "Объявление закреплено ✓" : "Закрепление снято", "info");
+      const baseMessage = action === "pin" ? "Объявление закреплено ✓" : "Закрепление снято";
+      showNotice(
+        `${baseMessage}${notificationResult ? ` ${notificationResult.message}` : ""}`,
+        notificationResult && !notificationResult.ok ? "error" : "info",
+        notificationResult ? 9000 : 4000
+      );
     } catch (error) {
-      showNotice(`Закрепление изменено, но чат пока не обновился: ${friendlyError(error)}`, "error");
+      const notificationCopy = notificationResult ? ` ${notificationResult.message}` : "";
+      showNotice(`Закрепление изменено, но чат пока не обновился: ${friendlyError(error)}.${notificationCopy}`, "error", 9000);
     }
     return;
   }
@@ -4310,7 +4674,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=86", window.location.href);
+  const workerUrl = new URL("./sw.js?v=87", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }

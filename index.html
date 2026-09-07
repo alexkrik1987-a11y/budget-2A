@@ -64,7 +64,7 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=600">
+  <link rel="stylesheet" href="styles.css?v=601">
 </head>
 <body class="school-cabinet">
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -605,6 +605,32 @@
           <div id="usefulNotes" class="useful-notes-list"></div>
         </section>
 
+        <section class="paper-card push-notifications-card" aria-labelledby="pushNotificationsTitle">
+          <div class="card-title-row">
+            <div>
+              <span class="sticker sticker-green">Не пропустить важное</span>
+              <h3 id="pushNotificationsTitle">Уведомления на этом устройстве</h3>
+              <p id="pushNotificationStatus" class="push-notification-status" role="status" aria-live="polite">Проверяем поддержку уведомлений…</p>
+            </div>
+            <span class="large-emoji" aria-hidden="true">🔔</span>
+          </div>
+          <div class="push-notification-actions">
+            <button id="enablePushNotificationsButton" class="button button-primary" type="button">Включить уведомления</button>
+            <button id="disablePushNotificationsButton" class="button button-secondary" type="button">Выключить на устройстве</button>
+          </div>
+          <p id="pushNotificationHint" class="form-hint">Разрешение браузер запросит только после нажатия кнопки «Включить».</p>
+          <form id="notificationPreferencesForm" class="notification-preferences-form">
+            <fieldset>
+              <legend>Какие новости получать</legend>
+              <label class="notification-choice"><input id="notificationScheduleEnabled" type="checkbox" checked><span><strong>Расписание</strong><small>Изменения уроков и учебной недели</small></span></label>
+              <label class="notification-choice"><input id="notificationMemosEnabled" type="checkbox" checked><span><strong>Памятки</strong><small>Важные напоминания класса</small></span></label>
+              <label class="notification-choice"><input id="notificationAnnouncementsEnabled" type="checkbox" checked><span><strong>Объявления</strong><small>Закреплённые сообщения администратора</small></span></label>
+            </fieldset>
+            <p id="notificationPreferencesStatus" class="notice notice-info hidden" role="status" aria-live="polite"></p>
+            <button id="saveNotificationPreferencesButton" class="button button-secondary" type="submit">Сохранить настройки</button>
+          </form>
+        </section>
+
         <section id="usefulAdminEditor" class="paper-card useful-admin-editor admin-only hidden" aria-labelledby="usefulEditorTitle">
           <div class="card-title-row">
             <div><span class="sticker sticker-blue">Только администратор</span><h3 id="usefulEditorTitle">Редактировать «Полезное»</h3><p>Изменения сразу появятся у родителей после сохранения.</p></div>
@@ -613,8 +639,8 @@
             <fieldset><legend>Учитель</legend><div class="useful-form-grid"><label>Ф.И.О.<input id="usefulTeacherName" type="text" maxlength="120" placeholder="Кожухова Анна Александровна"></label><label>Телефон<input id="usefulTeacherPhone" type="tel" maxlength="40" placeholder="+7 ..."></label></div></fieldset>
             <fieldset><legend>Родительский комитет</legend><div class="useful-form-grid"><label>Председатель — Ф.И.О.<input id="usefulChairName" type="text" maxlength="120"></label><label>Телефон председателя<input id="usefulChairPhone" type="tel" maxlength="40"></label><label>Зам. председателя — Ф.И.О.<input id="usefulDeputyName" type="text" maxlength="120"></label><label>Телефон заместителя<input id="usefulDeputyPhone" type="tel" maxlength="40"></label></div></fieldset>
             <fieldset><legend>Школа</legend><div class="useful-form-grid"><label>Название школы<input id="usefulSchoolNameInput" type="text" maxlength="180"></label><label>Адрес школы<input id="usefulSchoolAddressInput" type="text" maxlength="240"></label><label class="useful-form-wide">Ссылка на карту<input id="usefulSchoolMapInput" type="url" maxlength="500" placeholder="https://maps.google.com/..."></label></div></fieldset>
-            <fieldset><legend>Расписание</legend><div class="useful-schedule-editor"><label>Понедельник<textarea id="usefulScheduleMon" rows="5" placeholder="Русский язык\nМатематика\nОкружающий мир"></textarea></label><label>Вторник<textarea id="usefulScheduleTue" rows="5"></textarea></label><label>Среда<textarea id="usefulScheduleWed" rows="5"></textarea></label><label>Четверг<textarea id="usefulScheduleThu" rows="5"></textarea></label><label>Пятница<textarea id="usefulScheduleFri" rows="5"></textarea></label></div></fieldset>
-            <fieldset><legend>Памятки класса</legend><label class="useful-form-wide">Каждая памятка с новой строки<textarea id="usefulNotesInput" rows="4" placeholder="Что взять на экскурсию\nВажная информация к собранию"></textarea></label></fieldset>
+            <fieldset><legend>Расписание</legend><div class="useful-schedule-editor"><label>Понедельник<textarea id="usefulScheduleMon" rows="5" placeholder="Русский язык\nМатематика\nОкружающий мир"></textarea></label><label>Вторник<textarea id="usefulScheduleTue" rows="5"></textarea></label><label>Среда<textarea id="usefulScheduleWed" rows="5"></textarea></label><label>Четверг<textarea id="usefulScheduleThu" rows="5"></textarea></label><label>Пятница<textarea id="usefulScheduleFri" rows="5"></textarea></label></div><label class="admin-notify-choice"><input id="notifyScheduleParents" type="checkbox"><span><strong>Уведомить родителей</strong><small>После успешного сохранения отправить новость об изменении расписания</small></span></label></fieldset>
+            <fieldset><legend>Памятки класса</legend><label class="useful-form-wide">Каждая памятка с новой строки<textarea id="usefulNotesInput" rows="4" placeholder="Что взять на экскурсию\nВажная информация к собранию"></textarea></label><label class="admin-notify-choice"><input id="notifyMemoParents" type="checkbox"><span><strong>Уведомить родителей</strong><small>После успешного сохранения отправить новость о памятках</small></span></label></fieldset>
             <p id="usefulInfoFormError" class="form-error hidden" role="alert"></p>
             <button id="saveUsefulInfoButton" class="button button-primary" type="submit">Сохранить полезную информацию</button>
           </form>
@@ -774,6 +800,7 @@
           <h2 id="chatTitle">Чат класса</h2>
           <p id="chatStatus" class="chat-status">Подготавливаем чат…</p>
           <div id="chatPinnedAnnouncement" class="chat-pinned-announcement hidden" aria-live="polite"></div>
+          <label class="chat-notify-choice admin-only hidden"><input id="chatNotifyParentsInput" type="checkbox"><span>Уведомить родителей при закреплении объявления</span></label>
         </div>
         <button id="closeChatButton" class="icon-button" type="button" aria-label="Закрыть чат">×</button>
       </header>
@@ -924,6 +951,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=84" defer></script>
+  <script src="app.js?v=85" defer></script>
 </body>
 </html>
