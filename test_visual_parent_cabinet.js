@@ -18,15 +18,15 @@ assert(!html.includes("Родительский комитет на связи")
 assert(!html.includes("Закрытый кабинет родителей"), "сайт не должен представляться административным кабинетом");
 
 for (const [view, label] of [
-  ["summary", "Наш класс"],
-  ["contributions", "Сборы"],
-  ["expenses", "Расходы"],
-  ["archive", "История"],
-  ["useful", "Полезное"],
-  ["settings", "Ещё"]
+  ["summary", "Сегодня"],
+  ["contributions", "Деньги"],
+  ["expenses", "Расходы и чеки"],
+  ["archive", "Завершённые сборы"],
+  ["useful", "Контакты и школа"],
+  ["settings", "Управление классом"]
 ]) {
   assert(
-    new RegExp(`data-view="${view}"[^>]*>[\\s\\S]*?${label}</button>`).test(html),
+    [...html.matchAll(new RegExp(`data-view="${view}"[^>]*>([\\s\\S]*?)</button>`, "g"))].some((match) => match[1].replace(/<[^>]*>/g, "").includes(label)),
     `навигация ${view} должна иметь понятную подпись «${label}»`
   );
 }
@@ -63,8 +63,8 @@ assert(html.includes("память хорошая, а чек всё-таки н�
 assert(!/2×2=5|Не пались|Где деньги, Зин/i.test(html), "в новых декоративных текстах не должно быть намеренных ошибок или резких формулировок");
 
 const htmlStyleAsset = html.match(/href="(styles\.css\?v=\d+)"/)?.[1];
-assert.equal(htmlStyleAsset, "styles.css?v=603", "HTML должен подключать новую версию стилей");
+assert.equal(htmlStyleAsset, "styles.css?v=604", "HTML должен подключать новую версию стилей");
 assert(sw.includes(`./${htmlStyleAsset}`), "Service Worker должен кешировать ту же версию CSS");
-assert(sw.includes('const CACHE_NAME = "budget-2a-v89-household-funds-card-2";'), "cache name должен быть обновлён для редизайна");
+assert(sw.includes('const CACHE_NAME = "budget-2a-v90-parent-navigation-1";'), "cache name должен быть обновлён для редизайна");
 
 console.log("visual parent cabinet checks: PASS");

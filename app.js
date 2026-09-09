@@ -382,8 +382,11 @@ function bindEvents() {
     });
   }
 
-  dom.navButtons.forEach((button) => {
-    button.addEventListener("click", () => switchView(button.dataset.view));
+  document.querySelectorAll("[data-view]").forEach((button) => {
+    button.addEventListener("click", () => switchView(button.dataset.view, { remember: true, target: button.dataset.target }));
+  });
+  window.addEventListener("popstate", (event) => {
+    if (state.session) switchView(event.state?.budgetView || "summary");
   });
 
   document.querySelectorAll("[data-living-action]").forEach((button) => {
@@ -2503,6 +2506,7 @@ function renderPinnedChatAnnouncement() {
   if (!dom.chatPinnedAnnouncement) return;
   dom.chatPinnedAnnouncement.replaceChildren();
   const pinned = state.chatMessages.find((message) => message.is_pinned) ?? null;
+  renderAnnouncementPage(pinned);
   if (!pinned) {
     dom.chatPinnedAnnouncement.classList.add("hidden");
     return;
@@ -2524,6 +2528,21 @@ function renderPinnedChatAnnouncement() {
     dom.chatPinnedAnnouncement.append(unpin);
   }
   dom.chatPinnedAnnouncement.classList.remove("hidden");
+}
+
+// Read-only projection of the existing pinned chat message; no second news source.
+function renderAnnouncementPage(pinned) {
+  const content = document.getElementById("classAnnouncement");
+  const preview = document.getElementById("homeAnnouncementPreview");
+  const emptyText = state.chatReady ? "Закреплённых объявлений пока нет. Обычные сообщения — в чате класса." : "Объявления пока недоступны. Дождитесь загрузки чата.";
+  if (preview) preview.textContent = pinned ? pinned.body : emptyText;
+  if (!content) return;
+  content.replaceChildren();
+  if (pinned) {
+    content.append(el("h3", "", "Закреплённое объявление"), el("p", "announcement-body", pinned.body), el("small", "", `${pinned.author_name} · ${formatDateTime(pinned.created_at)}`));
+  } else {
+    content.append(el("p", "", emptyText));
+  }
 }
 
 function createChatMessageElement(message) {
@@ -2611,8 +2630,7 @@ function handleLivingAction(action) {
     return;
   }
   if (action === "campaigns") {
-    switchView("summary");
-    window.setTimeout(() => dom.currentCampaignSummary?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
+    switchView("contributions");
     return;
   }
   if (action === "chat") openChatPanel();
@@ -3313,7 +3331,7 @@ function renderParentOnboardingGuide() {
   [
     ["my-contribution", "✏️", "Мой взнос", "Проверить остаток именно по своему ребёнку"],
     ["contributions", "📋", "Взносы класса", "Посмотреть общую таблицу по сборам"],
-    ["useful", "📌", "Полезное", "Найти телефон учителя, комитет и расписание"]
+    ["useful", "☎", "Контакты и школа", "Найти телефон учителя и родительского комитета"]
   ].forEach(([action, icon, title, description], index) => {
     const button = el("button", "parent-onboarding-guide-step", "");
     button.type = "button";
@@ -4600,11 +4618,37 @@ function backupTypeLabel(type) {
 /* =========================================================
    11. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
    ========================================================= */
-function switchView(viewName) {
+function switchView(viewName, { remember = false, target = null } = {}) {
   if (viewName === "settings" && !state.isAdmin) return;
+  const nextView = document.getElementById(`view-${viewName}`);
+  if (!nextView || !nextView.classList.contains("view")) return;
+  const previousView = document.querySelector(".view.active")?.id.replace("view-", "") || "summary";
+  if (remember && previousView !== viewName) {
+    window.history.replaceState({ ...window.history.state, budgetView: previousView }, "");
+    window.history.pushState({ ...window.history.state, budgetView: viewName }, "");
+  }
   document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === `view-${viewName}`));
-  dom.navButtons.forEach((button) => button.classList.toggle("active", button.dataset.view === viewName));
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  const moneyViews = ["contributions", "expenses", "archive", "budget", "household"];
+  const mainView = moneyViews.includes(viewName) ? "contributions" : ["summary", "schedule"].includes(viewName) ? viewName : "directory";
+  dom.navButtons.forEach((button) => {
+    const active = button.dataset.view === mainView;
+    button.classList.toggle("active", active);
+    if (active) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
+  });
+  document.getElementById("sectionNavigation")?.classList.toggle("hidden", viewName === "summary");
+  document.getElementById("moneyNavigation")?.classList.toggle("hidden", !moneyViews.includes(viewName));
+  document.querySelectorAll("#moneyNavigation [data-view]").forEach((button) => {
+    if (button.dataset.view === viewName) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
+  });
+  const heading = nextView.querySelector("h2");
+  const label = document.getElementById("currentSectionLabel");
+  if (label) label.textContent = heading?.textContent || "";
+  if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
+  const anchor = target && document.getElementById(target);
+  if (anchor && nextView.contains(anchor)) anchor.scrollIntoView({ block: "start" });
+  else window.scrollTo({ top: 0, behavior: "instant" });
 }
 
 function openReceiptPreview(value) {
@@ -4710,7 +4754,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=89", window.location.href);
+  const workerUrl = new URL("./sw.js?v=90", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }

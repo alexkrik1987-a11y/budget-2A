@@ -64,14 +64,14 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=603">
+  <link rel="stylesheet" href="styles.css?v=604">
 </head>
 <body class="school-cabinet">
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
     <div class="loading-board chalkboard">
       <img class="loading-emblem" src="icons/class-2a.svg" alt="">
       <p class="loading-kicker">2 «А» класс</p>
-      <strong>Считаем бюджет…</strong>
+      <strong>Загружаем дела класса…</strong>
       <span class="pencil-loader" aria-hidden="true"><i></i></span>
     </div>
   </div>
@@ -102,7 +102,7 @@
           <img class="auth-emblem" src="icons/class-2a.svg" alt="Эмблема 2 А класса">
           <span class="auth-kicker">Здесь живут дела нашего класса</span>
           <h1 id="authTitle">Наш дружный класс 2 «А»</h1>
-          <p>Всё важное о жизни класса — от расписания и новостей до прозрачной копилки.</p>
+          <p>Расписание, объявления, памятки и деньги класса. Войдите, чтобы увидеть дела своего класса.</p>
         </div>
         <div class="monitor-assembly" aria-label="Экран входа в бюджет класса">
           <div class="monitor-shell">
@@ -183,12 +183,10 @@
 
     <nav class="main-nav" aria-label="Основная навигация">
       <div class="nav-inner">
-        <button class="nav-button active" type="button" data-view="summary"><span>📚</span> Наш класс</button>
-        <button class="nav-button" type="button" data-view="contributions"><span>✏️</span> Сборы</button>
-        <button class="nav-button" type="button" data-view="expenses"><span>🧾</span> Расходы</button>
-        <button class="nav-button" type="button" data-view="archive"><span>🗂️</span> История</button>
-        <button class="nav-button" type="button" data-view="useful"><span>📌</span> Полезное</button>
-        <button id="settingsNavButton" class="nav-button admin-only hidden" type="button" data-view="settings"><span>⚙️</span> Ещё</button>
+        <button class="nav-button active" type="button" data-view="summary" aria-current="page"><span aria-hidden="true">🏠</span> Сегодня</button>
+        <button class="nav-button" type="button" data-view="schedule"><span aria-hidden="true">📅</span> Расписание</button>
+        <button class="nav-button" type="button" data-view="contributions"><span aria-hidden="true">💰</span> Деньги</button>
+        <button class="nav-button" type="button" data-view="directory"><span aria-hidden="true">☰</span> Все разделы</button>
       </div>
     </nav>
 
@@ -204,12 +202,23 @@
         </p>
       </div>
       <div id="globalNotice" class="notice hidden" role="status" aria-live="polite"></div>
+      <div id="sectionNavigation" class="section-navigation hidden">
+        <button id="sectionHomeButton" class="button button-secondary button-small" type="button" data-view="summary">← На сегодня</button>
+        <span id="currentSectionLabel" aria-live="polite"></span>
+      </div>
+      <nav id="moneyNavigation" class="money-navigation hidden" aria-label="Деньги класса">
+        <button type="button" data-view="contributions">Сборы и реквизиты</button>
+        <button type="button" data-view="expenses">Расходы и чеки</button>
+        <button type="button" data-view="budget">Баланс и отчёты</button>
+        <button type="button" data-view="archive">Завершённые сборы</button>
+        <button type="button" data-view="household">Хознужды</button>
+      </nav>
       <section id="view-summary" class="view active" aria-labelledby="summaryTitle">
         <div class="section-heading">
           <div>
             <span class="sticker sticker-yellow">Всё под контролем. Ну, почти 🙂</span>
             <h2 id="summaryTitle">Наш класс сегодня</h2>
-            <p class="summary-guide">Новости, дела класса, текущие сборы и основные суммы — всё на одном листе.</p>
+            <p class="summary-guide">Расписание, объявления и дела класса. Выберите, что нужно сейчас.</p>
           </div>
           <div class="summary-status">
             <aside id="schoolCalendar" class="school-calendar" aria-label="Школьный календарь Приморского края">
@@ -224,12 +233,29 @@
           </div>
         </div>
 
+        <div class="home-shortcuts" aria-label="Куда перейти">
+          <button type="button" class="destination-link" data-view="schedule"><span class="destination-icon" aria-hidden="true">📅</span><span><strong>Расписание</strong><small>Уроки на всю неделю</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+          <button type="button" class="destination-link" data-view="announcements"><span class="destination-icon" aria-hidden="true">📢</span><span><strong>Объявления</strong><small>Закреплённая новость из чата</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+          <button type="button" class="destination-link" data-view="contributions"><span class="destination-icon" aria-hidden="true">💰</span><span><strong>Сборы и реквизиты</strong><small>Взносы и данные для перевода</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+          <button type="button" class="destination-link" data-view="memos"><span class="destination-icon" aria-hidden="true">📝</span><span><strong>Памятки</strong><small>Что взять и о чём помнить</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+        </div>
+        <section class="home-announcement paper-card" aria-labelledby="homeAnnouncementTitle">
+          <h3 id="homeAnnouncementTitle">Важное для класса</h3>
+          <p id="homeAnnouncementPreview">Объявления появятся после загрузки чата.</p>
+          <button type="button" class="text-link" data-view="announcements">Открыть объявления →</button>
+        </section>
+        <div class="home-utility-links">
+          <button type="button" class="text-link" data-view="notifications">🔔 Настроить уведомления</button>
+          <button type="button" class="text-link" data-view="useful">☎ Контакты и школа</button>
+          <button type="button" class="text-link" data-view="household">Хознужды · куда перевести</button>
+        </div>
+
         <section id="livingNotebook" class="living-notebook" aria-labelledby="livingNotebookTitle">
           <div class="living-notebook-heading">
             <div>
               <span class="sticker sticker-green">Самое важное — без долгих поисков</span>
-              <h3 id="livingNotebookTitle">Классная тетрадь</h3>
-              <p>Дела класса, ближайшая цель и прозрачная копилка собраны здесь. Деньги любят порядок, а родительский чат — вдохновение 🙂</p>
+              <h3 id="livingNotebookTitle">Коротко о деньгах класса</h3>
+              <p>Текущий сбор и остаток. Подробности — в разделе «Деньги».</p>
             </div>
             <span class="living-notebook-mark" aria-hidden="true">✦</span>
           </div>
@@ -286,109 +312,16 @@
         <section id="contributionReminder" class="contribution-reminder hidden" aria-live="polite"></section>
         <section id="parentOnboardingGuide" class="parent-onboarding-guide hidden" aria-labelledby="parentOnboardingGuideTitle"></section>
 
-        <details class="summary-details">
-          <summary>
-            <span aria-hidden="true">📊</span>
-            <span><strong>Подробная финансовая сводка</strong><small>Общие суммы, фонды, аналитика и отчёт за месяц</small></span>
-          </summary>
-          <div class="summary-details-content">
-          <div class="totals-grid">
-          <article class="metric-card chalkboard chalk-blue">
-            <span class="metric-icon metric-icon-blue" aria-hidden="true">🪙</span>
-            <p>Всего собрано</p>
-            <strong id="totalCollected">0 ₽</strong>
-          </article>
-          <article class="metric-card chalkboard chalk-pink">
-            <span class="metric-icon metric-icon-pink" aria-hidden="true">🧾</span>
-            <p>Всего потрачено</p>
-            <strong id="totalSpent">0 ₽</strong>
-          </article>
-          <article class="metric-card chalkboard chalk-green">
-            <span class="metric-icon metric-icon-green" aria-hidden="true">🧮</span>
-            <p>Остаток в кассе</p>
-            <strong id="totalBalance">0 ₽</strong>
-          </article>
-        </div>
 
-        <section class="paper-card" aria-labelledby="fundsTitle">
-          <div class="card-title-row">
-            <div>
-              <span class="sticker sticker-blue">Наши копилки</span>
-              <h3 id="fundsTitle">Остатки по фондам</h3>
-            </div>
-            <span aria-hidden="true" class="large-emoji">🎁</span>
-          </div>
-          <div id="fundCards" class="fund-grid"></div>
-        </section>
-
-        <section class="paper-card analytics-card" aria-labelledby="analyticsTitle">
-          <div class="card-title-row">
-            <div>
-              <span class="sticker sticker-orange">Понятно с первого взгляда</span>
-              <h3 id="analyticsTitle">На что ушли деньги</h3>
-            </div>
-            <span aria-hidden="true" class="large-emoji">📊</span>
-          </div>
-          <div class="charts-grid">
-            <article class="chart-panel">
-              <h4>Состояние бюджета</h4>
-              <div id="fundExpenseChart" class="donut-chart-wrap"></div>
-            </article>
-            <article class="chart-panel">
-              <h4>Распределение расходов</h4>
-              <div id="categoryExpenseChart" class="donut-chart-wrap"></div>
-            </article>
-          </div>
-        </section>
-
-        <section class="paper-card report-card" aria-labelledby="reportTitle">
-          <div class="report-copy">
-            <span class="sticker sticker-green">Готовый отчёт</span>
-            <h3 id="reportTitle">Отчёт за месяц</h3>
-            <p>Выберите месяц, скачайте таблицу для Excel или распечатайте аккуратный отчёт.</p>
-          </div>
-          <div class="report-controls">
-            <label class="field"><span>Отчётный месяц</span><select id="reportMonthSelect"></select></label>
-            <button id="downloadCsvButton" class="button button-secondary" type="button">📥 Скачать Excel / CSV</button>
-            <button id="printReportButton" class="button button-primary" type="button">🖨️ Распечатать</button>
-          </div>
-        </section>
-
-        <div class="dashboard-grid">
-          <section class="paper-card" aria-labelledby="progressTitle">
-            <div class="card-title-row compact">
-              <h3 id="progressTitle">Прогресс текущего сбора</h3>
-              <span aria-hidden="true">📈</span>
-            </div>
-            <div id="currentCampaignSummary" class="campaign-summary empty-state">
-              <span class="empty-illustration" aria-hidden="true">🎯</span>
-              <strong>Открытых сборов пока нет</strong>
-              <small>Новая цель появится здесь сразу после открытия сбора.</small>
-            </div>
-          </section>
-
-          <section class="paper-card" aria-labelledby="recentExpensesTitle">
-            <div class="card-title-row compact">
-              <h3 id="recentExpensesTitle">Последние расходы</h3>
-              <span aria-hidden="true">🧾</span>
-            </div>
-            <div id="recentExpenses" class="compact-list empty-state">
-              <span class="empty-illustration" aria-hidden="true">✨</span>
-              <strong>Расходов пока нет</strong>
-              <small>Копилка в порядке — новые записи появятся здесь.</small>
-            </div>
-          </section>
-        </div>
-          </div>
-        </details>
       </section>
 
       <section id="view-contributions" class="view" aria-labelledby="contributionsTitle">
         <div class="section-heading">
           <div>
             <span class="sticker sticker-pink">Наша общая копилка</span>
-            <h2 id="contributionsTitle">Сборы класса</h2>
+            <h2 id="contributionsTitle">Сборы и реквизиты</h2>
             <p class="section-lead">Выберите сбор, посмотрите общий прогресс и найдите ребёнка в списке.</p>
+            <button type="button" class="text-link" data-view="contributions" data-target="paymentDetailsCard">К реквизитам для перевода ↓</button>
           </div>
           <label class="field campaign-picker">
             <span><b class="step-number" aria-hidden="true">1</b> Выберите сбор</span>
@@ -553,7 +486,7 @@
         <div class="section-heading">
           <div>
             <span class="sticker sticker-blue">Сохраняем историю</span>
-            <h2 id="archiveTitle">История сборов</h2>
+            <h2 id="archiveTitle">Завершённые сборы</h2>
           </div>
           <p class="last-updated">Здесь остаются взносы, расходы и история завершённых сборов.</p>
         </div>
@@ -564,8 +497,8 @@
         <div class="section-heading">
           <div>
             <span class="sticker sticker-green">Всегда под рукой</span>
-            <h2 id="usefulTitle">Полезная информация</h2>
-            <p>Контакты, школа и расписание — чтобы не искать их среди сотни сообщений в чате.</p>
+            <h2 id="usefulTitle">Контакты и школа</h2>
+            <p>Телефоны учителя и родительского комитета, адрес школы и карта.</p>
           </div>
           <span class="useful-page-mark" aria-hidden="true">📚</span>
         </div>
@@ -588,6 +521,113 @@
             <a id="usefulSchoolMapLink" class="button button-secondary button-small hidden" target="_blank" rel="noopener" href="#">Открыть на карте</a>
           </article>
 
+
+        </section>
+
+
+
+
+
+
+
+
+      </section>
+
+      <section id="view-budget" class="view" aria-labelledby="budgetTitle">
+        <div class="section-heading"><div><h2 id="budgetTitle">Баланс и отчёты</h2><p>Общие суммы, фонды, расходы и отчёт за месяц.</p></div></div>
+          <div class="summary-details-content">
+          <div class="totals-grid">
+          <article class="metric-card chalkboard chalk-blue">
+            <span class="metric-icon metric-icon-blue" aria-hidden="true">🪙</span>
+            <p>Всего собрано</p>
+            <strong id="totalCollected">0 ₽</strong>
+          </article>
+          <article class="metric-card chalkboard chalk-pink">
+            <span class="metric-icon metric-icon-pink" aria-hidden="true">🧾</span>
+            <p>Всего потрачено</p>
+            <strong id="totalSpent">0 ₽</strong>
+          </article>
+          <article class="metric-card chalkboard chalk-green">
+            <span class="metric-icon metric-icon-green" aria-hidden="true">🧮</span>
+            <p>Остаток в кассе</p>
+            <strong id="totalBalance">0 ₽</strong>
+          </article>
+        </div>
+
+        <section class="paper-card" aria-labelledby="fundsTitle">
+          <div class="card-title-row">
+            <div>
+              <span class="sticker sticker-blue">Наши копилки</span>
+              <h3 id="fundsTitle">Остатки по фондам</h3>
+            </div>
+            <span aria-hidden="true" class="large-emoji">🎁</span>
+          </div>
+          <div id="fundCards" class="fund-grid"></div>
+        </section>
+
+        <section class="paper-card analytics-card" aria-labelledby="analyticsTitle">
+          <div class="card-title-row">
+            <div>
+              <span class="sticker sticker-orange">Понятно с первого взгляда</span>
+              <h3 id="analyticsTitle">На что ушли деньги</h3>
+            </div>
+            <span aria-hidden="true" class="large-emoji">📊</span>
+          </div>
+          <div class="charts-grid">
+            <article class="chart-panel">
+              <h4>Состояние бюджета</h4>
+              <div id="fundExpenseChart" class="donut-chart-wrap"></div>
+            </article>
+            <article class="chart-panel">
+              <h4>Распределение расходов</h4>
+              <div id="categoryExpenseChart" class="donut-chart-wrap"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="paper-card report-card" aria-labelledby="reportTitle">
+          <div class="report-copy">
+            <span class="sticker sticker-green">Готовый отчёт</span>
+            <h3 id="reportTitle">Отчёт за месяц</h3>
+            <p>Выберите месяц, скачайте таблицу для Excel или распечатайте аккуратный отчёт.</p>
+          </div>
+          <div class="report-controls">
+            <label class="field"><span>Отчётный месяц</span><select id="reportMonthSelect"></select></label>
+            <button id="downloadCsvButton" class="button button-secondary" type="button">📥 Скачать Excel / CSV</button>
+            <button id="printReportButton" class="button button-primary" type="button">🖨️ Распечатать</button>
+          </div>
+        </section>
+
+        <div class="dashboard-grid">
+          <section class="paper-card" aria-labelledby="progressTitle">
+            <div class="card-title-row compact">
+              <h3 id="progressTitle">Прогресс текущего сбора</h3>
+              <span aria-hidden="true">📈</span>
+            </div>
+            <div id="currentCampaignSummary" class="campaign-summary empty-state">
+              <span class="empty-illustration" aria-hidden="true">🎯</span>
+              <strong>Открытых сборов пока нет</strong>
+              <small>Новая цель появится здесь сразу после открытия сбора.</small>
+            </div>
+          </section>
+
+          <section class="paper-card" aria-labelledby="recentExpensesTitle">
+            <div class="card-title-row compact">
+              <h3 id="recentExpensesTitle">Последние расходы</h3>
+              <span aria-hidden="true">🧾</span>
+            </div>
+            <div id="recentExpenses" class="compact-list empty-state">
+              <span class="empty-illustration" aria-hidden="true">✨</span>
+              <strong>Расходов пока нет</strong>
+              <small>Копилка в порядке — новые записи появятся здесь.</small>
+            </div>
+          </section>
+        </div>
+          </div>
+      </section>
+
+      <section id="view-schedule" class="view" aria-labelledby="scheduleTitle">
+        <div class="section-heading"><div><h2 id="scheduleTitle">Расписание уроков</h2><p>Вся учебная неделя в одном месте.</p></div></div>
           <article class="paper-card useful-card useful-schedule-card">
             <div class="card-title-row compact">
               <div><span class="sticker sticker-yellow">На неделю</span><h3>Расписание уроков</h3></div>
@@ -595,8 +635,11 @@
             </div>
             <div id="usefulSchedule" class="useful-schedule-grid"></div>
           </article>
-        </section>
+<button type="button" class="button button-secondary admin-only hidden" data-view="settings" data-target="usefulAdminEditor">Редактировать расписание, памятки и контакты</button>
+      </section>
 
+      <section id="view-memos" class="view" aria-labelledby="memosTitle">
+        <div class="section-heading"><div><h2 id="memosTitle">Памятки класса</h2><p>Что подготовить к занятиям, встречам и поездкам.</p></div></div>
         <section class="paper-card useful-notes-card">
           <div class="card-title-row compact">
             <div><span class="sticker sticker-orange">Важное</span><h3>Памятки класса</h3></div>
@@ -604,7 +647,11 @@
           </div>
           <div id="usefulNotes" class="useful-notes-list"></div>
         </section>
+<button type="button" class="button button-secondary admin-only hidden" data-view="settings" data-target="usefulAdminEditor">Редактировать расписание, памятки и контакты</button>
+      </section>
 
+      <section id="view-household" class="view" aria-labelledby="householdTitle">
+        <div class="section-heading"><div><h2 id="householdTitle">Хознужды</h2><p>Отдельный перевод на хозяйственные нужды класса.</p></div></div>
         <section class="paper-card household-funds-card" aria-labelledby="householdFundsTitle">
           <div class="card-title-row compact">
             <div><span class="sticker sticker-yellow">Хознужды</span><h3 id="householdFundsTitle">Хознужды 2 «А» класса</h3></div>
@@ -630,7 +677,10 @@
           </dl>
           <p class="notice notice-warning household-funds-note">Перед переводом проверьте, что в СБП выбран банк «ЮМани».</p>
         </section>
+      </section>
 
+      <section id="view-notifications" class="view" aria-labelledby="notificationsTitle">
+        <div class="section-heading"><div><h2 id="notificationsTitle">Уведомления</h2><p>Выберите новости и включите их на этом устройстве.</p></div></div>
         <section class="paper-card push-notifications-card" aria-labelledby="pushNotificationsTitle">
           <div class="card-title-row">
             <div>
@@ -656,10 +706,51 @@
             <button id="saveNotificationPreferencesButton" class="button button-secondary" type="submit">Сохранить настройки</button>
           </form>
         </section>
+      </section>
+
+      <section id="view-announcements" class="view" aria-labelledby="announcementsTitle">
+        <div class="section-heading"><div><h2 id="announcementsTitle">Объявления</h2><p>Здесь показано закреплённое объявление из чата класса.</p></div></div>
+        <article id="classAnnouncement" class="paper-card announcement-content" aria-live="polite"></article>
+        <button type="button" class="button button-secondary" data-living-action="chat">Открыть чат класса</button>
+        <p class="admin-only hidden">Чтобы опубликовать объявление, закрепите сообщение в чате.</p>
+      </section>
+
+      <section id="view-directory" class="view" aria-labelledby="directoryTitle">
+        <div class="section-heading"><div><h2 id="directoryTitle">Все разделы</h2><p>Выберите задачу — каждый раздел подписан.</p></div></div>
+        <div class="directory-grid">
+          <section class="directory-group"><h3>Учёба и связь</h3>
+            <button type="button" class="destination-link" data-view="schedule"><span class="destination-icon" aria-hidden="true">📅</span><span><strong>Расписание</strong><small>Уроки на всю неделю</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="announcements"><span class="destination-icon" aria-hidden="true">📢</span><span><strong>Объявления</strong><small>Закреплённая новость из чата</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="memos"><span class="destination-icon" aria-hidden="true">📝</span><span><strong>Памятки</strong><small>Что взять и о чём помнить</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="useful"><span class="destination-icon" aria-hidden="true">☎</span><span><strong>Контакты и школа</strong><small>Учитель, родкомитет, адрес</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-living-action="chat"><span><strong>Чат класса</strong><small>Сообщения родителей и администратора</small></span><span aria-hidden="true">›</span></button>
+          </section>
+          <section class="directory-group"><h3>Деньги класса</h3>
+            <button type="button" class="destination-link" data-view="contributions"><span class="destination-icon" aria-hidden="true">💰</span><span><strong>Сборы и реквизиты</strong><small>Взносы и данные для перевода</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="expenses"><span class="destination-icon" aria-hidden="true">🧾</span><span><strong>Расходы и чеки</strong><small>На что потратили деньги</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="budget"><span class="destination-icon" aria-hidden="true">📊</span><span><strong>Баланс и отчёты</strong><small>Остатки, фонды, отчёт за месяц</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="archive"><span class="destination-icon" aria-hidden="true">🗂</span><span><strong>Завершённые сборы</strong><small>Архив и итоги</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="household"><span class="destination-icon" aria-hidden="true">🧹</span><span><strong>Хознужды</strong><small>Отдельные реквизиты СБП</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+          </section>
+          <section class="directory-group"><h3>Настройки</h3>
+            <button type="button" class="destination-link" data-view="notifications"><span class="destination-icon" aria-hidden="true">🔔</span><span><strong>Уведомления</strong><small>Включить и выбрать новости</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button id="settingsNavButton" class="destination-link admin-only hidden" type="button" data-view="settings"><span><strong>Управление классом</strong><small>Только администратор: ученики, доступ, редактирование</small></span><span aria-hidden="true">›</span></button>
+          </section>
+        </div>
+      </section>
+
+      <section id="view-settings" class="view" aria-labelledby="settingsTitle">
+        <div class="section-heading">
+          <div>
+            <span class="sticker sticker-orange">Для тех, кто всё организует</span>
+            <h2 id="settingsTitle">Управление классом</h2>
+          </div>
+          <button id="openCampaignModalButton" class="button button-primary" type="button">+ Добавить сбор</button>
+        </div>
 
         <section id="usefulAdminEditor" class="paper-card useful-admin-editor admin-only hidden" aria-labelledby="usefulEditorTitle">
           <div class="card-title-row">
-            <div><span class="sticker sticker-blue">Только администратор</span><h3 id="usefulEditorTitle">Редактировать «Полезное»</h3><p>Изменения сразу появятся у родителей после сохранения.</p></div>
+            <div><span class="sticker sticker-blue">Только администратор</span><h3 id="usefulEditorTitle">Расписание, памятки и контакты</h3><p>Изменения сразу появятся у родителей после сохранения.</p></div>
           </div>
           <form id="usefulInfoForm" class="useful-editor-form" novalidate>
             <fieldset><legend>Учитель</legend><div class="useful-form-grid"><label>Ф.И.О.<input id="usefulTeacherName" type="text" maxlength="120" placeholder="Кожухова Анна Александровна"></label><label>Телефон<input id="usefulTeacherPhone" type="tel" maxlength="40" placeholder="+7 ..."></label></div></fieldset>
@@ -671,16 +762,6 @@
             <button id="saveUsefulInfoButton" class="button button-primary" type="submit">Сохранить полезную информацию</button>
           </form>
         </section>
-      </section>
-
-      <section id="view-settings" class="view" aria-labelledby="settingsTitle">
-        <div class="section-heading">
-          <div>
-            <span class="sticker sticker-orange">Для тех, кто всё организует</span>
-            <h2 id="settingsTitle">Управление классом</h2>
-          </div>
-          <button id="openCampaignModalButton" class="button button-primary" type="button">+ Добавить сбор</button>
-        </div>
 
         <section class="paper-card templates-card" aria-labelledby="templatesTitle">
           <div class="card-title-row compact">
@@ -977,6 +1058,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=87" defer></script>
+  <script src="app.js?v=88" defer></script>
 </body>
 </html>
