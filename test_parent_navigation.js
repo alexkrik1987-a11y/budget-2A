@@ -34,20 +34,25 @@ const views = names.map(name => {
 for (const id of ["sectionNavigation", "moneyNavigation", "currentSectionLabel"]) elements.set(id, element(id));
 const nav = ["summary", "schedule", "contributions", "directory"].map(name => Object.assign(element(name), { dataset: { view: name } }));
 const money = ["contributions", "expenses", "archive", "budget", "household"].map(name => Object.assign(element(name), { dataset: { view: name } }));
-const history = { state: { preserved: true }, pushes: [], replaceState(value) { this.state = value; }, pushState(value) { this.state = value; this.pushes.push(value); } };
-const context = { state: { isAdmin: false }, dom: { navButtons: nav }, window: { history, scrollTo() {} }, document: {
+const history = { state: { preserved: true }, pushes: [], replacements: [], replaceState(value) { this.state = value; this.replacements.push(value); }, pushState(value, title, url) { this.state = value; this.url = url; this.pushes.push(value); } };
+const context = { state: { isAdmin: false }, dom: { navButtons: nav }, window: { history, location: { hash: "" }, scrollY: 240, scrollTo(options) { this.lastScroll = options.top; } }, document: {
   getElementById: id => elements.get(id),
   querySelector: () => views.find(view => view.classList.contains("active")),
   querySelectorAll: selector => selector === ".view" ? views : money
 } };
 vm.createContext(context);
-vm.runInContext(app.slice(app.indexOf("function switchView("), app.indexOf("function openReceiptPreview(")) + "\nthis.navigate = switchView;", context);
+vm.runInContext(app.slice(app.indexOf("let navigationUserId ="), app.indexOf("function openReceiptPreview(")) + "\nthis.navigate = switchView;", context);
 const active = () => views.find(view => view.classList.contains("active")).id;
 context.navigate("schedule", { remember: true });
 assert.equal(active(), "view-schedule");
 assert.equal(nav[1].attributes["aria-current"], "page");
 assert.equal(history.state.preserved, true);
 assert.equal(history.pushes.length, 1);
+assert.equal(history.replacements[0].budgetScroll, 240, "save outgoing scroll position");
+assert.equal(history.url, "#view=schedule", "shareable section URL");
+context.navigate("summary", { scrollTop: 240 });
+assert.equal(context.window.lastScroll, 240, "Back restores outgoing scroll");
+context.navigate("schedule");
 assert(elements.get("view-schedule").heading.focused, "section title receives keyboard focus");
 context.navigate("settings", { remember: true });
 assert.equal(active(), "view-schedule", "parent cannot enter admin view");
@@ -72,4 +77,17 @@ context.navigate("summary");
 assert.equal(active(), "view-summary");
 assert(elements.get("sectionNavigation").classList.contains("hidden"));
 assert.equal(nav.filter(button => button.attributes["aria-current"] === "page").length, 1);
+for (const name of names) assert.equal(context.parentViewFromHash(`#view=${name}`), name);
+for (const hash of ["#access_token=secret", "#view=unknown", "#view=settings&admin=true", "#view=%73ummary"]) assert.equal(context.parentViewFromHash(hash), null);
+context.state.isAdmin = false;
+context.state.session = { user: { id: "parent" } };
+context.window.location.hash = "#view=settings";
+context.restoreParentRoute();
+assert.equal(active(), "view-summary", "deep link cannot expose admin view");
+context.state.session.user.id = "another-parent";
+context.window.location.hash = "#view=memos";
+context.restoreParentRoute();
+assert.equal(active(), "view-memos", "reload restores valid parent deep link after access");
+context.navigate("schedule"); context.restoreParentRoute();
+assert.equal(active(), "view-schedule", "realtime render does not reset current route");
 console.log("parent navigation: PASS (destinations, roles, history, focus, active states)");

@@ -8643,3 +8643,50 @@ html[data-theme="dark"] body.school-cabinet .money-navigation [aria-current="pag
   body.school-cabinet .money-navigation button { font-size: .82rem; padding: 9px 10px; }
   body.school-cabinet .view { scroll-margin-top: 20px; }
 }
+
+/* Focused parent UX: readable shortcuts, optional detail, and narrow screens. */
+body.school-cabinet .copy-status { position: fixed; z-index: 120; bottom: 20px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px); margin: 0; padding: 12px 16px; border-radius: 12px; background: #294554; color: #fff; box-shadow: 0 4px 16px #0003; pointer-events: none; line-height: 1.5; }
+body.school-cabinet .home-money-details { margin: 16px 0; border: 1px solid #c4d1c8; border-radius: 14px; background: #fffef9; }
+body.school-cabinet .home-money-details > summary { padding: 16px; min-height: 52px; font-weight: 800; cursor: pointer; color: #294554; }
+body.school-cabinet .home-money-details > summary span { margin-left: 8px; font-size: .85rem; font-weight: 400; }
+body.school-cabinet .home-money-details .living-notebook { margin: 0; border: 0; box-shadow: none; }
+body.school-cabinet .destination-link strong,
+body.school-cabinet .destination-link small,
+body.school-cabinet .useful-day-card,
+body.school-cabinet .useful-note-item { overflow-wrap: anywhere; }
+body.school-cabinet .useful-day-card.is-today { border: 2px solid #367658; }
+body.school-cabinet #paymentDetailsUnavailable { line-height: 1.6; scroll-margin: 24px; }
+body.school-cabinet summary:focus-visible,
+body.school-cabinet a:focus-visible,
+body.school-cabinet button:focus-visible { outline: 3px solid #397faa; outline-offset: 3px; }
+body.school-cabinet .modal { max-height: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain; }
+html[data-theme="dark"] body.school-cabinet .home-money-details { background: #202d38; border-color: #455663; }
+html[data-theme="dark"] body.school-cabinet .home-money-details > summary { color: #e6edf2; }
+html[data-theme="dark"] body.school-cabinet .useful-day-card.is-today { border-color: #9ddcbb; }
+@media (max-width: 768px) {
+  html[data-theme] body.school-cabinet .main-nav .nav-button { grid-template-columns: minmax(0, 1fr); justify-items: center; white-space: normal !important; overflow-wrap: anywhere !important; min-height: 64px !important; height: auto !important; }
+  body.school-cabinet #protectedContent.is-authenticated > .main-nav { height: auto !important; max-height: none !important; }
+  body.school-cabinet #protectedContent.is-authenticated > .main-nav .nav-inner { height: auto !important; max-height: none !important; align-items: stretch; padding: 0; }
+  body.school-cabinet .content { padding-bottom: calc(var(--parent-nav-height, 90px) + 32px) !important; }
+  body.school-cabinet #protectedContent.is-authenticated > .content { width: calc(100% - 24px) !important; margin-inline: auto !important; }
+  body.school-cabinet .copy-status { bottom: calc(var(--parent-nav-height, 90px) + 12px); }
+  body.school-cabinet .destination-arrow { flex: 0 0 auto; }
+  body.school-cabinet .home-shortcuts .destination-link { min-width: 0; }
+  body.school-cabinet .section-navigation > span { min-width: 0; overflow-wrap: anywhere; }
+  body.school-cabinet .view input:not([type="checkbox"]):not([type="radio"]),
+  body.school-cabinet .view select,
+  body.school-cabinet .view textarea,
+  body.school-cabinet .modal input,
+  body.school-cabinet .modal select { font-size: 16px; }
+  body.school-cabinet .view .button,
+  body.school-cabinet .view .action-button { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.school-cabinet *, body.school-cabinet *::before, body.school-cabinet *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+@media (max-width: 360px) {
+  body.school-cabinet .home-shortcuts { grid-template-columns: minmax(0, 1fr); }
+  body.school-cabinet .home-shortcuts .destination-link { display: flex; min-height: 76px; }
+  body.school-cabinet .home-shortcuts .destination-icon { margin: 0; }
+  html[data-theme] body.school-cabinet .main-nav .nav-button { font-size: .7rem !important; letter-spacing: -.025em; }
+}

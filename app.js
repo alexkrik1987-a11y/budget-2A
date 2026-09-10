@@ -310,7 +310,7 @@ function clearOAuthCallbackFromUrl() {
 function cacheDom() {
   const ids = [
     "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "emailPasswordForm", "emailPasswordEmailInput", "emailPasswordInput", "togglePasswordVisibility", "rememberSessionInput", "emailPasswordLoginButton", "requestPasswordSetupButton", "authRequestAccessButton", "emailPasswordStatus", "passwordResetForm", "newPasswordInput", "confirmPasswordInput", "saveNewPasswordButton", "logoutButton", "configWarning", "authError",
-    "globalNotice", "presenceStatus", "presenceStatusText", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated", "schoolCalendar", "schoolCalendarDay", "schoolCalendarMonth",
+    "globalNotice", "copyStatus", "paymentDetailsUnavailable", "presenceStatus", "presenceStatusText", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated", "schoolCalendar", "schoolCalendarDay", "schoolCalendarMonth",
     "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions", "parentChildOnboardingModal", "parentChildOnboardingForm", "parentChildOnboardingSelect", "parentChildOnboardingError", "parentChildOnboardingSaveButton",
     "themeToggleButton", "paymentDetailsCard", "paymentBankValue", "paymentPhoneValue", "paymentCardValue", "copyPaymentPhoneButton", "copyPaymentCardButton", "editPaymentDetailsButton", "paymentDetailsForm", "paymentBankInput", "paymentPhoneInput", "paymentCardInput", "paymentDetailsError", "savePaymentDetailsButton", "cancelPaymentDetailsButton", "addPaymentDetailsButton", "paymentDetailsEmpty",
     "totalCollected", "totalSpent", "totalBalance", "fundCards", "contributionReminder", "currentCampaignSummary",
@@ -386,8 +386,16 @@ function bindEvents() {
     button.addEventListener("click", () => switchView(button.dataset.view, { remember: true, target: button.dataset.target }));
   });
   window.addEventListener("popstate", (event) => {
-    if (state.session) switchView(event.state?.budgetView || "summary");
+    if (!state.session) return;
+    const view = event.state?.budgetView || parentViewFromHash(window.location.hash) || "summary";
+    switchView(view === "settings" && !state.isAdmin ? "summary" : view, { scrollTop: event.state?.budgetScroll });
   });
+  const primaryNavigation = document.querySelector(".main-nav");
+  if (primaryNavigation && typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(() => {
+      document.documentElement.style.setProperty("--parent-nav-height", `${primaryNavigation.getBoundingClientRect().height}px`);
+    }).observe(primaryNavigation);
+  }
 
   document.querySelectorAll("[data-living-action]").forEach((button) => {
     button.addEventListener("click", () => handleLivingAction(button.dataset.livingAction));
@@ -1793,6 +1801,7 @@ function renderAll() {
   renderBackupList();
   renderReportMonthOptions();
   renderPrintableReport();
+  restoreParentRoute();
   if (dom.lastUpdated) {
     dom.lastUpdated.textContent = `Обновлено: ${new Intl.DateTimeFormat("ru-RU", { hour: "2-digit", minute: "2-digit" }).format(new Date())}`;
   }
@@ -1914,6 +1923,12 @@ function renderPaymentDetails() {
     button.textContent = "Скопировать";
   });
   if (dom.paymentDetailsCard) dom.paymentDetailsCard.classList.toggle("hidden", !filled);
+  if (dom.paymentDetailsUnavailable) {
+    dom.paymentDetailsUnavailable.classList.toggle("hidden", filled || state.isAdmin);
+    dom.paymentDetailsUnavailable.textContent = state.budgetDataReady
+      ? "Реквизиты ещё не добавлены. Уточните у родительского комитета в чате, куда перевести взнос."
+      : "Реквизиты пока недоступны. Дождитесь загрузки данных. Если они не появятся, проверьте интернет и обновите страницу.";
+  }
   if (dom.paymentDetailsEmpty) dom.paymentDetailsEmpty.classList.toggle("hidden", filled || !state.isAdmin);
   if (dom.editPaymentDetailsButton) dom.editPaymentDetailsButton.classList.toggle("hidden", !filled || !state.isAdmin);
   if (!filled) {
@@ -1975,6 +1990,15 @@ async function savePaymentDetails(event) {
   showNotice("Реквизиты сохранены ✓", "info");
 }
 
+let copyFeedbackTimer;
+function showCopyFeedback(message) {
+  if (!dom.copyStatus) return;
+  window.clearTimeout(copyFeedbackTimer);
+  dom.copyStatus.textContent = message;
+  dom.copyStatus.classList.remove("hidden");
+  copyFeedbackTimer = window.setTimeout(() => dom.copyStatus.classList.add("hidden"), 5000);
+}
+
 async function copyPaymentValue(field, button) {
   const details = normalizePaymentDetails(state.classProfile?.payment_details);
   const value = details[field];
@@ -2004,10 +2028,12 @@ async function copyPaymentValue(field, button) {
   }
   if (!copied) {
     button.textContent = "Не удалось скопировать";
+    showCopyFeedback("Не удалось скопировать. Выделите номер и скопируйте его вручную.");
     window.setTimeout(() => { button.textContent = "Скопировать"; }, 1600);
     return;
   }
   button.textContent = "Скопировано ✓";
+  showCopyFeedback(field === "card" ? "Номер карты скопирован" : "Номер телефона скопирован");
   window.setTimeout(() => { button.textContent = "Скопировать"; }, 1600);
 }
 
@@ -2039,10 +2065,12 @@ async function copyHouseholdFundsPhone(button) {
   }
   if (!copied) {
     button.textContent = "Не удалось скопировать";
+    showCopyFeedback("Не удалось скопировать. Выделите номер и скопируйте его вручную.");
     window.setTimeout(() => { button.textContent = "Скопировать номер"; }, 1600);
     return;
   }
   button.textContent = "Скопировано ✓";
+  showCopyFeedback("Номер телефона скопирован");
   window.setTimeout(() => { button.textContent = "Скопировать номер"; }, 1600);
 }
 
@@ -2053,16 +2081,31 @@ function createUsefulContact(label, name, phone) {
   item.append(copy);
   if (phone) {
     const link = el("a", "button button-secondary button-small useful-call-button", "Позвонить");
-    link.href = `tel:${phone.replace(/[^+\\d]/g, "")}`;
+    link.href = `tel:${phone.replace(/[^+\d]/g, "")}`;
     link.setAttribute("aria-label", `Позвонить: ${label}`);
     item.append(link);
   }
   return item;
 }
 
+function schoolWeekday(date = new Date()) {
+  return new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Vladivostok", weekday: "short" }).format(date).toLowerCase();
+}
+
+function todaySchedulePreview(schedule, ready, date = new Date()) {
+  if (!ready) return "Расписание пока загружается";
+  const day = schoolWeekday(date);
+  if (day === "sat" || day === "sun") return "Сегодня выходной · посмотреть неделю";
+  const lessons = schedule[day] || [];
+  if (!lessons.length) return "На сегодня уроки ещё не указаны";
+  return `Сегодня: ${lessons.slice(0, 2).join(", ")}${lessons.length > 2 ? ` · ещё ${lessons.length - 2}` : ""}`;
+}
+
 function renderUsefulInfo() {
   const info = normalizeUsefulInfo(state.classProfile?.useful_info);
   state.classProfile.useful_info = info;
+  const today = document.getElementById("todaySchedulePreview");
+  if (today) today.textContent = todaySchedulePreview(info.schedule, state.budgetDataReady);
   if (dom.usefulContacts) {
     const contacts = [
       ["Учитель", info.teacher.name, info.teacher.phone],
@@ -2080,7 +2123,9 @@ function renderUsefulInfo() {
   if (dom.usefulSchedule) {
     dom.usefulSchedule.replaceChildren(...USEFUL_DAYS.map(([key, label]) => {
       const card = el("article", "useful-day-card");
-      card.append(el("h4", "", label));
+      const isToday = key === schoolWeekday();
+      card.classList.toggle("is-today", isToday);
+      card.append(el("h4", "", isToday ? `${label} · сегодня` : label));
       const lessons = info.schedule[key] || [];
       if (lessons.length) {
         const list = el("ol", "useful-lesson-list");
@@ -2206,7 +2251,7 @@ function renderPushNotificationStatus() {
   } else if (!supported) {
     message = isIosPushInstallationRequired()
       ? "На iPhone и iPad сначала установите сайт на экран «Домой», затем откройте его как приложение."
-      : "Этот браузер не поддерживает push-уведомления.";
+      : "В этом браузере уведомления недоступны. Попробуйте обновить браузер или открыть сайт в другом.";
     status = "unavailable";
   } else if (denied) {
     message = "Уведомления запрещены в настройках браузера. Разрешите их для этого сайта.";
@@ -2215,7 +2260,7 @@ function renderPushNotificationStatus() {
     message = "Уведомления включены на этом устройстве.";
     status = "on";
   } else if (state.browserPushSubscription) {
-    message = "Подписка браузера найдена. Нажмите «Включить», чтобы активировать её для класса.";
+    message = "Уведомления для класса выключены. Нажмите «Включить уведомления», чтобы получать новости на этом устройстве.";
   }
   dom.pushNotificationStatus.textContent = message;
   dom.pushNotificationStatus.dataset.status = status;
@@ -2536,6 +2581,8 @@ function renderAnnouncementPage(pinned) {
   const preview = document.getElementById("homeAnnouncementPreview");
   const emptyText = state.chatReady ? "Закреплённых объявлений пока нет. Обычные сообщения — в чате класса." : "Объявления пока недоступны. Дождитесь загрузки чата.";
   if (preview) preview.textContent = pinned ? pinned.body : emptyText;
+  const title = document.getElementById("homeAnnouncementTitle");
+  if (title) title.textContent = pinned ? `Объявление · ${formatDateTime(pinned.created_at)}` : "Объявления класса";
   if (!content) return;
   content.replaceChildren();
   if (pinned) {
@@ -3171,6 +3218,9 @@ function renderLivingNotebook({ totalCollected, totalSpent, totalBalance }) {
     .filter((item) => item.is_open)
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   const currentCampaign = openCampaigns[0] ?? null;
+  const campaignPreview = document.getElementById("todayCampaignPreview");
+  if (campaignPreview) campaignPreview.textContent = !state.budgetDataReady ? "Сборы пока загружаются"
+    : currentCampaign ? `Открыт сбор: ${currentCampaign.name}` : "Открытых сборов пока нет · реквизиты";
   const today = new Date();
   const dateLabel = new Intl.DateTimeFormat("ru-RU", {
     day: "numeric",
@@ -3399,7 +3449,7 @@ function renderContributionReminder() {
   const select = document.createElement("select");
   select.className = "contribution-reminder-select";
   select.setAttribute("aria-label", "Выберите ребёнка для личного напоминания");
-  select.append(el("option", "", "Выберите моего ребёнка…"));
+  select.append(el("option", "", "Выберите ребёнка"));
   select.options[0].value = "";
   students.forEach((item) => {
     const option = el("option", "", item.full_name);
@@ -4618,14 +4668,30 @@ function backupTypeLabel(type) {
 /* =========================================================
    11. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
    ========================================================= */
-function switchView(viewName, { remember = false, target = null } = {}) {
+let navigationUserId = null;
+
+function parentViewFromHash(hash) {
+  const match = /^#view=(summary|schedule|announcements|contributions|expenses|archive|budget|useful|memos|household|notifications|directory|settings)$/.exec(hash);
+  return match?.[1] || null;
+}
+
+function restoreParentRoute() {
+  const userId = state.session?.user?.id;
+  if (!userId || navigationUserId === userId) return;
+  navigationUserId = userId;
+  const view = parentViewFromHash(window.location.hash);
+  if (view) switchView(view === "settings" && !state.isAdmin ? "summary" : view);
+}
+
+function switchView(viewName, { remember = false, target = null, scrollTop = 0 } = {}) {
   if (viewName === "settings" && !state.isAdmin) return;
   const nextView = document.getElementById(`view-${viewName}`);
   if (!nextView || !nextView.classList.contains("view")) return;
   const previousView = document.querySelector(".view.active")?.id.replace("view-", "") || "summary";
   if (remember && previousView !== viewName) {
-    window.history.replaceState({ ...window.history.state, budgetView: previousView }, "");
-    window.history.pushState({ ...window.history.state, budgetView: viewName }, "");
+    window.history.scrollRestoration = "manual";
+    window.history.replaceState({ ...window.history.state, budgetView: previousView, budgetScroll: window.scrollY }, "");
+    window.history.pushState({ ...window.history.state, budgetView: viewName, budgetScroll: 0 }, "", `#view=${viewName}`);
   }
   document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === `view-${viewName}`));
   const moneyViews = ["contributions", "expenses", "archive", "budget", "household"];
@@ -4646,9 +4712,11 @@ function switchView(viewName, { remember = false, target = null } = {}) {
   const label = document.getElementById("currentSectionLabel");
   if (label) label.textContent = heading?.textContent || "";
   if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
-  const anchor = target && document.getElementById(target);
+  const resolvedTarget = target === "paymentDetailsCard" && dom.paymentDetailsCard?.classList.contains("hidden")
+    ? (state.isAdmin ? "paymentDetailsEmpty" : "paymentDetailsUnavailable") : target;
+  const anchor = resolvedTarget && document.getElementById(resolvedTarget);
   if (anchor && nextView.contains(anchor)) anchor.scrollIntoView({ block: "start" });
-  else window.scrollTo({ top: 0, behavior: "instant" });
+  else window.scrollTo({ top: Number.isFinite(scrollTop) ? Math.max(0, scrollTop) : 0, behavior: "instant" });
 }
 
 function openReceiptPreview(value) {
@@ -4754,7 +4822,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=90", window.location.href);
+  const workerUrl = new URL("./sw.js?v=91", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }

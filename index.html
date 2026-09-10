@@ -64,7 +64,7 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=604">
+  <link rel="stylesheet" href="styles.css?v=605">
 </head>
 <body class="school-cabinet">
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
@@ -202,6 +202,7 @@
         </p>
       </div>
       <div id="globalNotice" class="notice hidden" role="status" aria-live="polite"></div>
+      <p id="copyStatus" class="copy-status hidden" role="status" aria-live="polite"></p>
       <div id="sectionNavigation" class="section-navigation hidden">
         <button id="sectionHomeButton" class="button button-secondary button-small" type="button" data-view="summary">← На сегодня</button>
         <span id="currentSectionLabel" aria-live="polite"></span>
@@ -234,9 +235,9 @@
         </div>
 
         <div class="home-shortcuts" aria-label="Куда перейти">
-          <button type="button" class="destination-link" data-view="schedule"><span class="destination-icon" aria-hidden="true">📅</span><span><strong>Расписание</strong><small>Уроки на всю неделю</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+          <button type="button" class="destination-link" data-view="schedule"><span class="destination-icon" aria-hidden="true">📅</span><span><strong>Расписание</strong><small id="todaySchedulePreview">Расписание пока загружается</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
           <button type="button" class="destination-link" data-view="announcements"><span class="destination-icon" aria-hidden="true">📢</span><span><strong>Объявления</strong><small>Закреплённая новость из чата</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-          <button type="button" class="destination-link" data-view="contributions"><span class="destination-icon" aria-hidden="true">💰</span><span><strong>Сборы и реквизиты</strong><small>Взносы и данные для перевода</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+          <button type="button" class="destination-link" data-view="contributions"><span class="destination-icon" aria-hidden="true">💰</span><span><strong>Сборы и реквизиты</strong><small id="todayCampaignPreview">Сборы пока загружаются</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
           <button type="button" class="destination-link" data-view="memos"><span class="destination-icon" aria-hidden="true">📝</span><span><strong>Памятки</strong><small>Что взять и о чём помнить</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
         </div>
         <section class="home-announcement paper-card" aria-labelledby="homeAnnouncementTitle">
@@ -250,6 +251,8 @@
           <button type="button" class="text-link" data-view="household">Хознужды · куда перевести</button>
         </div>
 
+        <details class="home-money-details">
+          <summary>Деньги класса <span>Посмотреть сводку</span></summary>
         <section id="livingNotebook" class="living-notebook" aria-labelledby="livingNotebookTitle">
           <div class="living-notebook-heading">
             <div>
@@ -308,6 +311,7 @@
           </div>
           <p id="liveNotebookMessage" class="living-notebook-message" aria-live="polite">Данные появятся после загрузки бюджета.</p>
         </section>
+        </details>
 
         <section id="contributionReminder" class="contribution-reminder hidden" aria-live="polite"></section>
         <section id="parentOnboardingGuide" class="parent-onboarding-guide hidden" aria-labelledby="parentOnboardingGuideTitle"></section>
@@ -357,14 +361,14 @@
               <dt>Телефон</dt>
               <dd class="payment-detail-value-row">
                 <span id="paymentPhoneValue" class="payment-detail-value">—</span>
-                <button id="copyPaymentPhoneButton" class="button button-secondary button-small copy-button hidden" type="button">Скопировать</button>
+                <button id="copyPaymentPhoneButton" class="button button-secondary button-small copy-button hidden" type="button" aria-label="Скопировать номер телефона">Скопировать</button>
               </dd>
             </div>
             <div class="payment-detail-item">
               <dt>Карта</dt>
               <dd class="payment-detail-value-row">
                 <span id="paymentCardValue" class="payment-detail-value payment-card-number">—</span>
-                <button id="copyPaymentCardButton" class="button button-secondary button-small copy-button hidden" type="button">Скопировать</button>
+                <button id="copyPaymentCardButton" class="button button-secondary button-small copy-button hidden" type="button" aria-label="Скопировать номер карты">Скопировать</button>
               </dd>
             </div>
           </dl>
@@ -382,6 +386,7 @@
           </form>
         </section>
 
+        <p id="paymentDetailsUnavailable" class="paper-card hidden" role="status"></p>
         <section id="paymentDetailsEmpty" class="paper-card payment-details-empty admin-only hidden">
           <p>Реквизиты пока не добавлены</p>
           <button id="addPaymentDetailsButton" class="button button-primary button-small" type="button">Добавить реквизиты</button>
@@ -630,7 +635,7 @@
         <div class="section-heading"><div><h2 id="scheduleTitle">Расписание уроков</h2><p>Вся учебная неделя в одном месте.</p></div></div>
           <article class="paper-card useful-card useful-schedule-card">
             <div class="card-title-row compact">
-              <div><span class="sticker sticker-yellow">На неделю</span><h3>Расписание уроков</h3></div>
+              <div><span class="sticker sticker-yellow">На неделю</span></div>
               <span aria-hidden="true">🗓️</span>
             </div>
             <div id="usefulSchedule" class="useful-schedule-grid"></div>
@@ -642,7 +647,7 @@
         <div class="section-heading"><div><h2 id="memosTitle">Памятки класса</h2><p>Что подготовить к занятиям, встречам и поездкам.</p></div></div>
         <section class="paper-card useful-notes-card">
           <div class="card-title-row compact">
-            <div><span class="sticker sticker-orange">Важное</span><h3>Памятки класса</h3></div>
+            <div><span class="sticker sticker-orange">Важное</span></div>
             <span aria-hidden="true">📝</span>
           </div>
           <div id="usefulNotes" class="useful-notes-list"></div>
@@ -723,7 +728,7 @@
             <button type="button" class="destination-link" data-view="announcements"><span class="destination-icon" aria-hidden="true">📢</span><span><strong>Объявления</strong><small>Закреплённая новость из чата</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
             <button type="button" class="destination-link" data-view="memos"><span class="destination-icon" aria-hidden="true">📝</span><span><strong>Памятки</strong><small>Что взять и о чём помнить</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
             <button type="button" class="destination-link" data-view="useful"><span class="destination-icon" aria-hidden="true">☎</span><span><strong>Контакты и школа</strong><small>Учитель, родкомитет, адрес</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-            <button type="button" class="destination-link" data-living-action="chat"><span><strong>Чат класса</strong><small>Сообщения родителей и администратора</small></span><span aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-living-action="chat"><span><strong>Чат класса</strong><small>Сообщения родителей и администратора</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
           </section>
           <section class="directory-group"><h3>Деньги класса</h3>
             <button type="button" class="destination-link" data-view="contributions"><span class="destination-icon" aria-hidden="true">💰</span><span><strong>Сборы и реквизиты</strong><small>Взносы и данные для перевода</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
@@ -734,7 +739,7 @@
           </section>
           <section class="directory-group"><h3>Настройки</h3>
             <button type="button" class="destination-link" data-view="notifications"><span class="destination-icon" aria-hidden="true">🔔</span><span><strong>Уведомления</strong><small>Включить и выбрать новости</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-            <button id="settingsNavButton" class="destination-link admin-only hidden" type="button" data-view="settings"><span><strong>Управление классом</strong><small>Только администратор: ученики, доступ, редактирование</small></span><span aria-hidden="true">›</span></button>
+            <button id="settingsNavButton" class="destination-link admin-only hidden" type="button" data-view="settings"><span><strong>Управление классом</strong><small>Только администратор: ученики, доступ, редактирование</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
           </section>
         </div>
       </section>
@@ -924,7 +929,7 @@
     </aside>
   </div>
 
-  <dialog id="expenseModal" class="modal">
+  <dialog id="expenseModal" class="modal" aria-labelledby="expenseModalTitle">
     <form id="expenseForm" class="modal-card" method="dialog">
       <div class="modal-header">
         <div><span class="sticker sticker-pink">Новая запись</span><h2 id="expenseModalTitle">Добавить расход</h2></div>
@@ -951,7 +956,7 @@
     </form>
   </dialog>
 
-  <dialog id="campaignModal" class="modal">
+  <dialog id="campaignModal" class="modal" aria-labelledby="campaignModalTitle">
     <form id="campaignForm" class="modal-card" method="dialog">
       <div class="modal-header">
         <div><span class="sticker sticker-blue">Планируем</span><h2 id="campaignModalTitle">Добавить сбор</h2></div>
@@ -974,7 +979,7 @@
     </form>
   </dialog>
 
-  <dialog id="studentModal" class="modal">
+  <dialog id="studentModal" class="modal" aria-labelledby="studentModalTitle">
     <form id="studentForm" class="modal-card" method="dialog">
       <div class="modal-header">
         <div><span class="sticker sticker-green">Список класса</span><h2 id="studentModalTitle">Добавить ученика</h2></div>
@@ -993,7 +998,7 @@
     </form>
   </dialog>
 
-  <dialog id="receiptPreviewModal" class="modal receipt-modal">
+  <dialog id="receiptPreviewModal" class="modal receipt-modal" aria-labelledby="receiptPreviewTitle">
     <section class="modal-card receipt-preview-card" aria-labelledby="receiptPreviewTitle">
       <div class="modal-header">
         <div>
@@ -1011,7 +1016,7 @@
     </section>
   </dialog>
 
-  <dialog id="installHelpModal" class="modal install-modal">
+  <dialog id="installHelpModal" class="modal install-modal" aria-labelledby="installHelpTitle">
     <section class="modal-card install-help-card" aria-labelledby="installHelpTitle">
       <div class="modal-header">
         <div>
@@ -1058,6 +1063,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=88" defer></script>
+  <script src="app.js?v=89" defer></script>
 </body>
 </html>
