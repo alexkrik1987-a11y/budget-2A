@@ -47,10 +47,6 @@
   <meta name="apple-mobile-web-app-title" content="Класс 2 «А»">
   <title>Наш дружный класс 2 «А»</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"></noscript>
   <link rel="icon" href="icons/class-2a.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
@@ -64,9 +60,30 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=605">
+  <link rel="stylesheet" href="styles.css?v=606">
 </head>
 <body class="school-cabinet">
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="ui-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></symbol>
+      <symbol id="ui-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18m-14 4h3m4 0h3m-10 3h3"/></symbol>
+      <symbol id="ui-wallet" viewBox="0 0 24 24"><path d="M20 8V5H6a3 3 0 0 0 0 6h15v9H6a3 3 0 0 1-3-3V8"/><path d="M21 14h-5v3h5"/></symbol>
+      <symbol id="ui-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+      <symbol id="ui-notice" viewBox="0 0 24 24"><path d="m15 5 6-2v16l-6-3H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h10ZM7 16l2 5h4l-2-5M15 5v11"/></symbol>
+      <symbol id="ui-note" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8m-8 4h5"/></symbol>
+      <symbol id="ui-phone" viewBox="0 0 24 24"><path d="m7 3 3 5-3 3a17 17 0 0 0 6 6l3-3 5 3-1 4C10 22 2 14 3 4Z"/></symbol>
+      <symbol id="ui-clean" viewBox="0 0 24 24"><path d="m18 3-6 9m-4-1 8 5-4 6-10-6Z M6 17l3-4m1 7 3-4"/></symbol>
+      <symbol id="ui-bell" viewBox="0 0 24 24"><path d="M5 17h14l-2-3V9a5 5 0 0 0-10 0v5ZM10 21h4m-2-19v2"/></symbol>
+      <symbol id="ui-receipt" viewBox="0 0 24 24"><path d="m5 3 3 2 4-2 4 2 3-2v18l-3-2-4 2-4-2-3 2ZM9 9h6m-6 4h6"/></symbol>
+      <symbol id="ui-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M7 16v-4m5 4V8m5 8V5"/></symbol>
+      <symbol id="ui-archive" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="5" rx="1"/><path d="M5 8v13h14V8m-10 5h6"/></symbol>
+      <symbol id="ui-chat" viewBox="0 0 24 24"><path d="M21 11a9 9 0 0 1-9 9H3l2-5a9 9 0 1 1 16-4Z"/><path d="M8 10h8m-8 4h5"/></symbol>
+      <symbol id="ui-book" viewBox="0 0 24 24"><path d="M12 5C8 2 4 3 2 4v16c3-2 7-2 10 0 3-2 7-2 10 0V4c-2-1-6-2-10 1Zm0 0v15"/></symbol>
+      <symbol id="ui-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/></symbol>
+      <symbol id="ui-moon" viewBox="0 0 24 24"><path d="M20 14A9 9 0 0 1 10 3a9 9 0 1 0 10 11Z"/></symbol>
+      <symbol id="ui-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></symbol>
+    </defs>
+  </svg>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
     <div class="loading-board chalkboard">
       <img class="loading-emblem" src="icons/class-2a.svg" alt="">
@@ -152,7 +169,7 @@
     <header class="site-header chalkboard">
       <div class="header-inner">
         <div class="brand">
-          <span class="brand-icon" aria-hidden="true"><img src="icons/class-2a.svg" alt=""></span>
+          <span class="brand-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-book"></use></svg></span>
           <div class="brand-copy">
             <p class="eyebrow"><span class="eyebrow-label">Школьные дела и важные новости</span> <span data-school-year>2026–2027</span></p>
             <h1>Наш дружный класс <span data-class-name>2 «А»</span></h1>
@@ -165,7 +182,7 @@
             <span id="roleBadge" class="role-badge">Родитель · просмотр</span>
           </div>
           <img id="userAvatar" class="avatar hidden" alt="Аватар пользователя" referrerpolicy="no-referrer">
-          <button id="themeToggleButton" class="theme-toggle" type="button" aria-label="Включить тёмную тему" aria-pressed="false">🌙</button>
+          <button id="themeToggleButton" class="theme-toggle" type="button" aria-label="Включить тёмную тему" aria-pressed="false"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-moon"></use></svg></button>
           <button id="logoutButton" class="button button-light button-small" type="button">Выйти</button>
         </div>
       </div>
@@ -183,10 +200,10 @@
 
     <nav class="main-nav" aria-label="Основная навигация">
       <div class="nav-inner">
-        <button class="nav-button active" type="button" data-view="summary" aria-current="page"><span aria-hidden="true">🏠</span> Сегодня</button>
-        <button class="nav-button" type="button" data-view="schedule"><span aria-hidden="true">📅</span> Расписание</button>
-        <button class="nav-button" type="button" data-view="contributions"><span aria-hidden="true">💰</span> Деньги</button>
-        <button class="nav-button" type="button" data-view="directory"><span aria-hidden="true">☰</span> Все разделы</button>
+        <button class="nav-button active" type="button" data-view="summary" aria-current="page"><span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-home"></use></svg></span> Сегодня</button>
+        <button class="nav-button" type="button" data-view="schedule"><span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-calendar"></use></svg></span> Расписание</button>
+        <button class="nav-button" type="button" data-view="contributions"><span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span> Деньги</button>
+        <button class="nav-button" type="button" data-view="directory"><span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-grid"></use></svg></span> Все разделы</button>
       </div>
     </nav>
 
@@ -235,10 +252,10 @@
         </div>
 
         <div class="home-shortcuts" aria-label="Куда перейти">
-          <button type="button" class="destination-link" data-view="schedule"><span class="destination-icon" aria-hidden="true">📅</span><span><strong>Расписание</strong><small id="todaySchedulePreview">Расписание пока загружается</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-          <button type="button" class="destination-link" data-view="announcements"><span class="destination-icon" aria-hidden="true">📢</span><span><strong>Объявления</strong><small>Закреплённая новость из чата</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-          <button type="button" class="destination-link" data-view="contributions"><span class="destination-icon" aria-hidden="true">💰</span><span><strong>Сборы и реквизиты</strong><small id="todayCampaignPreview">Сборы пока загружаются</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-          <button type="button" class="destination-link" data-view="memos"><span class="destination-icon" aria-hidden="true">📝</span><span><strong>Памятки</strong><small>Что взять и о чём помнить</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+          <button type="button" class="destination-link" data-view="schedule"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-calendar"></use></svg></span><span><strong>Расписание</strong><small id="todaySchedulePreview">Расписание пока загружается</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+          <button type="button" class="destination-link" data-view="announcements"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-notice"></use></svg></span><span><strong>Объявления</strong><small>Закреплённая новость из чата</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+          <button type="button" class="destination-link" data-view="contributions"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span><span><strong>Сборы и реквизиты</strong><small id="todayCampaignPreview">Сборы пока загружаются</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+          <button type="button" class="destination-link" data-view="memos"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-note"></use></svg></span><span><strong>Памятки</strong><small>Что взять и о чём помнить</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
         </div>
         <section class="home-announcement paper-card" aria-labelledby="homeAnnouncementTitle">
           <h3 id="homeAnnouncementTitle">Важное для класса</h3>
@@ -246,8 +263,8 @@
           <button type="button" class="text-link" data-view="announcements">Открыть объявления →</button>
         </section>
         <div class="home-utility-links">
-          <button type="button" class="text-link" data-view="notifications">🔔 Настроить уведомления</button>
-          <button type="button" class="text-link" data-view="useful">☎ Контакты и школа</button>
+          <button type="button" class="text-link" data-view="notifications"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-bell"></use></svg> Настроить уведомления</button>
+          <button type="button" class="text-link" data-view="useful"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-phone"></use></svg> Контакты и школа</button>
           <button type="button" class="text-link" data-view="household">Хознужды · куда перевести</button>
         </div>
 
@@ -264,7 +281,7 @@
           </div>
           <div class="living-notebook-grid">
             <article class="living-note-card living-note-balance">
-              <span class="living-note-icon" aria-hidden="true">💰</span>
+              <span class="living-note-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span>
               <div>
                 <span class="living-note-label">Сейчас в кассе</span>
                 <strong id="liveNotebookBalance">0 ₽</strong>
@@ -272,7 +289,7 @@
               </div>
             </article>
             <article class="living-note-card living-note-campaign">
-              <span class="living-note-icon" aria-hidden="true">🎯</span>
+              <span class="living-note-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span>
               <div>
                 <span class="living-note-label">Текущий сбор</span>
                 <strong id="liveNotebookCampaign">Открытых сборов пока нет</strong>
@@ -300,13 +317,13 @@
           </div>
           <div class="living-notebook-actions" aria-label="Быстрые действия">
             <button class="living-action-button living-action-contribution" type="button" data-living-action="contribution">
-              <span aria-hidden="true">✏️</span><span><strong>Мой взнос</strong><small>Выбрать ребёнка и проверить сборы</small></span>
+              <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-note"></use></svg></span><span><strong>Мой взнос</strong><small>Выбрать ребёнка и проверить сборы</small></span>
             </button>
             <button class="living-action-button living-action-campaign" type="button" data-living-action="campaigns">
-              <span aria-hidden="true">🎯</span><span><strong>Открытые сборы</strong><small>Узнать, на что сейчас собираем</small></span>
+              <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span><span><strong>Открытые сборы</strong><small>Узнать, на что сейчас собираем</small></span>
             </button>
             <button class="living-action-button living-action-chat" type="button" data-living-action="chat">
-              <span aria-hidden="true">💬</span><span><strong>Чат класса</strong><small>Прочитать или отправить сообщение</small></span>
+              <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-chat"></use></svg></span><span><strong>Чат класса</strong><small>Прочитать или отправить сообщение</small></span>
             </button>
           </div>
           <p id="liveNotebookMessage" class="living-notebook-message" aria-live="polite">Данные появятся после загрузки бюджета.</p>
@@ -396,7 +413,7 @@
           <div class="table-toolbar">
             <p class="read-mode-note"><b class="step-number" aria-hidden="true">3</b> <span id="editModeText">Найдите ребёнка и проверьте статус</span></p>
             <label class="search-field">
-              <span aria-hidden="true">🔎</span>
+              <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-search"></use></svg></span>
               <input id="studentSearchInput" type="search" placeholder="Найти ученика" aria-label="Найти ученика">
             </label>
             <div class="legend" aria-label="Обозначения статусов">
@@ -452,7 +469,7 @@
 
         <div class="smart-filter-bar">
           <label class="search-field search-field-wide">
-            <span aria-hidden="true">🔎</span>
+            <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-search"></use></svg></span>
             <input id="expenseSearchInput" type="search" placeholder="Найти расход по описанию" aria-label="Найти расход">
           </label>
           <label class="field compact-field"><span>Месяц</span><select id="expenseMonthFilter"></select></label>
@@ -512,7 +529,7 @@
           <article class="paper-card useful-card useful-contacts-card">
             <div class="card-title-row compact">
               <div><span class="sticker sticker-pink">Контакты</span><h3>К кому обратиться</h3></div>
-              <span aria-hidden="true">☎️</span>
+              <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-phone"></use></svg></span>
             </div>
             <div id="usefulContacts" class="useful-contact-list"></div>
           </article>
@@ -520,7 +537,7 @@
           <article class="paper-card useful-card useful-school-card">
             <div class="card-title-row compact">
               <div><span class="sticker sticker-blue">Наша школа</span><h3 id="usefulSchoolName">Название школы не указано</h3></div>
-              <span aria-hidden="true">🏫</span>
+              <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-book"></use></svg></span>
             </div>
             <p id="usefulSchoolAddress" class="useful-school-address">Адрес школы добавит администратор.</p>
             <a id="usefulSchoolMapLink" class="button button-secondary button-small hidden" target="_blank" rel="noopener" href="#">Открыть на карте</a>
@@ -548,7 +565,7 @@
             <strong id="totalCollected">0 ₽</strong>
           </article>
           <article class="metric-card chalkboard chalk-pink">
-            <span class="metric-icon metric-icon-pink" aria-hidden="true">🧾</span>
+            <span class="metric-icon metric-icon-pink" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-receipt"></use></svg></span>
             <p>Всего потрачено</p>
             <strong id="totalSpent">0 ₽</strong>
           </article>
@@ -607,10 +624,10 @@
           <section class="paper-card" aria-labelledby="progressTitle">
             <div class="card-title-row compact">
               <h3 id="progressTitle">Прогресс текущего сбора</h3>
-              <span aria-hidden="true">📈</span>
+              <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-chart"></use></svg></span>
             </div>
             <div id="currentCampaignSummary" class="campaign-summary empty-state">
-              <span class="empty-illustration" aria-hidden="true">🎯</span>
+              <span class="empty-illustration" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span>
               <strong>Открытых сборов пока нет</strong>
               <small>Новая цель появится здесь сразу после открытия сбора.</small>
             </div>
@@ -619,7 +636,7 @@
           <section class="paper-card" aria-labelledby="recentExpensesTitle">
             <div class="card-title-row compact">
               <h3 id="recentExpensesTitle">Последние расходы</h3>
-              <span aria-hidden="true">🧾</span>
+              <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-receipt"></use></svg></span>
             </div>
             <div id="recentExpenses" class="compact-list empty-state">
               <span class="empty-illustration" aria-hidden="true">✨</span>
@@ -636,7 +653,7 @@
           <article class="paper-card useful-card useful-schedule-card">
             <div class="card-title-row compact">
               <div><span class="sticker sticker-yellow">На неделю</span></div>
-              <span aria-hidden="true">🗓️</span>
+              <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-calendar"></use></svg></span>
             </div>
             <div id="usefulSchedule" class="useful-schedule-grid"></div>
           </article>
@@ -648,7 +665,7 @@
         <section class="paper-card useful-notes-card">
           <div class="card-title-row compact">
             <div><span class="sticker sticker-orange">Важное</span></div>
-            <span aria-hidden="true">📝</span>
+            <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-note"></use></svg></span>
           </div>
           <div id="usefulNotes" class="useful-notes-list"></div>
         </section>
@@ -660,7 +677,7 @@
         <section class="paper-card household-funds-card" aria-labelledby="householdFundsTitle">
           <div class="card-title-row compact">
             <div><span class="sticker sticker-yellow">Хознужды</span><h3 id="householdFundsTitle">Хознужды 2 «А» класса</h3></div>
-            <span aria-hidden="true">💳</span>
+            <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span>
           </div>
           <p class="household-funds-lead">Перевод на хозяйственные нужды класса через СБП.</p>
           <dl class="household-funds-details">
@@ -693,7 +710,7 @@
               <h3 id="pushNotificationsTitle">Уведомления на этом устройстве</h3>
               <p id="pushNotificationStatus" class="push-notification-status" role="status" aria-live="polite">Проверяем поддержку уведомлений…</p>
             </div>
-            <span class="large-emoji" aria-hidden="true">🔔</span>
+            <span class="large-emoji" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-bell"></use></svg></span>
           </div>
           <div class="push-notification-actions">
             <button id="enablePushNotificationsButton" class="button button-primary" type="button">Включить уведомления</button>
@@ -724,22 +741,22 @@
         <div class="section-heading"><div><h2 id="directoryTitle">Все разделы</h2><p>Выберите задачу — каждый раздел подписан.</p></div></div>
         <div class="directory-grid">
           <section class="directory-group"><h3>Учёба и связь</h3>
-            <button type="button" class="destination-link" data-view="schedule"><span class="destination-icon" aria-hidden="true">📅</span><span><strong>Расписание</strong><small>Уроки на всю неделю</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-            <button type="button" class="destination-link" data-view="announcements"><span class="destination-icon" aria-hidden="true">📢</span><span><strong>Объявления</strong><small>Закреплённая новость из чата</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-            <button type="button" class="destination-link" data-view="memos"><span class="destination-icon" aria-hidden="true">📝</span><span><strong>Памятки</strong><small>Что взять и о чём помнить</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-            <button type="button" class="destination-link" data-view="useful"><span class="destination-icon" aria-hidden="true">☎</span><span><strong>Контакты и школа</strong><small>Учитель, родкомитет, адрес</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-            <button type="button" class="destination-link" data-living-action="chat"><span><strong>Чат класса</strong><small>Сообщения родителей и администратора</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="schedule"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-calendar"></use></svg></span><span><strong>Расписание</strong><small>Уроки на всю неделю</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="announcements"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-notice"></use></svg></span><span><strong>Объявления</strong><small>Закреплённая новость из чата</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="memos"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-note"></use></svg></span><span><strong>Памятки</strong><small>Что взять и о чём помнить</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="useful"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-phone"></use></svg></span><span><strong>Контакты и школа</strong><small>Учитель, родкомитет, адрес</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-living-action="chat"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-chat"></use></svg></span><span><strong>Чат класса</strong><small>Сообщения родителей и администратора</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
           </section>
           <section class="directory-group"><h3>Деньги класса</h3>
-            <button type="button" class="destination-link" data-view="contributions"><span class="destination-icon" aria-hidden="true">💰</span><span><strong>Сборы и реквизиты</strong><small>Взносы и данные для перевода</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-            <button type="button" class="destination-link" data-view="expenses"><span class="destination-icon" aria-hidden="true">🧾</span><span><strong>Расходы и чеки</strong><small>На что потратили деньги</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-            <button type="button" class="destination-link" data-view="budget"><span class="destination-icon" aria-hidden="true">📊</span><span><strong>Баланс и отчёты</strong><small>Остатки, фонды, отчёт за месяц</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-            <button type="button" class="destination-link" data-view="archive"><span class="destination-icon" aria-hidden="true">🗂</span><span><strong>Завершённые сборы</strong><small>Архив и итоги</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-            <button type="button" class="destination-link" data-view="household"><span class="destination-icon" aria-hidden="true">🧹</span><span><strong>Хознужды</strong><small>Отдельные реквизиты СБП</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="contributions"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span><span><strong>Сборы и реквизиты</strong><small>Взносы и данные для перевода</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="expenses"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-receipt"></use></svg></span><span><strong>Расходы и чеки</strong><small>На что потратили деньги</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="budget"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-chart"></use></svg></span><span><strong>Баланс и отчёты</strong><small>Остатки, фонды, отчёт за месяц</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="archive"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-archive"></use></svg></span><span><strong>Завершённые сборы</strong><small>Архив и итоги</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="household"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-clean"></use></svg></span><span><strong>Хознужды</strong><small>Отдельные реквизиты СБП</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
           </section>
           <section class="directory-group"><h3>Настройки</h3>
-            <button type="button" class="destination-link" data-view="notifications"><span class="destination-icon" aria-hidden="true">🔔</span><span><strong>Уведомления</strong><small>Включить и выбрать новости</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-            <button id="settingsNavButton" class="destination-link admin-only hidden" type="button" data-view="settings"><span><strong>Управление классом</strong><small>Только администратор: ученики, доступ, редактирование</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button type="button" class="destination-link" data-view="notifications"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-bell"></use></svg></span><span><strong>Уведомления</strong><small>Включить и выбрать новости</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+            <button id="settingsNavButton" class="destination-link admin-only hidden" type="button" data-view="settings"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-grid"></use></svg></span><span><strong>Управление классом</strong><small>Только администратор: ученики, доступ, редактирование</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
           </section>
         </div>
       </section>
@@ -771,7 +788,7 @@
         <section class="paper-card templates-card" aria-labelledby="templatesTitle">
           <div class="card-title-row compact">
             <div><span class="sticker sticker-yellow">В один клик</span><h3 id="templatesTitle">Шаблоны сборов</h3></div>
-            <span aria-hidden="true">🪄</span>
+            <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-grid"></use></svg></span>
           </div>
           <div id="campaignTemplates" class="template-grid">
             <button class="template-button" type="button" data-template="monthly"><span>📅</span><strong>Ежемесячный</strong><small>Основной фонд</small></button>
@@ -790,7 +807,7 @@
           </div>
         </div>
         <div class="settings-search-row">
-          <label class="search-field search-field-wide"><span aria-hidden="true">🔎</span><input id="campaignSearchInput" type="search" placeholder="Найти сбор" aria-label="Найти сбор"></label>
+          <label class="search-field search-field-wide"><span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-search"></use></svg></span><input id="campaignSearchInput" type="search" placeholder="Найти сбор" aria-label="Найти сбор"></label>
         </div>
         <section class="paper-card table-card">
           <div class="table-scroll">
@@ -894,12 +911,12 @@
       <p>Наш 2 «А»: учимся, дружим и держим важное под рукой <span aria-hidden="true">🍎📚</span></p>
       <p class="site-version">Версия V1.2</p>
       <button id="installAppButton" class="button install-button hidden" type="button">
-        <span aria-hidden="true">📲</span> Установить на телефон
+        <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-phone"></use></svg></span> Установить на телефон
       </button>
     </footer>
 
-    <button id="chatToggleButton" class="chat-toggle" type="button" aria-controls="classChatPanel" aria-expanded="false">
-      <span class="chat-toggle-icon" aria-hidden="true">💬</span>
+    <button id="chatToggleButton" aria-label="Чат класса" class="chat-toggle" type="button" aria-controls="classChatPanel" aria-expanded="false">
+      <span class="chat-toggle-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-chat"></use></svg></span>
       <span>Чат класса</span>
       <span id="chatUnreadBadge" class="chat-unread-badge hidden" aria-live="polite" aria-atomic="true">0</span>
     </button>
@@ -1063,6 +1080,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=89" defer></script>
+  <script src="app.js?v=90" defer></script>
 </body>
 </html>

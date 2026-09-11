@@ -1,14 +1,14 @@
 "use strict";
 
-const CACHE_NAME = "budget-2a-v91-parent-ux-1";
+const CACHE_NAME = "budget-2a-v92-parent-journal-1";
 const ROOT_PATH = new URL("./", self.location.href).pathname;
 const INDEX_URL = new URL("./index.html", self.location.href).href;
 const INDEX_PATH = new URL(INDEX_URL).pathname;
 const SUPABASE_PATH_PREFIX = "/supabase/";
 const APP_SHELL = [
   "./index.html",
-  "./styles.css?v=605",
-  "./app.js?v=89",
+  "./styles.css?v=606",
+  "./app.js?v=90",
   "./vendor/supabase.min.js?v=10",
   "./manifest.webmanifest",
   "./icons/class-2a.svg",

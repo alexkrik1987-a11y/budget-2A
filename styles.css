@@ -8690,3 +8690,429 @@ html[data-theme="dark"] body.school-cabinet .useful-day-card.is-today { border-c
   body.school-cabinet .home-shortcuts .destination-icon { margin: 0; }
   html[data-theme] body.school-cabinet .main-nav .nav-button { font-size: .7rem !important; letter-spacing: -.025em; }
 }
+
+/* =========================================================
+   PARENT JOURNAL — PROFESSIONAL VISUAL SYSTEM
+   One screen-only presentation layer; existing data/print layouts stay intact.
+   The explicit scope retires the accumulated chalkboard overrides without
+   weakening visibility, role, modal or service-worker contracts.
+   ========================================================= */
+@media screen {
+  html[data-theme="light"] {
+    --ui-canvas: #f4f6f2;
+    --ui-surface: #ffffff;
+    --ui-subtle: #edf3ee;
+    --ui-text: #243b30;
+    --ui-muted: #586d60;
+    --ui-border: #d9e3da;
+    --ui-primary: #24664f;
+    --ui-primary-hover: #194f3c;
+    --ui-on-primary: #ffffff;
+    --ui-accent: #856020;
+    --ui-accent-surface: #fbf4e5;
+    --ui-danger: #a33535;
+    --ui-danger-surface: #fff0ef;
+    --ui-focus: #246aa3;
+    --ui-shadow: 0 4px 18px rgb(35 61 45 / 4%);
+    color-scheme: light;
+  }
+  html[data-theme="dark"] {
+    --ui-canvas: #131e19;
+    --ui-surface: #1d2b24;
+    --ui-subtle: #283a30;
+    --ui-text: #e1ece4;
+    --ui-muted: #adc1b3;
+    --ui-border: #3b5042;
+    --ui-primary: #9cd3b4;
+    --ui-primary-hover: #b6e3c9;
+    --ui-on-primary: #163b28;
+    --ui-accent: #e4c48a;
+    --ui-accent-surface: #373324;
+    --ui-danger: #ffb1aa;
+    --ui-danger-surface: #3d2927;
+    --ui-focus: #99c8f1;
+    --ui-shadow: 0 4px 18px rgb(0 0 0 / 9%);
+    color-scheme: dark;
+  }
+  html[data-theme] body.school-cabinet {
+    --ui-radius: 16px;
+    --ui-radius-small: 10px;
+    --ui-space-1: 4px;
+    --ui-space-2: 8px;
+    --ui-space-3: 12px;
+    --ui-space-4: 16px;
+    --ui-space-6: 24px;
+    --ui-space-8: 32px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --ink: var(--ui-text); --ink-soft: var(--ui-muted);
+    --paper: var(--ui-surface); --paper-deep: var(--ui-subtle); --paper-blue: var(--ui-subtle);
+    --green: var(--ui-primary); --green-dark: var(--ui-primary-hover); --green-soft: var(--ui-subtle);
+    --navy: var(--ui-primary); --navy-dark: var(--ui-primary-hover); --blue: var(--ui-primary); --blue-soft: var(--ui-subtle);
+    --yellow: var(--ui-accent); --yellow-soft: var(--ui-accent-surface);
+    --red: var(--ui-danger); --red-dark: var(--ui-danger); --red-soft: var(--ui-danger-surface);
+    --border: var(--ui-border); --radius: var(--ui-radius); --radius-sm: var(--ui-radius-small);
+    --shadow: var(--ui-shadow); --shadow-sm: var(--ui-shadow); --shadow-raised: var(--ui-shadow);
+    color: var(--ui-text) !important;
+    background: var(--ui-canvas) !important;
+    font: 400 1rem/1.55 var(--font);
+    padding: 0 !important;
+  }
+  html[data-theme] body.school-cabinet::before,
+  html[data-theme] body.school-cabinet::after { content: none !important; }
+  html[data-theme] body.school-cabinet :is(.page-decor,.season-decor,.chalk-note,.notebook-doodle,.notebook-note,.mobile-masha-note,.monitor-neck,.monitor-base,.living-notebook-mark,.useful-page-mark,.payment-paperclip,.owl-mascot,.utility-strip) { display: none !important; }
+  .icon-definitions { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .app-icon { display: inline-block; width: 24px; height: 24px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+  html[data-theme] body.school-cabinet #protectedContent .app-icon use { color: inherit !important; }
+  html[data-theme] body.school-cabinet :is(h1,h2,h3,h4,p,small,span,strong,label,button,input,select,textarea,summary,th,td,dt,dd,a,legend) {
+    font-family: var(--font) !important;
+    text-shadow: none !important;
+  }
+  html[data-theme] body.school-cabinet :is(h1,h2,h3,h4) { color: var(--ui-text) !important; font-weight: 650 !important; letter-spacing: -.025em; text-transform: none !important; }
+  html[data-theme] body.school-cabinet :is(p,small,label,dt,dd,legend) { color: inherit; text-transform: none; letter-spacing: normal; }
+
+  /* Compact identity bar, followed by the unchanged four destinations. */
+  html[data-theme] body.school-cabinet #protectedContent .site-header {
+    position: relative !important; inset: auto !important; width: 100% !important; max-width: none !important;
+    min-height: 0 !important; height: auto !important; margin: 0 !important; padding: 0 !important;
+    color: var(--ui-text) !important; background: var(--ui-surface) !important;
+    border: 0 !important; border-bottom: 1px solid var(--ui-border) !important; border-radius: 0 !important; box-shadow: none !important;
+  }
+  html[data-theme] body.school-cabinet #protectedContent .site-header::before,
+  html[data-theme] body.school-cabinet #protectedContent .site-header::after,
+  html[data-theme] body.school-cabinet #protectedContent .brand :is(h1,.brand-icon)::before,
+  html[data-theme] body.school-cabinet #protectedContent .brand :is(h1,.brand-icon)::after,
+  html[data-theme] body.school-cabinet #protectedContent #logoutButton::before,
+  html[data-theme] body.school-cabinet #protectedContent #logoutButton::after { content: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .header-inner {
+    display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important;
+    width: min(1120px, calc(100% - 64px)) !important; min-height: 88px !important; height: auto !important;
+    margin: auto !important; padding: 16px 0 !important; gap: 24px !important;
+  }
+  html[data-theme] body.school-cabinet #protectedContent .brand { display: flex; width: auto !important; flex: 1; min-width: 0; gap: 12px !important; align-items: center; }
+  html[data-theme] body.school-cabinet #protectedContent .brand-icon { width: 44px !important; height: 44px !important; flex: 0 0 44px !important; background: var(--ui-subtle) !important; border: 0 !important; border-radius: 12px !important; padding: 8px !important; box-shadow: none !important; color: var(--ui-primary); }
+  html[data-theme] body.school-cabinet #protectedContent .brand-icon .app-icon { width: 28px; height: 28px; }
+  html[data-theme] body.school-cabinet #protectedContent .brand-copy { width: auto !important; min-width: 0; max-width: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .brand h1 { margin: 0 !important; padding: 0 !important; max-width: none !important; color: var(--ui-text) !important; font-size: 1.15rem !important; line-height: 1.35 !important; text-align: left !important; overflow-wrap: normal; }
+  html[data-theme] body.school-cabinet #protectedContent .brand h1 span { display: inline !important; }
+  html[data-theme] body.school-cabinet #protectedContent .eyebrow { display: block !important; color: var(--ui-muted) !important; font-size: .75rem !important; line-height: 1.4; margin: 0 0 3px !important; text-align: left !important; }
+  html[data-theme] body.school-cabinet #protectedContent .eyebrow-label { padding: 0 !important; background: none !important; border: 0 !important; color: inherit !important; font: inherit !important; box-shadow: none !important; transform: none !important; text-transform: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .eyebrow [data-school-year] { display: none; }
+  html[data-theme] body.school-cabinet #protectedContent .user-panel { display: flex !important; position: static !important; flex: 0 1 auto !important; align-items: center !important; justify-content: flex-end !important; gap: 12px !important; width: auto !important; max-width: 420px !important; min-height: 0 !important; height: auto !important; padding: 0 !important; margin: 0 !important; background: none !important; border: 0 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .user-copy { margin: 0 !important; max-width: 180px; text-align: right !important; }
+  html[data-theme] body.school-cabinet #protectedContent .user-copy strong { display: block !important; color: var(--ui-text) !important; font-size: .875rem !important; font-weight: 600; }
+  html[data-theme] body.school-cabinet #protectedContent .role-badge { color: var(--ui-muted) !important; background: none !important; font-size: .75rem !important; font-weight: 400 !important; padding: 0 !important; border: 0 !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(#logoutButton.button,#themeToggleButton) { display: inline-flex !important; align-items: center; justify-content: center; min-width: 44px !important; width: auto !important; height: 44px !important; min-height: 44px !important; max-width: none !important; padding: 10px 12px !important; margin: 0 !important; color: var(--ui-text) !important; background: var(--ui-surface) !important; border: 1px solid var(--ui-border) !important; border-radius: 10px !important; font-size: .875rem !important; box-shadow: none !important; transform: none !important; scale: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent #themeToggleButton { width: 44px !important; padding: 10px !important; }
+
+  html[data-theme] body.school-cabinet #protectedContent > .main-nav { position: sticky !important; top: 0 !important; inset-inline: 0; bottom: auto !important; z-index: 90 !important; width: 100% !important; height: auto !important; min-height: 0 !important; max-height: none !important; margin: 0 !important; padding: 0 !important; background: var(--ui-surface) !important; border: 0 !important; border-bottom: 1px solid var(--ui-border) !important; border-radius: 0 !important; box-shadow: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent > .main-nav .nav-inner { display: grid !important; grid-template-columns: repeat(4,minmax(0,1fr)) !important; width: min(1120px,calc(100% - 64px)) !important; height: auto !important; max-height: none !important; margin: auto !important; padding: 8px 0 !important; gap: 8px !important; overflow: visible !important; }
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .nav-button { display: flex !important; flex-direction: row; align-items: center; justify-content: center; gap: 9px !important; width: 100% !important; min-width: 0 !important; height: auto !important; min-height: 48px !important; margin: 0 !important; padding: 10px 12px !important; border: 0 !important; border-radius: 10px !important; background: transparent !important; color: var(--ui-muted) !important; font-size: .875rem !important; font-weight: 550 !important; line-height: 1.35 !important; letter-spacing: normal !important; text-shadow: none !important; box-shadow: none !important; transform: none !important; white-space: normal !important; }
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .nav-button > span { display: inline-flex !important; width: 22px !important; height: 22px !important; margin: 0 !important; padding: 0 !important; background: none !important; border-radius: 0 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .app-icon { width: 22px; height: 22px; }
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .nav-button.active { color: var(--ui-primary) !important; background: var(--ui-subtle) !important; font-weight: 650 !important; box-shadow: inset 0 -2px var(--ui-primary) !important; }
+
+  /* A single, bounded page rhythm instead of layered notebook offsets. */
+  html[data-theme] body.school-cabinet #protectedContent.is-authenticated > .content { width: min(1120px,calc(100% - 64px)) !important; max-width: 1120px !important; margin: 0 auto !important; padding: 24px 0 40px !important; min-height: 60vh; }
+  html[data-theme] body.school-cabinet #protectedContent .view { padding: 0 !important; margin: 0 !important; border: 0 !important; background: none !important; box-shadow: none !important; transform: none !important; animation: none !important; min-height: 0 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .view::before,
+  html[data-theme] body.school-cabinet #protectedContent .view::after { content: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .presence-status-row { margin: 0 0 16px; justify-content: flex-end; }
+  html[data-theme] body.school-cabinet #protectedContent .presence-status { padding: 0 !important; margin: 0; font-size: .75rem; color: var(--ui-muted) !important; background: none !important; border: 0 !important; box-shadow: none !important; font-weight: 400; }
+  html[data-theme] body.school-cabinet #protectedContent .section-heading { display: flex; align-items: center !important; justify-content: space-between; gap: 24px; min-height: 0 !important; padding: 0 !important; margin: 0 0 24px !important; background: none !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .section-heading::before,
+  html[data-theme] body.school-cabinet #protectedContent .section-heading::after { content: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .section-heading h2 { margin: 0 0 8px !important; font-size: 1.875rem !important; line-height: 1.25 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .section-heading :is(p,.section-lead,.summary-guide) { margin: 0; max-width: 650px; font-size: .9375rem !important; font-weight: 400 !important; line-height: 1.55 !important; color: var(--ui-muted) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .section-heading .sticker { display: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .section-navigation { margin: 0 0 20px; color: var(--ui-muted); font-size: .875rem; align-items: center; }
+  html[data-theme] body.school-cabinet #protectedContent .summary-status { display: flex !important; align-items: center; gap: 12px; min-width: 0; padding: 0 !important; border: 0 !important; box-shadow: none !important; background: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .school-calendar { display: grid !important; min-width: 52px !important; width: auto !important; height: auto !important; padding: 8px 12px !important; color: var(--ui-primary) !important; background: var(--ui-subtle) !important; border: 0 !important; border-radius: 12px !important; box-shadow: none !important; transform: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .school-calendar::before,
+  html[data-theme] body.school-cabinet #protectedContent .school-calendar::after { content: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent #schoolCalendarDay { font-size: 1.6rem !important; line-height: 1.1; }
+  html[data-theme] body.school-cabinet #protectedContent :is(#schoolCalendarMonth,.last-updated) { color: var(--ui-muted) !important; font-size: .75rem !important; font-weight: 400 !important; }
+
+  /* Surfaces: quiet standard cards, tinted contextual callouts, one primary. */
+  html[data-theme] body.school-cabinet #protectedContent :is(.paper-card,.metric-card,.fund-card,.directory-group,.archive-card,.campaign-setting-card,.chart-panel,.household-funds-card,.student-management-item,.access-request-card,.backup-item,.template-button,.living-notebook,.living-note-card,.parent-onboarding-guide,.contribution-reminder,.home-money-details) {
+    background: var(--ui-surface) !important; color: var(--ui-text) !important; border: 1px solid var(--ui-border) !important;
+    border-radius: var(--ui-radius) !important; box-shadow: var(--ui-shadow) !important; transform: none !important;
+  }
+  html[data-theme] body.school-cabinet #protectedContent :is(.paper-card,.metric-card,.fund-card,.directory-group,.archive-card,.campaign-setting-card,.chart-panel,.template-button,.living-notebook,.living-note-card,.parent-onboarding-guide,.contribution-reminder)::before,
+  html[data-theme] body.school-cabinet #protectedContent :is(.paper-card,.metric-card,.fund-card,.directory-group,.archive-card,.campaign-setting-card,.chart-panel,.template-button,.living-notebook,.living-note-card,.parent-onboarding-guide,.contribution-reminder)::after { content: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .paper-card { padding: 24px !important; margin-bottom: 24px; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.paper-card,.home-money-details) + .paper-card { margin-top: 0; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.card-title-row,.living-notebook-heading) { margin-bottom: 20px; align-items: flex-start; gap: 16px; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.card-title-row,.report-copy,.directory-group) h3 { font-size: 1.125rem !important; line-height: 1.4; margin: 0 0 8px; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.sticker,.tag,.flow-kicker,.living-note-label) { display: inline-block; color: var(--ui-muted) !important; background: none !important; border: 0 !important; padding: 0 !important; margin: 0 0 6px; border-radius: 0 !important; font-size: .75rem !important; font-weight: 550 !important; line-height: 1.5; text-transform: none !important; letter-spacing: normal !important; box-shadow: none !important; transform: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.large-emoji,.metric-icon,.empty-illustration,.onboarding-icon,.contribution-reminder-icon) { display: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.section-heading,.card-title-row) > [aria-hidden="true"] { color: var(--ui-primary); }
+
+  /* Interactive cards keep their text and route contracts; no new menu levels. */
+  html[data-theme] body.school-cabinet #protectedContent .home-shortcuts { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; margin: 0 0 24px; }
+  html[data-theme] body.school-cabinet #protectedContent .destination-link { display: flex !important; align-items: center; gap: 16px; min-width: 0; min-height: 94px; width: 100%; padding: 20px !important; color: var(--ui-text) !important; background: var(--ui-surface) !important; border: 1px solid var(--ui-border) !important; border-radius: var(--ui-radius) !important; box-shadow: none !important; transform: none !important; text-align: left; transition: background-color .15s, border-color .15s; }
+  html[data-theme] body.school-cabinet #protectedContent .destination-link strong { font-size: 1rem !important; font-weight: 650 !important; line-height: 1.4; color: var(--ui-text) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .destination-link small { font-size: .875rem !important; line-height: 1.5; font-weight: 400 !important; color: var(--ui-muted) !important; margin-top: 4px; }
+  html[data-theme] body.school-cabinet #protectedContent .destination-icon { display: flex !important; align-items: center; justify-content: center; flex: 0 0 44px; width: 44px; height: 44px; margin: 0 !important; color: var(--ui-primary); background: var(--ui-subtle); border-radius: 12px; }
+  html[data-theme] body.school-cabinet #protectedContent .destination-arrow { display: block !important; color: var(--ui-muted); font: 400 1.2rem var(--font); }
+  html[data-theme] body.school-cabinet #protectedContent .home-announcement { padding: 24px !important; background: var(--ui-subtle) !important; border: 1px solid var(--ui-border) !important; margin-bottom: 12px; }
+  html[data-theme] body.school-cabinet #protectedContent .home-announcement h3 { font-size: .875rem !important; color: var(--ui-primary) !important; margin-bottom: 8px; }
+  html[data-theme] body.school-cabinet #protectedContent .home-announcement p { font-weight: 400 !important; color: var(--ui-text) !important; line-height: 1.65; }
+  html[data-theme] body.school-cabinet #protectedContent .home-utility-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0 0 24px; }
+  html[data-theme] body.school-cabinet #protectedContent .text-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 0; border: 0; color: var(--ui-primary) !important; font-size: .875rem; font-weight: 600 !important; line-height: 1.5; text-decoration: none; }
+  html[data-theme] body.school-cabinet #protectedContent .text-link .app-icon { width: 18px; height: 18px; }
+  html[data-theme] body.school-cabinet #protectedContent .home-money-details { margin: 0 0 24px; }
+  html[data-theme] body.school-cabinet #protectedContent .home-money-details > summary { color: var(--ui-text) !important; padding: 18px 20px; min-height: 56px; font-weight: 600; }
+  html[data-theme] body.school-cabinet #protectedContent .home-money-details > summary span { color: var(--ui-muted); font-size: .875rem; }
+  html[data-theme] body.school-cabinet #protectedContent .home-money-details .living-notebook { border: 0 !important; box-shadow: none !important; padding: 20px !important; margin: 0; }
+  html[data-theme] body.school-cabinet #protectedContent .living-note-card { padding: 16px; min-height: 104px; background: var(--ui-subtle) !important; border: 0 !important; box-shadow: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .living-note-icon { color: var(--ui-primary); background: none !important; border: 0 !important; box-shadow: none !important; transform: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.living-notebook-flow,.living-notebook-message) { color: var(--ui-muted) !important; background: none !important; border-color: var(--ui-border) !important; font-size: .875rem; }
+  html[data-theme] body.school-cabinet #protectedContent .directory-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
+  html[data-theme] body.school-cabinet #protectedContent .directory-group { padding: 20px; background: transparent !important; border: 0 !important; box-shadow: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .directory-group h3 { margin-bottom: 16px; font-size: .875rem !important; color: var(--ui-muted) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .directory-group .destination-link { margin: 0 0 8px; min-height: 80px; padding: 16px !important; }
+
+  /* Buttons and form states use the same hierarchy across parent/admin/auth. */
+  html[data-theme] body.school-cabinet :is(.button,.action-button,.filter-chip,.living-action-button,.template-button,.icon-button,.auth-link-button,.auth-request-access) {
+    min-height: 44px; padding: 10px 16px; border: 1px solid var(--ui-border) !important; border-radius: var(--ui-radius-small) !important;
+    color: var(--ui-text) !important; background: var(--ui-surface) !important; box-shadow: none !important; transform: none !important;
+    font-size: .875rem; line-height: 1.45; font-weight: 600 !important; text-shadow: none !important; transition: background-color .15s, border-color .15s;
+  }
+  html[data-theme] body.school-cabinet #protectedContent :is(.button,.action-button,.living-action-button) { min-height: 44px !important; }
+  html[data-theme] body.school-cabinet :is(.button-primary,.button-green,.button-blue,.button-orange) { color: var(--ui-on-primary) !important; background: var(--ui-primary) !important; border-color: var(--ui-primary) !important; }
+  html[data-theme] body.school-cabinet :is(.button-danger,.danger-button,.action-button.danger) { color: var(--ui-danger) !important; background: var(--ui-danger-surface) !important; border-color: var(--ui-danger) !important; }
+  html[data-theme] body.school-cabinet .icon-button { display: inline-flex; justify-content: center; align-items: center; min-width: 44px; width: 44px; padding: 8px; }
+  html[data-theme] body.school-cabinet :is(.button,.action-button,.filter-chip,.nav-button,.destination-link):disabled { opacity: .55 !important; cursor: not-allowed !important; box-shadow: none !important; }
+  html[data-theme] body.school-cabinet :is(button,a,input,select,textarea,summary):focus-visible { outline: 3px solid var(--ui-focus) !important; outline-offset: 3px !important; }
+  html[data-theme] body.school-cabinet :is(input,select,textarea):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]) { color: var(--ui-text) !important; background: var(--ui-surface) !important; border: 1px solid var(--ui-border) !important; border-radius: var(--ui-radius-small) !important; box-shadow: none !important; min-height: 44px; padding: 10px 12px; font-size: 1rem !important; font-weight: 400 !important; }
+  html[data-theme] body.school-cabinet :is(input,select,textarea)::placeholder { color: var(--ui-muted) !important; opacity: 1; }
+  html[data-theme] body.school-cabinet :is(input[type="checkbox"],input[type="radio"]) { accent-color: var(--ui-primary); width: 20px; height: 20px; flex-shrink: 0; }
+  html[data-theme] body.school-cabinet :is(.field,.field > span,.search-field,.form-hint,.payment-details-lead,.payment-details-note,.household-funds-lead,.useful-school-address,.useful-empty-copy,.useful-contact-copy span) { color: var(--ui-muted) !important; font-size: .875rem !important; font-weight: 400 !important; line-height: 1.5; }
+  html[data-theme] body.school-cabinet .search-field { border: 1px solid var(--ui-border) !important; border-radius: 10px; background: var(--ui-surface) !important; padding: 0 12px; }
+  html[data-theme] body.school-cabinet .search-field input { border: 0 !important; background: transparent !important; min-width: 0; }
+  html[data-theme] body.school-cabinet .search-field .app-icon { width: 18px; height: 18px; }
+  html[data-theme] body.school-cabinet :is(.notice,.global-notice,.push-notification-status,.notification-choice,.read-mode-note,.onboarding-step,.access-request-status) { background: var(--ui-subtle) !important; color: var(--ui-text) !important; border: 1px solid var(--ui-border) !important; border-radius: 12px !important; box-shadow: none !important; font-size: .875rem; font-weight: 400 !important; line-height: 1.6; }
+  html[data-theme] body.school-cabinet .notice-warning { color: var(--ui-accent) !important; background: var(--ui-accent-surface) !important; border-color: var(--ui-accent) !important; }
+  html[data-theme] body.school-cabinet :is(.notice-error,.notice-danger) { color: var(--ui-danger) !important; background: var(--ui-danger-surface) !important; border-color: var(--ui-danger) !important; }
+  html[data-theme] body.school-cabinet .copy-status { color: var(--ui-on-primary); background: var(--ui-primary); box-shadow: var(--ui-shadow); }
+  html[data-theme] body.school-cabinet .notification-choice { min-height: 72px; padding: 16px; }
+  html[data-theme] body.school-cabinet .notification-choice small { color: var(--ui-muted) !important; font-size: .875rem; }
+  html[data-theme] body.school-cabinet .notification-preferences-form fieldset { border: 0; padding: 0; }
+  html[data-theme] body.school-cabinet .notification-preferences-form legend { padding: 0; margin-bottom: 16px; font-weight: 600; }
+
+  /* Financial hierarchy: numbers carry emphasis; color is only semantic. */
+  html[data-theme] body.school-cabinet #protectedContent .money-navigation { gap: 8px; margin-bottom: 24px; }
+  html[data-theme] body.school-cabinet #protectedContent .money-navigation button { color: var(--ui-muted) !important; background: var(--ui-surface) !important; border: 1px solid var(--ui-border) !important; border-radius: 10px; font-size: .875rem; min-height: 44px; }
+  html[data-theme] body.school-cabinet #protectedContent .money-navigation [aria-current="page"],
+  html[data-theme] body.school-cabinet #protectedContent .filter-chip.active { color: var(--ui-primary) !important; background: var(--ui-subtle) !important; border-color: var(--ui-primary) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .campaign-info-card { border-top: 3px solid var(--ui-primary) !important; }
+  html[data-theme] body.school-cabinet #protectedContent #selectedCampaignName { font-size: 1.5rem !important; line-height: 1.35; margin: 8px 0; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.campaign-total-plan,.campaign-total-collected,.metric-card,.fund-card) { color: var(--ui-text) !important; background: var(--ui-subtle) !important; border: 0 !important; border-radius: 12px !important; box-shadow: none !important; padding: 20px; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.campaign-totals,.totals-grid) strong { color: var(--ui-text) !important; font-size: 1.75rem !important; line-height: 1.25; font-weight: 650 !important; font-variant-numeric: tabular-nums; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.campaign-totals span,.metric-card p,.fund-card small) { color: var(--ui-muted) !important; font-size: .875rem; font-weight: 400; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.payment-detail-item,.household-funds-row) { padding: 16px 0 !important; color: var(--ui-text) !important; background: none !important; border: 0 !important; border-bottom: 1px solid var(--ui-border) !important; border-radius: 0 !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.payment-detail-item,.household-funds-row) dt { color: var(--ui-muted) !important; font-size: .8125rem !important; font-weight: 400 !important; text-transform: none !important; letter-spacing: normal !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.payment-detail-value,.household-funds-phone,.household-funds-row dd) { color: var(--ui-text) !important; font-size: 1.125rem !important; font-weight: 600 !important; font-variant-numeric: tabular-nums; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.payment-detail-value-row,.household-funds-phone-line) { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+  html[data-theme] body.school-cabinet #protectedContent .payment-card-number { letter-spacing: .03em; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.contribution-reminder,.parent-onboarding-guide) { padding: 24px; background: var(--ui-subtle) !important; border: 0 !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.contribution-reminder,.parent-onboarding-guide) :is(strong,p,small,label) { color: var(--ui-text) !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.contribution-reminder,.parent-onboarding-guide) :is(small,label) { font-size: .875rem !important; font-weight: 400 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .contribution-reminder-badge { display: none; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.contribution-reminder-select-wrap,.onboarding-step) { background: var(--ui-surface) !important; border-color: var(--ui-border) !important; box-shadow: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.table-toolbar,.smart-filter-bar) { background: none !important; border-color: var(--ui-border) !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(thead,thead th) { color: var(--ui-muted) !important; background: var(--ui-subtle) !important; border-color: var(--ui-border) !important; text-transform: none !important; letter-spacing: normal !important; font-size: .8125rem !important; font-weight: 600 !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(td,th) { border-color: var(--ui-border) !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(tbody tr,tbody td,tfoot,tfoot tr,tfoot th,tfoot td) { color: var(--ui-text) !important; background: var(--ui-surface) !important; box-shadow: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(tfoot th,tfoot td) { background: var(--ui-subtle) !important; font-variant-numeric: tabular-nums; }
+  html[data-theme] body.school-cabinet #protectedContent .responsive-cards :is(td,th)::before { color: var(--ui-muted) !important; font-size: .75rem !important; font-weight: 500 !important; letter-spacing: normal !important; text-transform: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .status { display: inline-flex; align-items: center; justify-content: center; min-height: 26px; padding: 3px 9px; border: 0 !important; border-radius: 6px !important; font-size: .75rem !important; font-weight: 550 !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.status-paid,.status-closed) { color: var(--ui-primary) !important; background: var(--ui-subtle) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .status-partial { color: var(--ui-accent) !important; background: var(--ui-accent-surface) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .status-debt { color: var(--ui-danger) !important; background: var(--ui-danger-surface) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .step-number { color: var(--ui-primary) !important; background: var(--ui-subtle) !important; font-size: .75rem; }
+
+  /* Timetable/contact rhythm and tertiary admin surfaces. */
+  html[data-theme] body.school-cabinet #protectedContent .useful-schedule-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; margin-top: 0; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-day-card { padding: 20px; border: 1px solid var(--ui-border) !important; border-radius: 12px !important; background: var(--ui-surface) !important; box-shadow: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-day-card.is-today { background: var(--ui-subtle) !important; border-color: var(--ui-primary) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-day-card h4 { color: var(--ui-primary) !important; font-size: .875rem; margin: 0 0 16px; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-lesson-list { padding-left: 24px; margin: 0; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-lesson-list li { color: var(--ui-text) !important; font-size: .9375rem !important; font-weight: 400 !important; line-height: 1.6; margin: 8px 0; padding-left: 4px; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-lesson-list li::marker { color: var(--ui-muted); font-size: .8125rem; font-weight: 400; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.useful-contact-item,.useful-note-item,.compact-list-item) { color: var(--ui-text) !important; background: none !important; border: 0 !important; border-bottom: 1px solid var(--ui-border) !important; border-radius: 0 !important; padding: 16px 0; box-shadow: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.useful-contact-copy strong,.useful-note-item) { font-weight: 500 !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.useful-admin-group,.access-invite-card,.backup-actions,.campaign-progress-stat,.archive-metric,.budget-overview-total,.budget-overview-row) { background: var(--ui-subtle) !important; border-color: var(--ui-border) !important; color: var(--ui-text) !important; border-radius: 10px; box-shadow: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.budget-overview-total,.budget-overview-row,.archive-metric,.campaign-progress-stat) :is(strong,span,small) { color: inherit !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.danger-card,.school-year-card) { border: 1px solid var(--ui-danger) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .site-footer { width: min(1120px,calc(100% - 48px)) !important; margin: 0 auto !important; padding: 32px 0 !important; color: var(--ui-muted) !important; text-align: center; border-top: 1px solid var(--ui-border); }
+  html[data-theme] body.school-cabinet #protectedContent .site-footer p { font-size: .8125rem !important; font-weight: 400 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .version { font-size: .6875rem; color: var(--ui-muted); font-weight: 400; letter-spacing: .05em; }
+  html[data-theme] body.school-cabinet #protectedContent #chatToggleButton.chat-toggle { position: fixed !important; inset: auto 24px 24px auto !important; width: auto !important; min-width: 48px !important; max-width: none !important; height: 48px !important; min-height: 48px !important; padding: 12px 16px !important; color: var(--ui-on-primary) !important; background: var(--ui-primary) !important; border: 0 !important; border-radius: 24px !important; box-shadow: 0 4px 16px rgb(0 0 0 / 12%) !important; transform: none !important; scale: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .class-chat-panel { background: var(--ui-surface) !important; color: var(--ui-text) !important; border: 1px solid var(--ui-border); border-radius: 16px !important; box-shadow: var(--ui-shadow); }
+  html[data-theme] body.school-cabinet #protectedContent :is(.chat-message,.chat-pinned-announcement,.class-chat-header,.class-chat-form) { background: var(--ui-subtle) !important; color: var(--ui-text) !important; border-color: var(--ui-border) !important; box-shadow: none !important; }
+
+  /* Auth keeps all original fields/actions, without the decorative monitor. */
+  html[data-theme] body.school-cabinet #authGate { padding: 48px 24px !important; background: var(--ui-canvas) !important; }
+  html[data-theme] body.school-cabinet #authGate .auth-card { display: block !important; width: min(1040px,100%) !important; max-width: 1040px !important; min-height: 0 !important; padding: 40px !important; margin: auto !important; background: var(--ui-surface) !important; color: var(--ui-text) !important; border: 1px solid var(--ui-border) !important; border-radius: 24px !important; box-shadow: var(--ui-shadow) !important; }
+  html[data-theme] body.school-cabinet #authGate :is(.auth-card,.notebook-topbar,.login-showcase,.login-title-block,.monitor-assembly,.monitor-shell,.monitor-screen,.login-panel)::before,
+  html[data-theme] body.school-cabinet #authGate :is(.auth-card,.notebook-topbar,.login-showcase,.login-title-block,.monitor-assembly,.monitor-shell,.monitor-screen,.login-panel)::after { content: none !important; }
+  html[data-theme] body.school-cabinet #authGate .notebook-topbar { padding: 0 0 24px !important; margin: 0 0 32px !important; min-height: 0 !important; color: var(--ui-text) !important; background: none !important; border: 0 !important; border-bottom: 1px solid var(--ui-border) !important; }
+  html[data-theme] body.school-cabinet #authGate .notebook-header strong { font-size: .9375rem !important; color: var(--ui-text) !important; text-transform: none; }
+  html[data-theme] body.school-cabinet #authGate .topbar-copy { color: var(--ui-muted) !important; font-size: .8125rem; }
+  html[data-theme] body.school-cabinet #authGate .monitor-showcase { display: grid !important; grid-template-columns: minmax(0,1fr) minmax(300px,1fr); align-items: center; gap: 48px; margin: 0 !important; padding: 0 !important; min-height: 0 !important; }
+  html[data-theme] body.school-cabinet #authGate :is(.login-title-block,.monitor-assembly,.monitor-shell,.monitor-screen,.login-panel) { width: 100% !important; max-width: none !important; min-height: 0 !important; height: auto !important; margin: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none !important; transform: none !important; }
+  html[data-theme] body.school-cabinet #authGate .auth-emblem { display: none !important; }
+  html[data-theme] body.school-cabinet #authGate .auth-kicker { color: var(--ui-primary) !important; background: none !important; font-size: .8125rem !important; letter-spacing: normal; text-transform: none; }
+  html[data-theme] body.school-cabinet #authGate #authTitle { font-size: 2rem !important; line-height: 1.2 !important; text-align: left; margin: 12px 0 !important; color: var(--ui-text) !important; }
+  html[data-theme] body.school-cabinet #authGate .login-title-block p { color: var(--ui-muted) !important; font-size: .9375rem !important; font-weight: 400; line-height: 1.6; text-align: left; }
+  html[data-theme] body.school-cabinet #authGate :is(.auth-input-shell,.auth-password-toggle,.auth-divider) { background: none !important; color: var(--ui-muted) !important; border-color: var(--ui-border) !important; box-shadow: none !important; border-radius: 10px; }
+  html[data-theme] body.school-cabinet #authGate :is(.auth-load-note,.login-footnote,.auth-note) { color: var(--ui-muted) !important; font-size: .8125rem !important; font-weight: 400 !important; line-height: 1.6; background: none !important; }
+  html[data-theme] body.school-cabinet #authGate .auth-load-note { margin-top: 32px; }
+  html[data-theme] body.school-cabinet #authGate .login-footnote { margin-bottom: 0; }
+  html[data-theme] body.school-cabinet :is(.loading-board,.modal-card) { color: var(--ui-text) !important; background: var(--ui-surface) !important; border: 1px solid var(--ui-border) !important; border-radius: 20px !important; box-shadow: var(--ui-shadow) !important; padding: 24px !important; }
+  html[data-theme] body.school-cabinet :is(.modal-card,.loading-board)::before,
+  html[data-theme] body.school-cabinet :is(.modal-card,.loading-board)::after { content: none !important; }
+  html[data-theme] body.school-cabinet .modal { background: transparent !important; padding: 0 !important; backdrop-filter: none !important; max-height: calc(100dvh - 32px); overflow-y: auto; }
+  html[data-theme] body.school-cabinet .modal::backdrop { background: rgb(13 30 21 / 55%); backdrop-filter: blur(3px); }
+  html[data-theme] body.school-cabinet .modal h2 { font-size: 1.375rem !important; line-height: 1.3; }
+  html[data-theme] body.school-cabinet .modal .sticker { display: none; }
+  html[data-theme] body.school-cabinet .loading-screen { background: var(--ui-canvas) !important; }
+}
+
+@media screen and (hover: hover) {
+  html[data-theme] body.school-cabinet #protectedContent :is(.destination-link,.nav-button,.money-navigation button):hover,
+  html[data-theme] body.school-cabinet :is(.button-secondary,.action-button,.filter-chip):hover { background: var(--ui-subtle) !important; border-color: var(--ui-primary) !important; }
+  html[data-theme] body.school-cabinet .button-primary:hover { color: var(--ui-on-primary) !important; background: var(--ui-primary-hover) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .text-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+}
+@media screen and (max-width: 1024px) {
+  html[data-theme] body.school-cabinet #protectedContent .useful-schedule-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  html[data-theme] body.school-cabinet #protectedContent .report-card { flex-wrap: wrap; }
+}
+@media screen and (max-width: 768px) {
+  html[data-theme] body.school-cabinet #protectedContent .header-inner { width: calc(100% - 32px) !important; min-height: 0 !important; padding: 16px 0 !important; gap: 12px !important; flex-wrap: wrap; }
+  html[data-theme] body.school-cabinet #protectedContent .brand { width: 100% !important; flex-basis: 100%; }
+  html[data-theme] body.school-cabinet #protectedContent .brand h1 { font-size: 1.125rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent .eyebrow { display: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .user-panel { width: 100% !important; max-width: none !important; justify-content: flex-end !important; }
+  html[data-theme] body.school-cabinet #protectedContent .user-copy { margin-right: auto !important; text-align: left !important; max-width: calc(100% - 144px); }
+  html[data-theme] body.school-cabinet #protectedContent .user-copy strong { display: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .role-badge { font-size: .75rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent.is-authenticated > .content { width: calc(100% - 32px) !important; padding: 20px 0 32px !important; }
+  html[data-theme] body.school-cabinet #protectedContent .presence-status-row { margin: 0 0 16px; }
+  html[data-theme] body.school-cabinet #protectedContent .section-heading { align-items: flex-start !important; flex-direction: column; gap: 16px; margin-bottom: 20px !important; }
+  html[data-theme] body.school-cabinet #protectedContent .section-heading h2 { font-size: 1.5rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent .section-heading :is(p,.section-lead,.summary-guide) { font-size: .875rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent #view-summary .section-heading { flex-direction: column-reverse; gap: 12px; }
+  html[data-theme] body.school-cabinet #protectedContent .summary-status { width: 100%; justify-content: flex-start; }
+  html[data-theme] body.school-cabinet #protectedContent .school-calendar { min-width: 0 !important; grid-auto-flow: column; align-items: baseline; gap: 6px; padding: 0 !important; background: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent #schoolCalendarDay { font-size: .875rem !important; font-weight: 600; }
+  html[data-theme] body.school-cabinet #protectedContent #schoolCalendarMonth { font-size: .875rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent #lastUpdated { margin: 0 0 0 auto; font-size: .6875rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent > .main-nav { position: fixed !important; inset: auto 0 0 !important; border: 0 !important; border-top: 1px solid var(--ui-border) !important; padding: 4px 0 env(safe-area-inset-bottom) !important; box-shadow: 0 -4px 16px rgb(20 45 30 / 3%) !important; }
+  html[data-theme] body.school-cabinet #protectedContent > .main-nav .nav-inner { width: calc(100% - 8px) !important; padding: 0 !important; gap: 2px !important; }
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .nav-button { display: grid !important; grid-template-columns: minmax(0,1fr); align-content: center; justify-items: center; gap: 4px !important; min-height: 64px !important; padding: 8px 1px !important; border-radius: 10px !important; font-size: .75rem !important; line-height: 1.3 !important; overflow-wrap: anywhere !important; }
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .nav-button.active { box-shadow: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .nav-button > span { width: 22px !important; height: 22px !important; }
+  html[data-theme] body.school-cabinet #protectedContent .home-shortcuts { grid-template-columns: minmax(0,1fr); gap: 10px; margin-bottom: 20px; }
+  html[data-theme] body.school-cabinet #protectedContent .destination-link { min-height: 86px; padding: 16px !important; gap: 12px; }
+  html[data-theme] body.school-cabinet #protectedContent .destination-icon { flex-basis: 40px; width: 40px; height: 40px; }
+  html[data-theme] body.school-cabinet #protectedContent .destination-link strong { font-size: .9375rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent .destination-link small { font-size: .8125rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent .home-utility-links { display: grid; gap: 0; }
+  html[data-theme] body.school-cabinet #protectedContent .paper-card { padding: 20px !important; margin-bottom: 20px; }
+  html[data-theme] body.school-cabinet #protectedContent .directory-grid { grid-template-columns: minmax(0,1fr); gap: 24px; }
+  html[data-theme] body.school-cabinet #protectedContent .directory-group { padding: 0; }
+  html[data-theme] body.school-cabinet #protectedContent .directory-group .destination-link { min-height: 80px; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-schedule-grid { grid-template-columns: minmax(0,1fr); gap: 12px; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-day-card { padding: 16px; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-lesson-list li { font-size: .9375rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent .money-navigation { gap: 6px; }
+  html[data-theme] body.school-cabinet #protectedContent .money-navigation button { font-size: .8125rem; padding: 10px; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.campaign-totals,.totals-grid) { gap: 12px; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.campaign-total-plan,.campaign-total-collected) { padding: 16px; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.responsive-cards tbody tr,.responsive-cards tfoot tr) { border: 1px solid var(--ui-border) !important; border-radius: 12px !important; box-shadow: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .responsive-cards td { font-size: .9375rem; }
+  html[data-theme] body.school-cabinet #protectedContent .legend { display: flex !important; flex-direction: row !important; flex-wrap: wrap; gap: 6px !important; }
+  html[data-theme] body.school-cabinet #protectedContent .legend .status { width: auto !important; flex: 0 1 auto; }
+  html[data-theme] body.school-cabinet #protectedContent .contribution-reminder { padding: 20px; }
+  html[data-theme] body.school-cabinet #protectedContent .site-footer { padding: 24px 0 calc(var(--parent-nav-height,80px) + 32px) !important; }
+  html[data-theme] body.school-cabinet #protectedContent #chatToggleButton.chat-toggle { right: 16px !important; bottom: calc(var(--parent-nav-height,80px) + 12px) !important; width: 44px !important; height: 44px !important; min-width: 44px !important; min-height: 44px !important; padding: 10px !important; }
+  html[data-theme] body.school-cabinet #protectedContent #chatToggleButton > span:not(.chat-toggle-icon):not(.chat-unread-badge) { display: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .report-controls { flex-wrap: wrap; width: 100%; justify-content: flex-start; }
+  html[data-theme] body.school-cabinet #authGate { padding: 20px 16px !important; }
+  html[data-theme] body.school-cabinet #authGate .auth-card { padding: 24px !important; }
+  html[data-theme] body.school-cabinet #authGate .monitor-showcase { grid-template-columns: minmax(0,1fr) !important; gap: 24px; }
+  html[data-theme] body.school-cabinet #authGate .notebook-topbar { margin-bottom: 24px !important; padding-bottom: 16px !important; }
+  html[data-theme] body.school-cabinet #authGate .topbar-copy { display: none; }
+  html[data-theme] body.school-cabinet #authGate #authTitle { font-size: 1.5rem !important; }
+  html[data-theme] body.school-cabinet .modal { width: calc(100% - 24px); }
+  html[data-theme] body.school-cabinet .modal-card { padding: 20px !important; }
+}
+@media screen and (max-width: 360px) {
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .nav-button { font-size: .6875rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent .header-inner,
+  html[data-theme] body.school-cabinet #protectedContent.is-authenticated > .content { width: calc(100% - 24px) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .paper-card { padding: 16px !important; }
+}
+@media screen and (prefers-reduced-motion: reduce) {
+  html[data-theme] body.school-cabinet *, html[data-theme] body.school-cabinet *::before, html[data-theme] body.school-cabinet *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+@media screen {
+  /* Visibility is functional state, never overridden by a visual flex/grid rule. */
+  html[data-theme] body.school-cabinet #protectedContent .hidden.hidden,
+  html[data-theme] body.school-cabinet #authGate .hidden.hidden,
+  html[data-theme] body.school-cabinet #protectedContent.hidden,
+  html[data-theme] body.school-cabinet #authGate.hidden { display: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent #themeToggleButton .app-icon { color: var(--ui-text) !important; }
+  html[data-theme] body.school-cabinet #protectedContent #chatToggleButton::after { content: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent #view-contributions .contributions-total-footer,
+  html[data-theme] body.school-cabinet #protectedContent #view-contributions .contributions-total-footer :is(tr,th,td) { color: var(--ui-text) !important; background: var(--ui-subtle) !important; border-color: var(--ui-border) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .contributions-total-value strong { color: var(--ui-text) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .contributions-total-value span { color: var(--ui-muted) !important; text-transform: none; font-weight: 400; }
+  html[data-theme] body.school-cabinet #protectedContent .contribution-reminder { display: flex; flex-direction: row !important; flex-wrap: wrap; align-items: center; gap: 24px; border-radius: var(--ui-radius); }
+  html[data-theme] body.school-cabinet #protectedContent .contribution-reminder-copy { flex: 1 1 300px; }
+  html[data-theme] body.school-cabinet #protectedContent .contribution-reminder-controls { flex: 0 1 320px; width: 100%; margin: 0; }
+  html[data-theme] body.school-cabinet #protectedContent .contribution-reminder-step { padding: 0; margin-bottom: 8px; background: none; color: var(--ui-muted); font-size: .75rem; font-weight: 500; }
+  html[data-theme] body.school-cabinet #protectedContent .contribution-reminder-picker { background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: 10px; padding: 12px; }
+  html[data-theme] body.school-cabinet #protectedContent .contribution-reminder-picker :is(span,small,em) { color: var(--ui-muted) !important; font-size: .8125rem; font-weight: 400; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-editor-form fieldset { border: 1px solid var(--ui-border); border-radius: 12px; padding: 16px; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-editor-form legend { color: var(--ui-muted) !important; font-size: .875rem; font-weight: 600; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-editor-form label { font-size: .875rem; font-weight: 500; }
+  html[data-theme] body.school-cabinet #protectedContent .search-field input { border: 0 !important; background: transparent !important; }
+  html[data-theme] body.school-cabinet #protectedContent .household-funds-details { padding: 0; background: none !important; border: 0 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .push-notification-status { padding: 16px; }
+  html[data-theme] body.school-cabinet #authGate .auth-input-icon { display: none; }
+  html[data-theme] body.school-cabinet #authGate #emailPasswordInput { padding-right: 52px; }
+  html[data-theme] body.school-cabinet #authGate .auth-password-toggle { min-width: 44px; min-height: 44px; right: 2px; }
+  html[data-theme] body.school-cabinet #authGate .auth-remember { font-size: .875rem; font-weight: 400; color: var(--ui-muted); }
+  html[data-theme] body.school-cabinet #authGate .auth-link-button { border: 0 !important; padding: 8px 0; color: var(--ui-primary) !important; font-size: .8125rem; font-weight: 500 !important; }
+  html[data-theme] body.school-cabinet #authGate .auth-load-note { border: 0 !important; padding: 0 !important; }
+  html[data-theme] body.school-cabinet #authGate .auth-load-note > span { display: none; }
+  html[data-theme] body.school-cabinet #authGate .notebook-header strong { text-transform: none !important; }
+  html[data-theme] body.school-cabinet #authGate .topbar-emblem { width: 24px; height: 24px; }
+  html[data-theme] body.school-cabinet #protectedContent .site-footer p > [aria-hidden="true"] { display: none; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-day-card .useful-lesson-list li { min-height: 0; margin: 6px 0; padding-block: 3px; border: 0; }
+  html[data-theme] body.school-cabinet #protectedContent #schoolCalendarDay { color: var(--ui-primary) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .brand h1 span { color: inherit !important; }
+  html[data-theme] body.school-cabinet #protectedContent #liveNotebookCalendarMonth { color: var(--ui-muted) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .living-action-button :is(strong,small) { color: var(--ui-text) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .living-action-button small { color: var(--ui-muted) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .campaign-percent { color: var(--ui-on-primary) !important; background: var(--ui-primary) !important; border: 0; border-radius: 8px; box-shadow: none; }
+  html[data-theme] body.school-cabinet #protectedContent .role-badge { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+  html[data-theme] body.school-cabinet .modal { border: 0 !important; border-radius: 20px !important; }
+  html[data-theme] body.school-cabinet .modal-card :is(.field,.checkbox-field) > span { color: var(--ui-muted) !important; background: transparent !important; padding: 0; border: 0; font-size: .875rem; font-weight: 500; box-shadow: none; }
+  html[data-theme] body.school-cabinet .modal-card .file-upload-field { padding: 16px; background: var(--ui-subtle); border: 1px solid var(--ui-border); border-radius: 12px; }
+  html[data-theme] body.school-cabinet .modal-card input[type="file"] { color: var(--ui-text) !important; background: var(--ui-surface) !important; border: 1px solid var(--ui-border); border-radius: 8px; font: 400 .875rem var(--font); padding: 8px; min-height: 44px; }
+  html[data-theme] body.school-cabinet .modal-card .modal-actions { position: static; margin: 0; padding: 24px 0 0; background: none; gap: 12px; }
+  /* Long dialog headings/instructions must shrink at 200% text zoom. */
+  html[data-theme] body.school-cabinet .modal-header > div { min-width: 0; overflow-wrap: anywhere; }
+  html[data-theme] body.school-cabinet .modal-card .checkbox-field > span { min-width: 0; overflow-wrap: anywhere; }
+  html[data-theme] body.school-cabinet .install-steps > ol { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+}
+
+@media screen and (max-width: 768px) {
+  html[data-theme] body.school-cabinet .install-steps { grid-template-columns: minmax(0,1fr); }
+}

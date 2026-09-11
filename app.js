@@ -1866,7 +1866,14 @@ function currentTheme() {
 function syncThemeToggle() {
   if (!dom.themeToggleButton) return;
   const dark = currentTheme() === "dark";
-  dom.themeToggleButton.textContent = dark ? "☀️" : "🌙";
+  const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  icon.setAttribute("class", "app-icon");
+  icon.setAttribute("aria-hidden", "true");
+  icon.setAttribute("focusable", "false");
+  const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+  use.setAttribute("href", dark ? "#ui-sun" : "#ui-moon");
+  icon.append(use);
+  dom.themeToggleButton.replaceChildren(icon);
   dom.themeToggleButton.setAttribute("aria-pressed", String(dark));
   dom.themeToggleButton.setAttribute("aria-label", dark ? "Включить светлую тему" : "Включить тёмную тему");
 }
@@ -4822,7 +4829,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=91", window.location.href);
+  const workerUrl = new URL("./sw.js?v=92", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }
