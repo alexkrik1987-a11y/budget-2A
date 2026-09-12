@@ -8699,17 +8699,17 @@ html[data-theme="dark"] body.school-cabinet .useful-day-card.is-today { border-c
    ========================================================= */
 @media screen {
   html[data-theme="light"] {
-    --ui-canvas: #f4f6f2;
-    --ui-surface: #ffffff;
-    --ui-subtle: #edf3ee;
-    --ui-text: #243b30;
-    --ui-muted: #586d60;
-    --ui-border: #d9e3da;
-    --ui-primary: #24664f;
-    --ui-primary-hover: #194f3c;
+    --ui-canvas: #f0ebdf;
+    --ui-surface: #fffcf5;
+    --ui-subtle: #e8e6da;
+    --ui-text: #292f29;
+    --ui-muted: #606458;
+    --ui-border: #d3d0c1;
+    --ui-primary: #235345;
+    --ui-primary-hover: #173b31;
     --ui-on-primary: #ffffff;
-    --ui-accent: #856020;
-    --ui-accent-surface: #fbf4e5;
+    --ui-accent: #9c421f;
+    --ui-accent-surface: #fcebd8;
     --ui-danger: #a33535;
     --ui-danger-surface: #fff0ef;
     --ui-focus: #246aa3;
@@ -8717,17 +8717,17 @@ html[data-theme="dark"] body.school-cabinet .useful-day-card.is-today { border-c
     color-scheme: light;
   }
   html[data-theme="dark"] {
-    --ui-canvas: #131e19;
-    --ui-surface: #1d2b24;
-    --ui-subtle: #283a30;
-    --ui-text: #e1ece4;
-    --ui-muted: #adc1b3;
-    --ui-border: #3b5042;
+    --ui-canvas: #171f1c;
+    --ui-surface: #222e27;
+    --ui-subtle: #303b31;
+    --ui-text: #f0edde;
+    --ui-muted: #bdc3ad;
+    --ui-border: #4d584a;
     --ui-primary: #9cd3b4;
     --ui-primary-hover: #b6e3c9;
     --ui-on-primary: #163b28;
-    --ui-accent: #e4c48a;
-    --ui-accent-surface: #373324;
+    --ui-accent: #ffbb8e;
+    --ui-accent-surface: #423027;
     --ui-danger: #ffb1aa;
     --ui-danger-surface: #3d2927;
     --ui-focus: #99c8f1;
@@ -9115,4 +9115,134 @@ html[data-theme="dark"] body.school-cabinet .useful-day-card.is-today { border-c
 
 @media screen and (max-width: 768px) {
   html[data-theme] body.school-cabinet .install-steps { grid-template-columns: minmax(0,1fr); }
+}
+
+/* CLASS EDITION — paper, ink, ruled margins. Presentation only; DOM order,
+   hidden/role guards, routes and modal scrolling remain the journal contract. */
+@media screen {
+  html[data-theme] body.school-cabinet {
+    --ui-radius: 4px;
+    --ui-radius-small: 6px;
+    --edition-serif: Georgia, "Times New Roman", serif;
+    --edition-cover: #203f35;
+    --edition-cover-ink: #f7edda;
+    --edition-cover-muted: #c3d1bf;
+    --edition-marker: #e68e52;
+    --edition-rule: color-mix(in srgb, var(--ui-border) 65%, transparent);
+  }
+  /* A cloth-bound cover: the class name is the identity, not a generic logo. */
+  html[data-theme] body.school-cabinet #protectedContent .site-header {
+    color: var(--edition-cover-ink) !important;
+    background: linear-gradient(90deg,transparent 23px,#ffffff13 23px,#ffffff13 24px,transparent 24px), var(--edition-cover) !important;
+    border-bottom: 4px solid var(--edition-marker) !important;
+  }
+  html[data-theme] body.school-cabinet #protectedContent .header-inner { min-height: 120px !important; padding: 20px 0 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .brand-icon { display: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .brand h1 { display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 3px; color: var(--edition-cover-ink) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .brand h1 [data-class-name] { font: 400 2.7rem/1 var(--edition-serif) !important; letter-spacing: -.045em; color: var(--edition-cover-ink) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .brand h1 .class-cover-label { font: 500 .6875rem/1.5 var(--font) !important; letter-spacing: .1em; text-transform: uppercase; color: var(--edition-cover-muted) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .eyebrow { display: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.user-copy strong,.role-badge) { color: var(--edition-cover-muted) !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(#logoutButton.button,#themeToggleButton) { color: var(--edition-cover-ink) !important; background: transparent !important; border-color: #698476 !important; border-radius: 3px !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(#logoutButton.button,#themeToggleButton):focus-visible { outline-color: var(--edition-marker) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .site-header #themeToggleButton .app-icon { color: var(--edition-cover-ink) !important; }
+
+  /* Index tabs: a single coral rule, not four filled pills. */
+  html[data-theme] body.school-cabinet #protectedContent > .main-nav { background: var(--ui-surface) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .nav-button { border-radius: 0 !important; border-inline-end: 1px solid var(--ui-border) !important; font-weight: 500 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .nav-button:last-child { border-inline-end: 0 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .nav-button.active { background: var(--ui-accent-surface) !important; color: var(--ui-text) !important; box-shadow: inset 0 3px var(--edition-marker) !important; font-weight: 700 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .nav-button.active .app-icon { color: var(--ui-accent); }
+  html[data-theme] body.school-cabinet #protectedContent.is-authenticated > .content { padding-top: 18px !important; }
+  html[data-theme] body.school-cabinet #protectedContent .presence-status-row { margin-bottom: 20px; }
+  html[data-theme] body.school-cabinet #protectedContent .section-heading { border-bottom: 1px solid var(--ui-border) !important; padding-bottom: 20px !important; }
+  html[data-theme] body.school-cabinet #protectedContent .section-heading h2 { font: 400 2.5rem/1.12 var(--edition-serif) !important; letter-spacing: -.035em; }
+  html[data-theme] body.school-cabinet #protectedContent #view-summary .section-heading h2 { font-size: clamp(2.25rem,4vw,3.6rem) !important; max-width: 13ch; }
+  html[data-theme] body.school-cabinet #protectedContent #view-summary .section-heading .summary-guide { max-width: 43ch; }
+  html[data-theme] body.school-cabinet #protectedContent .school-calendar { background: transparent !important; border: 0 !important; border-inline-start: 2px solid var(--edition-marker) !important; border-radius: 0 !important; padding: 0 0 0 16px !important; }
+  html[data-theme] body.school-cabinet #protectedContent #schoolCalendarDay { font: 400 2.8rem/1 var(--edition-serif) !important; color: var(--ui-text) !important; }
+  html[data-theme] body.school-cabinet #protectedContent #schoolCalendarMonth { color: var(--ui-muted) !important; font-size: .8125rem !important; }
+
+  /* Today's leaf + compact index. No duplicated card silhouette. */
+  html[data-theme] body.school-cabinet #protectedContent .home-shortcuts { grid-template-columns: minmax(0,1fr); gap: 0; margin-bottom: 24px; }
+  html[data-theme] body.school-cabinet #protectedContent .home-shortcuts .destination-link { border: 0 !important; border-bottom: 1px solid var(--ui-border) !important; border-radius: 0 !important; padding: 14px 0 !important; min-height: 72px; background: none !important; gap: 14px; }
+  html[data-theme] body.school-cabinet #protectedContent .destination-icon { background: transparent; border-radius: 0; width: 28px; height: 32px; flex-basis: 28px; }
+  html[data-theme] body.school-cabinet #protectedContent .home-shortcuts .destination-link[data-view="schedule"] { position: relative; padding: 24px 20px 24px 40px !important; margin-bottom: 6px; min-height: 148px; border: 1px solid var(--ui-border) !important; border-radius: 2px !important; background: linear-gradient(90deg,transparent 26px,var(--edition-marker) 26px,var(--edition-marker) 27px,transparent 27px),repeating-linear-gradient(0deg,transparent 0,transparent 31px,var(--edition-rule) 31px,var(--edition-rule) 32px),var(--ui-surface) !important; box-shadow: 3px 3px 0 var(--ui-canvas),4px 4px 0 var(--ui-border) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .home-shortcuts .destination-link[data-view="schedule"] .destination-icon { display: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .home-shortcuts .destination-link[data-view="schedule"] strong { font: 400 1.75rem/1.2 var(--edition-serif) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .home-shortcuts .destination-link[data-view="schedule"] small { color: var(--ui-text) !important; line-height: 1.8; }
+  html[data-theme] body.school-cabinet #protectedContent .home-shortcuts .destination-link[data-view="contributions"] .destination-icon { color: var(--ui-accent); }
+  html[data-theme] body.school-cabinet #protectedContent .home-announcement { position: relative; padding: 26px 24px 22px !important; background: var(--ui-accent-surface) !important; border: 0 !important; border-top: 3px solid var(--edition-marker) !important; border-radius: 0 0 16px 0 !important; box-shadow: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .home-announcement h3 { font-size: .75rem !important; color: var(--ui-accent) !important; letter-spacing: .04em; }
+  html[data-theme] body.school-cabinet #protectedContent .home-announcement p { font: 400 1.375rem/1.5 var(--edition-serif) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .home-utility-links { gap: 0 24px; padding: 8px 0; }
+  html[data-theme] body.school-cabinet #protectedContent .home-money-details { border: 0 !important; border-block: 1px solid var(--ui-border) !important; border-radius: 0 !important; box-shadow: none !important; background: transparent !important; }
+  html[data-theme] body.school-cabinet #protectedContent .home-money-details > summary { padding: 18px 0; }
+  html[data-theme] body.school-cabinet #protectedContent .contribution-reminder { border-inline-start: 2px solid var(--ui-primary) !important; background: transparent !important; border-radius: 0 !important; padding: 16px 20px; }
+  html[data-theme] body.school-cabinet #protectedContent .contribution-reminder-select-wrap { border-radius: 3px !important; }
+
+  /* The weekly register. Numerals live in the margin, subjects on ruled rows. */
+  html[data-theme] body.school-cabinet #protectedContent .useful-schedule-card { padding: 0 !important; background: transparent !important; border: 0 !important; box-shadow: none !important; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-schedule-grid { gap: 24px; align-items: start; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-day-card { padding: 0 20px 16px; border-radius: 2px !important; background: linear-gradient(90deg,transparent 44px,var(--edition-rule) 44px,var(--edition-rule) 45px,transparent 45px),var(--ui-surface) !important; border: 1px solid var(--ui-border) !important; box-shadow: 0 3px 0 var(--ui-subtle) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-day-card h4 { font: 400 1.375rem/1.3 var(--edition-serif) !important; padding: 18px 0 14px; margin: 0; background: var(--ui-surface); border-bottom: 2px solid var(--ui-primary); }
+  html[data-theme] body.school-cabinet #protectedContent .useful-day-card.is-today { border-color: var(--ui-primary) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-day-card.is-today h4 { color: var(--ui-accent) !important; border-bottom-color: var(--edition-marker); }
+  html[data-theme] body.school-cabinet #protectedContent .useful-lesson-list { padding-left: 24px; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-day-card .useful-lesson-list li { padding: 10px 0 10px 12px; margin: 0; border-bottom: 1px solid var(--edition-rule); font-size: .9375rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-lesson-list li::marker { font-family: var(--edition-serif); color: var(--ui-muted); }
+
+  /* A class ledger, not a bank dashboard. Amounts and rules carry hierarchy. */
+  html[data-theme] body.school-cabinet #protectedContent :is(.campaign-summary,.report-card,.payment-details-card) { border-radius: 3px !important; box-shadow: none !important; border-top: 3px solid var(--ui-primary) !important; }
+  html[data-theme] body.school-cabinet #protectedContent #selectedCampaignName { font: 400 1.75rem/1.25 var(--edition-serif) !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.campaign-total-plan,.campaign-total-collected,.metric-card,.fund-card) { border-radius: 0 !important; border-inline-start: 1px solid var(--ui-border) !important; background: transparent !important; }
+  html[data-theme] body.school-cabinet #protectedContent :is(.campaign-totals,.totals-grid) strong { font: 400 2rem/1.2 var(--edition-serif) !important; font-variant-numeric: lining-nums tabular-nums !important; }
+  html[data-theme] body.school-cabinet #protectedContent .money-navigation { border-bottom: 1px solid var(--ui-border); padding-bottom: 12px; }
+  html[data-theme] body.school-cabinet #protectedContent .money-navigation button { border-radius: 2px !important; background: none !important; border-color: transparent !important; }
+  html[data-theme] body.school-cabinet #protectedContent .money-navigation button[aria-current="page"] { border-bottom-color: var(--ui-primary) !important; background: var(--ui-surface) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .household-funds-card { position: relative; padding: 28px !important; border: 1px solid var(--ui-border) !important; border-top: 5px solid var(--ui-primary) !important; border-radius: 2px !important; box-shadow: 4px 4px 0 var(--ui-subtle) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .household-funds-card :is(h3,.household-funds-title) { font: 400 1.75rem/1.2 var(--edition-serif) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .household-funds-phone { font: 400 clamp(1.25rem,4.8vw,2.125rem)/1.4 var(--edition-serif) !important; letter-spacing: -.025em; }
+  html[data-theme] body.school-cabinet #protectedContent .household-funds-note { color: var(--ui-accent) !important; background: var(--ui-accent-surface) !important; border: 0 !important; border-inline-start: 3px solid var(--edition-marker) !important; border-radius: 0 !important; }
+
+  /* An indexed contents page: headings and rows instead of tile stacks. */
+  html[data-theme] body.school-cabinet #protectedContent .directory-grid { gap: 32px; counter-reset: contents; }
+  html[data-theme] body.school-cabinet #protectedContent .directory-group { padding: 0; border-radius: 0 !important; counter-increment: contents; }
+  html[data-theme] body.school-cabinet #protectedContent .directory-group h3 { display: flex; align-items: baseline; gap: 14px; padding-bottom: 12px; margin-bottom: 0; border-bottom: 2px solid var(--ui-primary); font: 400 1.5rem/1.3 var(--edition-serif) !important; color: var(--ui-text) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .directory-group h3::before { content: counter(contents,decimal-leading-zero); font: 500 .75rem/1.4 var(--font); color: var(--ui-accent); }
+  html[data-theme] body.school-cabinet #protectedContent .directory-group .destination-link { padding: 16px 0 !important; margin: 0; min-height: 80px; border: 0 !important; border-bottom: 1px solid var(--ui-border) !important; border-radius: 0 !important; background: transparent !important; }
+  html[data-theme] body.school-cabinet #protectedContent .destination-link:hover { background-color: var(--ui-subtle) !important; }
+  html[data-theme] body.school-cabinet .button { border-radius: 4px !important; }
+  html[data-theme] body.school-cabinet :is(.button-primary,.button-green,.button-blue,.button-orange) { box-shadow: inset 0 -2px #0002 !important; }
+  html[data-theme] body.school-cabinet .modal-card { border-radius: 6px !important; border-top: 4px solid var(--ui-primary) !important; }
+  html[data-theme] body.school-cabinet .modal-header h2 { font: 400 1.75rem/1.2 var(--edition-serif) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .site-footer { text-align: left; border-top: 2px solid var(--ui-primary); }
+}
+@media screen and (min-width: 900px) {
+  html[data-theme] body.school-cabinet #protectedContent #view-summary.active { display: grid !important; grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); column-gap: 48px; align-items: start; }
+  html[data-theme] body.school-cabinet #protectedContent #view-summary > * { grid-column: 1 / -1; }
+  html[data-theme] body.school-cabinet #protectedContent #view-summary .home-shortcuts { grid-column: 1; grid-row: 2 / 4; }
+  html[data-theme] body.school-cabinet #protectedContent #view-summary .home-announcement { grid-column: 2; grid-row: 2; }
+  html[data-theme] body.school-cabinet #protectedContent #view-summary .home-utility-links { grid-column: 2; grid-row: 3; align-self: end; }
+}
+@media screen and (max-width: 768px) {
+  html[data-theme] body.school-cabinet #protectedContent .header-inner { flex-wrap: nowrap !important; min-height: 0 !important; gap: 10px !important; padding: 14px 0 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .brand { width: auto !important; }
+  html[data-theme] body.school-cabinet #protectedContent .brand h1 [data-class-name] { font-size: 2.125rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent .brand h1 .class-cover-label { font-size: .5625rem !important; letter-spacing: .025em; }
+  html[data-theme] body.school-cabinet #protectedContent .user-panel { flex: 0 0 136px !important; flex-wrap: wrap !important; width: auto !important; max-width: 145px !important; gap: 6px !important; }
+  html[data-theme] body.school-cabinet #protectedContent .user-copy { flex-basis: 100%; max-width: none; margin: 0 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .role-badge { font-size: .625rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent .section-heading h2 { font-size: 2rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent #view-summary .section-heading h2 { max-width: 12ch; font-size: 2.5rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent .summary-status { align-items: center; }
+  html[data-theme] body.school-cabinet #protectedContent .school-calendar { padding-left: 10px !important; }
+  html[data-theme] body.school-cabinet #protectedContent #schoolCalendarDay { font-size: 1.75rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent .home-shortcuts .destination-link[data-view="schedule"] { min-height: 136px; }
+  html[data-theme] body.school-cabinet #protectedContent .home-shortcuts .destination-link small { font-size: .8125rem !important; }
+  html[data-theme] body.school-cabinet #protectedContent .home-announcement { padding: 24px 20px !important; }
+  html[data-theme] body.school-cabinet #protectedContent .useful-day-card { padding: 0 16px 16px; background: linear-gradient(90deg,transparent 40px,var(--edition-rule) 40px,var(--edition-rule) 41px,transparent 41px),var(--ui-surface) !important; }
+  html[data-theme] body.school-cabinet #protectedContent .household-funds-card { padding: 20px !important; }
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .nav-button { border-radius: 0 !important; }
+  html[data-theme] body.school-cabinet #protectedContent .main-nav .nav-button.active { box-shadow: inset 0 3px var(--edition-marker) !important; }
 }

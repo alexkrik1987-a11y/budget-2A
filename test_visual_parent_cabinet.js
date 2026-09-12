@@ -11,7 +11,7 @@ const manifest = JSON.parse(fs.readFileSync("manifest.webmanifest", "utf8"));
 assert(html.includes('<body class="school-cabinet">'), "новая визуальная система должна быть явно ограничена body-классом");
 assert(css.includes("НАШ ДРУЖНЫЙ КЛАСС 2 «А» — ЕДИНАЯ ВИЗУАЛЬНАЯ СИСТЕМА"), "не найден итоговый слой редизайна");
 assert(html.includes('<h1 id="authTitle">Наш дружный класс 2 «А»</h1>'), "первое впечатление должно представлять сайт класса, а не финансовый кабинет");
-assert(/<h1>Наш дружный класс <span data-class-name>2 «А»<\/span><\/h1>/.test(html), "защищённая шапка должна сохранять главную идентичность класса");
+assert(/<h1><span class="class-cover-label">Наш дружный класс<\/span> <span data-class-name>2 «А»<\/span><\/h1>/.test(html), "обложка сохраняет доступную идентичность класса и динамическое имя");
 assert(html.includes("НАШ ДРУЖНЫЙ КЛАСС <span>2 «А»</span>"), "верхняя подпись должна быть грамматически естественной");
 assert.equal(manifest.name, "Наш дружный класс 2 «А»", "название установленного PWA должно соответствовать новой концепции");
 assert(!html.includes("Родительский комитет на связи"), "официальная формулировка не должна определять первое впечатление");
@@ -63,8 +63,8 @@ assert(html.includes("память хорошая, а чек всё-таки н�
 assert(!/2×2=5|Не пались|Где деньги, Зин/i.test(html), "в новых декоративных текстах не должно быть намеренных ошибок или резких формулировок");
 
 const htmlStyleAsset = html.match(/href="(styles\.css\?v=\d+)"/)?.[1];
-assert.equal(htmlStyleAsset, "styles.css?v=606", "HTML должен подключать новую версию стилей");
+assert.equal(htmlStyleAsset, "styles.css?v=607", "HTML должен подключать новую версию стилей");
 assert(sw.includes(`./${htmlStyleAsset}`), "Service Worker должен кешировать ту же версию CSS");
-assert(sw.includes('const CACHE_NAME = "budget-2a-v92-parent-journal-1";'), "cache name должен быть обновлён для редизайна");
+assert(sw.includes('const CACHE_NAME = "budget-2a-v93-class-edition-1";'), "cache name должен быть обновлён для редизайна");
 
 console.log("visual parent cabinet checks: PASS");

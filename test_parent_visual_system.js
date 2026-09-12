@@ -96,4 +96,23 @@ for (const expected of ["light", "dark", "light"]) {
   assert.equal(button.attributes["aria-label"], expected === "dark" ? "Включить светлую тему" : "Включить тёмную тему");
 }
 assert.equal(saved, "light");
-console.log("Parent visual system: PASS (theme contrast, icons, visibility guards, accessible theme toggle, four destinations)");
+
+// The new cover must keep contrast in BOTH themes, including the SVG toggle.
+const edition = css.slice(css.indexOf("CLASS EDITION — paper, ink, ruled margins."));
+assert(edition.includes("--edition-cover:"), "class edition must exist");
+const editionTokens = Object.fromEntries([...edition.matchAll(/--edition-([\w-]+):\s*(#[a-f\d]{6})/gi)].map(m => [m[1], m[2]]));
+for (const foreground of ["cover-ink", "cover-muted"]) {
+  const a = luminance(editionTokens[foreground]), b = luminance(editionTokens.cover);
+  assert((Math.max(a, b) + .05) / (Math.min(a, b) + .05) >= 4.5, `cover ${foreground} contrast`);
+}
+assert.match(edition, /\.site-header #themeToggleButton \.app-icon \{ color: var\(--edition-cover-ink\) !important/);
+assert.match(edition, /#view-summary\.active \{ display: grid !important/,
+  "desktop composition must override the legacy active view block, without making hidden views visible");
+assert.match(edition, /\.useful-day-card \.useful-lesson-list li \{[^}]+border-bottom: 1px solid var\(--edition-rule\)/,
+  "ruled subjects must outrank the previous day-card list rule");
+assert.match(edition, /\.directory-group \.destination-link \{[^}]+border-radius: 0 !important/);
+assert.match(edition, /\.modal-card \{ border-radius: 6px !important/);
+assert.match(html, /class="class-cover-label">Наш дружный класс<\/span> <span data-class-name>/);
+assert(!/\border\s*:|row-reverse|column-reverse/.test(edition.slice(edition.indexOf("/* Today's leaf"))),
+  "content reading and keyboard order must not be visually reversed");
+console.log("Parent visual system: PASS (theme/cover contrast, class edition, ruled rows, visibility guards, accessible toggle, four destinations)");
