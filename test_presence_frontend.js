@@ -80,22 +80,23 @@ for (const table of ["contributions", "expenses", "campaigns", "students", "clas
   assert(budgetRealtimeCode.includes(`table: "${table}"`), `class-budget-live потерял подписку ${table}`);
 }
 
-assert(/<main class="content">\s*<div class="presence-status-row">\s*<p id="presenceStatus"/s.test(html), "индикатор должен находиться в начале main.content");
+assert(/<div class="brand-copy">(?:(?!<\/div>)[\s\S])*<p id="presenceStatus"/.test(html), "индикатор должен быть интегрирован в шапку класса");
+assert.equal((html.match(/id="presenceStatus"/g) || []).length, 1, "Presence node must remain unique");
 assert(html.indexOf('id="presenceStatus"') < html.indexOf('id="globalNotice"'), "Presence UI должен находиться перед globalNotice");
 assert(html.includes('<span id="presenceStatusText">Онлайн: —</span>'), "начальный текст индикатора должен быть безопасным");
-assert(css.includes(".presence-status-row"), "нет desktop-стилей индикатора");
+assert(css.includes(".brand-copy .presence-status"), "нет desktop-стилей индикатора в шапке");
 assert(css.includes(".presence-status.is-online .presence-status-dot"), "нет состояния успешного sync");
-assert(/@media screen and \(max-width: 768px\)[\s\S]*?\.presence-status-row/.test(css), "нет mobile-стилей индикатора");
+assert(/@media screen and \(max-width:768px\)[\s\S]*?\.brand-copy \.presence-status/.test(css), "нет mobile-стилей индикатора в шапке");
 
 const htmlAppVersion = html.match(/app\.js\?v=(\d+)/)?.[1];
 const workerAppVersion = serviceWorker.match(/\.\/app\.js\?v=(\d+)/)?.[1];
 const htmlStyleVersion = html.match(/styles\.css\?v=(\d+)/)?.[1];
 const workerStyleVersion = serviceWorker.match(/\.\/styles\.css\?v=(\d+)/)?.[1];
-assert.equal(htmlAppVersion, "91", "index.html должен подключать app.js?v=91");
+assert.equal(htmlAppVersion, "92", "index.html должен подключать app.js?v=92");
 assert.equal(workerAppVersion, htmlAppVersion, "app.js asset version должна совпадать в HTML и Service Worker");
-assert.equal(htmlStyleVersion, "607", "index.html должен подключать styles.css?v=607");
+assert.equal(htmlStyleVersion, "608", "index.html должен подключать styles.css?v=608");
 assert.equal(workerStyleVersion, htmlStyleVersion, "styles.css asset version должна совпадать в HTML и Service Worker");
-assert(serviceWorker.includes('const CACHE_NAME = "budget-2a-v93-class-edition-1";'), "Service Worker cache name должен быть обновлён");
+assert(serviceWorker.includes('const CACHE_NAME = "budget-2a-v94-collector-journal-1";'), "Service Worker cache name должен быть обновлён");
 
 function createCleanupHarness({ removeStatus = "ok", removeError = null, untrackError = null } = {}) {
   const calls = [];

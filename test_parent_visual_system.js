@@ -16,7 +16,8 @@ function luminance(hex) {
   }).reduce((sum, channel, i) => sum + channel * [.2126, .7152, .0722][i], 0);
 }
 for (const theme of ["light", "dark"]) {
-  const block = visual.match(new RegExp(`html\\[data-theme="${theme}"\\] \\{([^}]+)`))[1];
+  // Merge declarations in cascade order: test the final palette, not superseded colors.
+  const block = [...visual.matchAll(new RegExp(`html\\[data-theme="${theme}"\\] \\{([^}]+)`, "g"))].map(m => m[1]).join("\n");
   const tokens = Object.fromEntries([...block.matchAll(/--ui-([\w-]+):\s*(#[a-f\d]{6})/gi)].map(m => [m[1], m[2]]));
   for (const [foreground, background] of [
     ["text", "canvas"], ["text", "surface"], ["text", "subtle"],
@@ -98,7 +99,7 @@ for (const expected of ["light", "dark", "light"]) {
 assert.equal(saved, "light");
 
 // The new cover must keep contrast in BOTH themes, including the SVG toggle.
-const edition = css.slice(css.indexOf("CLASS EDITION — paper, ink, ruled margins."));
+const edition = css.slice(css.indexOf("CLASS EDITION — paper, ink, ruled margins."), css.indexOf("/* COLLECTOR JOURNAL"));
 assert(edition.includes("--edition-cover:"), "class edition must exist");
 const editionTokens = Object.fromEntries([...edition.matchAll(/--edition-([\w-]+):\s*(#[a-f\d]{6})/gi)].map(m => [m[1], m[2]]));
 for (const foreground of ["cover-ink", "cover-muted"]) {
@@ -115,4 +116,21 @@ assert.match(edition, /\.modal-card \{ border-radius: 6px !important/);
 assert.match(html, /class="class-cover-label">Наш дружный класс<\/span> <span data-class-name>/);
 assert(!/\border\s*:|row-reverse|column-reverse/.test(edition.slice(edition.indexOf("/* Today's leaf"))),
   "content reading and keyboard order must not be visually reversed");
-console.log("Parent visual system: PASS (theme/cover contrast, class edition, ruled rows, visibility guards, accessible toggle, four destinations)");
+const collector = css.slice(css.indexOf("/* COLLECTOR JOURNAL"));
+assert(collector.includes("--ui-primary:#303e66"));
+assert(collector.includes("--ui-canvas:#f5f0e6"));
+assert(collector.includes("--ui-accent:#a34d2e"));
+assert(!collector.includes(":has(#view-summary.active)"), "palette and header apply to every section");
+assert.match(html, /<svg class="collector-art" aria-hidden="true" focusable="false"/);
+assert(!html.includes("/__collector"), "illustration is bundled, not a temporary asset");
+assert.match(collector, /:is\(\.destination-link,\.destination-link\[data-view="schedule"\]\) strong \{ font:650 1rem\/1.4 var\(--font\)/);
+assert.match(collector, /\.nav-button\.active::before[^}]+width:32px; height:3px/);
+assert(collector.includes("padding:max(82px,5.125rem)"), "desktop hero reserves scalable status space");
+assert(collector.includes("padding:max(62px,3.875rem)"), "mobile hero status must not overlap title at enlarged text sizes");
+assert(collector.includes("font-size:min(2.65rem,24vw)"), "expressive heading must fit the narrowest enlarged viewport");
+assert(collector.includes("width:max(45px,2.8125rem)"), "class badge must scale with enlarged text");
+for (const view of ["schedule", "contributions", "expenses", "budget", "directory", "memos", "announcements", "useful", "household", "notifications", "settings"]) {
+  assert(html.includes(`id="view-${view}"`), `existing ${view} route preserved`);
+}
+assert(!/\border\s*:|row-reverse|column-reverse/.test(collector.slice(collector.indexOf("/* The remaining leaves"))), "section content and keyboard order stay aligned");
+console.log("Parent visual system: PASS (final collector palette contrast, shared materials, navigation, bundled art, accessibility guards)");
