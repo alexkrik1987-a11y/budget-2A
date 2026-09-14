@@ -9405,3 +9405,38 @@ html[data-theme="dark"] body.school-cabinet .useful-day-card.is-today { border-c
   html[data-theme] body.school-cabinet #protectedContent .directory-group { padding: 18px 16px 4px; }
   html[data-theme] body.school-cabinet #protectedContent #view-memos .useful-note-item { padding: 18px 20px !important; }
 }
+
+/* Install state belongs to the existing PWA controller, never to presentation. */
+@media screen {
+  html[data-theme] body.school-cabinet #protectedContent #installAppButton:not(.hidden) {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 44px !important;
+    max-width: 100%;
+    padding: 12px 18px;
+    color: var(--ui-on-primary) !important;
+    background: var(--ui-primary) !important;
+    border: 1px solid var(--ui-primary) !important;
+    border-radius: 6px !important;
+    box-shadow: inset 0 -2px var(--ui-accent) !important;
+    white-space: normal;
+  }
+  html[data-theme] body.school-cabinet .install-help-card .install-steps {
+    grid-template-columns: minmax(0,1fr);
+    gap: 12px;
+    padding: 16px;
+    color: var(--ui-text);
+    background: var(--ui-subtle);
+    border: 1px solid var(--ui-border);
+    border-radius: 6px;
+  }
+  html[data-theme] body.school-cabinet .install-help-card .install-preview {
+    width: 64px; height: 64px;
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    border-radius: 12px; box-shadow: none; transform: none;
+  }
+  html[data-theme] body.school-cabinet .install-help-card .install-steps li { font-weight: 500; line-height: 1.55; }
+}
