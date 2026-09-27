@@ -86,17 +86,18 @@ assert(html.indexOf('id="presenceStatus"') < html.indexOf('id="globalNotice"'), 
 assert(html.includes('<span id="presenceStatusText">Онлайн: —</span>'), "начальный текст индикатора должен быть безопасным");
 assert(css.includes(".brand-copy .presence-status"), "нет desktop-стилей индикатора в шапке");
 assert(css.includes(".presence-status.is-online .presence-status-dot"), "нет состояния успешного sync");
-assert(/@media screen and \(max-width:768px\)[\s\S]*?\.brand-copy \.presence-status/.test(css), "нет mobile-стилей индикатора в шапке");
+// Mobile-first: базовое правило — телефонное, desktop-панель переопределяет только раскладку.
+assert(css.indexOf(".brand-copy .presence-status") < css.indexOf("@media (min-width: 960px)"), "нет mobile-стилей индикатора в шапке");
 
 const htmlAppVersion = html.match(/app\.js\?v=(\d+)/)?.[1];
 const workerAppVersion = serviceWorker.match(/\.\/app\.js\?v=(\d+)/)?.[1];
 const htmlStyleVersion = html.match(/styles\.css\?v=(\d+)/)?.[1];
 const workerStyleVersion = serviceWorker.match(/\.\/styles\.css\?v=(\d+)/)?.[1];
-assert.equal(htmlAppVersion, "93", "index.html должен подключать app.js?v=93");
+assert.equal(htmlAppVersion, "94", "index.html должен подключать app.js?v=94");
 assert.equal(workerAppVersion, htmlAppVersion, "app.js asset version должна совпадать в HTML и Service Worker");
-assert.equal(htmlStyleVersion, "609", "index.html должен подключать styles.css?v=609");
+assert.equal(htmlStyleVersion, "610", "index.html должен подключать styles.css?v=610");
 assert.equal(workerStyleVersion, htmlStyleVersion, "styles.css asset version должна совпадать в HTML и Service Worker");
-assert(serviceWorker.includes('const CACHE_NAME = "budget-2a-v95-install-action-1";'), "Service Worker cache name должен быть обновлён");
+assert(serviceWorker.includes('const CACHE_NAME = "budget-2a-v96-board-receipt-1";'), "Service Worker cache name должен быть обновлён");
 
 function createCleanupHarness({ removeStatus = "ok", removeError = null, untrackError = null } = {}) {
   const calls = [];

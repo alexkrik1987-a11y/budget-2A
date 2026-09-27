@@ -6,7 +6,8 @@ const vm = require("node:vm");
 const html = fs.readFileSync("index.html", "utf8");
 const css = fs.readFileSync("styles.css", "utf8");
 const app = fs.readFileSync("app.js", "utf8");
-const visual = css.slice(css.indexOf("PARENT JOURNAL — PROFESSIONAL VISUAL SYSTEM"));
+const visual = css.slice(css.indexOf("«ДОСКА И КВИТАНЦИЯ» — ВИЗУАЛЬНАЯ СИСТЕМА 2 «А»"));
+assert(css.indexOf("«ДОСКА И КВИТАНЦИЯ»") >= 0, "visual system header must exist");
 assert(visual.length > 0, "visual system must exist");
 
 function luminance(hex) {
@@ -98,39 +99,37 @@ for (const expected of ["light", "dark", "light"]) {
 }
 assert.equal(saved, "light");
 
-// The new cover must keep contrast in BOTH themes, including the SVG toggle.
-const edition = css.slice(css.indexOf("CLASS EDITION — paper, ink, ruled margins."), css.indexOf("/* COLLECTOR JOURNAL"));
-assert(edition.includes("--edition-cover:"), "class edition must exist");
-const editionTokens = Object.fromEntries([...edition.matchAll(/--edition-([\w-]+):\s*(#[a-f\d]{6})/gi)].map(m => [m[1], m[2]]));
-for (const foreground of ["cover-ink", "cover-muted"]) {
-  const a = luminance(editionTokens[foreground]), b = luminance(editionTokens.cover);
-  assert((Math.max(a, b) + .05) / (Math.min(a, b) + .05) >= 4.5, `cover ${foreground} contrast`);
+// The chalkboard (Today hero, today's lesson card, balance tile) and the
+// marker highlight must keep readable contrast in BOTH designed themes.
+function ratio(a, b) { const x = luminance(a), y = luminance(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
+for (const theme of ["light", "dark"]) {
+  const block = [...visual.matchAll(new RegExp(`html\\[data-theme="${theme}"\\] \\{([^}]+)`, "g"))].map(m => m[1]).join("\n");
+  const t = Object.fromEntries([...block.matchAll(/--ui-([\w-]+):\s*(#[a-f\d]{6})/gi)].map(m => [m[1], m[2]]));
+  for (const [fg, bg] of [["board-ink", "board"], ["board-muted", "board"], ["marker", "board"], ["marker-ink", "marker"], ["success", "success-surface"], ["warn", "warn-surface"], ["primary", "primary-soft"], ["muted", "primary-soft"]]) {
+    assert(ratio(t[fg], t[bg]) >= 4.5, `${theme}: ${fg}/${bg} contrast`);
+  }
+  assert.notEqual(t.canvas, t.board, `${theme}: board must stand apart from the page`);
 }
-assert.match(edition, /\.site-header #themeToggleButton \.app-icon \{ color: var\(--edition-cover-ink\) !important/);
-assert.match(edition, /#view-summary\.active \{ display: grid !important/,
-  "desktop composition must override the legacy active view block, without making hidden views visible");
-assert.match(edition, /\.useful-day-card \.useful-lesson-list li \{[^}]+border-bottom: 1px solid var\(--edition-rule\)/,
-  "ruled subjects must outrank the previous day-card list rule");
-assert.match(edition, /\.directory-group \.destination-link \{[^}]+border-radius: 0 !important/);
-assert.match(edition, /\.modal-card \{ border-radius: 6px !important/);
+// Dark mode is designed separately, not inverted.
+assert(!css.includes("filter: invert"));
+assert.match(css, /html\[data-theme="dark"\] \{[^}]*color-scheme: dark/);
+// Mobile-first shell: bottom nav on phones, left rail on desktop.
+assert.match(css, /@media \(min-width: 960px\) \{[\s\S]*?\.app-rail \{[^}]*position: fixed;[^}]*width: var\(--rail-width\)/, "desktop is not a stretched phone");
+assert.match(css, /\.app-main \{ margin-left: var\(--rail-width\); \}/);
+assert.match(css, /\.chat-toggle \{[^}]*bottom: calc\(var\(--parent-nav-height,80px\) \+ 14px\)/, "chat button clears bottom navigation");
+assert.match(css, /\.content \{[^}]*calc\(var\(--parent-nav-height,80px\) \+ 88px\)/, "content clears bottom navigation and chat button");
+// Touch targets.
+assert.match(css, /--tap: 44px/);
+assert.match(css, /\.button \{[^}]*min-height: var\(--tap\)/);
+assert.match(css, /\.nav-button \{[^}]*min-height: 56px/);
+// Reading and keyboard order always follow the DOM.
+assert(!/\border\s*:|row-reverse|column-reverse/.test(css), "content reading and keyboard order must not be visually reversed");
+// Today board shows today's lessons from the existing schedule (presentation only).
+assert.match(html, /<ol id="todayLessons" class="today-lessons hidden"/);
+assert.match(app, /function renderTodayLessons\(schedule\)/);
+assert(!/db\.|supabase/.test(source("renderTodayLessons")), "today board must not add data access");
 assert.match(html, /class="class-cover-label">Наш дружный класс<\/span> <span data-class-name>/);
-assert(!/\border\s*:|row-reverse|column-reverse/.test(edition.slice(edition.indexOf("/* Today's leaf"))),
-  "content reading and keyboard order must not be visually reversed");
-const collector = css.slice(css.indexOf("/* COLLECTOR JOURNAL"));
-assert(collector.includes("--ui-primary:#303e66"));
-assert(collector.includes("--ui-canvas:#f5f0e6"));
-assert(collector.includes("--ui-accent:#a34d2e"));
-assert(!collector.includes(":has(#view-summary.active)"), "palette and header apply to every section");
-assert.match(html, /<svg class="collector-art" aria-hidden="true" focusable="false"/);
-assert(!html.includes("/__collector"), "illustration is bundled, not a temporary asset");
-assert.match(collector, /:is\(\.destination-link,\.destination-link\[data-view="schedule"\]\) strong \{ font:650 1rem\/1.4 var\(--font\)/);
-assert.match(collector, /\.nav-button\.active::before[^}]+width:32px; height:3px/);
-assert(collector.includes("padding:max(82px,5.125rem)"), "desktop hero reserves scalable status space");
-assert(collector.includes("padding:max(62px,3.875rem)"), "mobile hero status must not overlap title at enlarged text sizes");
-assert(collector.includes("font-size:min(2.65rem,24vw)"), "expressive heading must fit the narrowest enlarged viewport");
-assert(collector.includes("width:max(45px,2.8125rem)"), "class badge must scale with enlarged text");
 for (const view of ["schedule", "contributions", "expenses", "budget", "directory", "memos", "announcements", "useful", "household", "notifications", "settings"]) {
   assert(html.includes(`id="view-${view}"`), `existing ${view} route preserved`);
 }
-assert(!/\border\s*:|row-reverse|column-reverse/.test(collector.slice(collector.indexOf("/* The remaining leaves"))), "section content and keyboard order stay aligned");
-console.log("Parent visual system: PASS (final collector palette contrast, shared materials, navigation, bundled art, accessibility guards)");
+console.log("Parent visual system: PASS (both-theme palette and board contrast, mobile/desktop shell, touch targets, reading order, accessibility guards)");

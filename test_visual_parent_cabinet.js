@@ -9,7 +9,7 @@ const sw = fs.readFileSync("sw.js", "utf8");
 const manifest = JSON.parse(fs.readFileSync("manifest.webmanifest", "utf8"));
 
 assert(html.includes('<body class="school-cabinet">'), "новая визуальная система должна быть явно ограничена body-классом");
-assert(css.includes("НАШ ДРУЖНЫЙ КЛАСС 2 «А» — ЕДИНАЯ ВИЗУАЛЬНАЯ СИСТЕМА"), "не найден итоговый слой редизайна");
+assert(css.includes("«ДОСКА И КВИТАНЦИЯ» — ВИЗУАЛЬНАЯ СИСТЕМА 2 «А»"), "не найдена единая визуальная система");
 assert(html.includes('<h1 id="authTitle">Наш дружный класс 2 «А»</h1>'), "первое впечатление должно представлять сайт класса, а не финансовый кабинет");
 assert(/<h1><span class="class-cover-label">Наш дружный класс<\/span> <span data-class-name>2 «А»<\/span><\/h1>/.test(html), "обложка сохраняет доступную идентичность класса и динамическое имя");
 assert(html.includes("НАШ ДРУЖНЫЙ КЛАСС <span>2 «А»</span>"), "верхняя подпись должна быть грамматически естественной");
@@ -26,7 +26,7 @@ for (const [view, label] of [
   ["settings", "Управление классом"]
 ]) {
   assert(
-    [...html.matchAll(new RegExp(`data-view="${view}"[^>]*>([\\s\\S]*?)</button>`, "g"))].some((match) => match[1].replace(/<[^>]*>/g, "").includes(label)),
+    [...html.matchAll(new RegExp(`data-view="${view}"[^>]*>([\\s\\S]*?)</button>`, "g"))].some((match) => match[1].replace(/<[^>]*>|&shy;/g, "").includes(label)),
     `навигация ${view} должна иметь понятную подпись «${label}»`
   );
 }
@@ -49,13 +49,13 @@ for (const id of [
 }
 
 assert(css.includes("grid-template-columns: minmax(0, .95fr) minmax(340px, .78fr);"), "desktop-вход должен разделять приветствие и авторизацию");
-assert(/@media screen and \(max-width: 900px\)[\s\S]*?\.monitor-showcase \{[\s\S]*?grid-template-columns: minmax\(0,1fr\)/.test(css), "mobile-вход должен становиться одноколоночным");
+assert(/\.auth-card \{[^}]*grid-template-columns: minmax\(0, 1fr\)/.test(css) && css.indexOf(".auth-card {") < css.indexOf("@media (min-width: 900px)"), "mobile-вход должен быть одноколоночным (mobile-first)");
 assert(css.includes("font-variant-numeric: tabular-nums;"), "финансовые значения должны использовать ровные табличные цифры");
-assert(css.includes("body.school-cabinet .main-nav"), "навигация должна входить в единую визуальную систему");
-assert(/@media screen and \(max-width: 768px\)[\s\S]*?body\.school-cabinet \.main-nav \{[\s\S]*?position: fixed !important/.test(css), "на мобильном навигация должна оставаться доступной снизу");
-assert(/body\.school-cabinet \.main-nav \.nav-button \{[\s\S]*?font-size: \.6875rem !important;/.test(css), "подписи мобильной навигации не должны быть меньше 11px");
-assert(/\.nav-inner:has\(\.nav-button\.admin-only:not\(\.hidden\)\) \.nav-button \{ font-size: \.6875rem !important; \}/.test(css), "шестая admin-вкладка не должна возвращать мелкий legacy-шрифт");
-assert(/font-size: \.6875rem !important;[\s\S]*?overflow-wrap: normal !important;[\s\S]*?word-break: normal !important;/.test(css), "длинные подписи нельзя разрывать внутри слова");
+const mobileNav = css.slice(css.indexOf(".main-nav {"), css.indexOf("@media"));
+assert(/\.main-nav \{[^}]*position: fixed;[^}]*env\(safe-area-inset-bottom\)/.test(mobileNav), "на мобильном навигация должна оставаться доступной снизу с учётом safe-area");
+assert(/\.nav-button \{[^}]*font-size: min\(clamp\(\.6875rem,[^)]*\), 15px\)/.test(css), "подписи мобильной навигации не должны быть меньше 11px (и не обрезаются при 200% тексте)");
+assert(/@media \(max-width: 359px\) \{[\s\S]*?\.nav-button \{ font-size: min\(\.6875rem, 15px\); \}/.test(css), "узкий экран не уменьшает подписи ниже 11px");
+assert(/\.nav-button \{[^}]*overflow-wrap: normal;[^}]*word-break: normal;/.test(css), "длинные подписи нельзя разрывать внутри слова");
 assert(!css.includes("font-size: .52rem;"), "узкий viewport не должен возвращать микроскопический размер подписей");
 assert(css.includes("@media (prefers-reduced-motion: reduce)"), "редизайн должен учитывать reduced motion");
 assert(html.includes("Всё под контролем. Ну, почти 🙂"), "доброжелательный школьный юмор должен оставаться второстепенным");
@@ -63,8 +63,8 @@ assert(html.includes("память хорошая, а чек всё-таки н�
 assert(!/2×2=5|Не пались|Где деньги, Зин/i.test(html), "в новых декоративных текстах не должно быть намеренных ошибок или резких формулировок");
 
 const htmlStyleAsset = html.match(/href="(styles\.css\?v=\d+)"/)?.[1];
-assert.equal(htmlStyleAsset, "styles.css?v=609", "HTML должен подключать новую версию стилей");
+assert.equal(htmlStyleAsset, "styles.css?v=610", "HTML должен подключать новую версию стилей");
 assert(sw.includes(`./${htmlStyleAsset}`), "Service Worker должен кешировать ту же версию CSS");
-assert(sw.includes('const CACHE_NAME = "budget-2a-v95-install-action-1";'), "cache name должен быть обновлён для редизайна");
+assert(sw.includes('const CACHE_NAME = "budget-2a-v96-board-receipt-1";'), "cache name должен быть обновлён для редизайна");
 
 console.log("visual parent cabinet checks: PASS");

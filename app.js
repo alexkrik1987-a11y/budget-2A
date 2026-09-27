@@ -69,11 +69,11 @@ const CAMPAIGN_TYPE_LABELS = {
 };
 
 const CHART_COLORS = {
-  MAIN: "#3b88b5",
-  HOLIDAYS: "#dd7191",
-  BIRTHDAYS: "#e98b45",
-  HOUSEHOLD: "#3d946a",
-  EXCURSIONS: "#f2c347"
+  MAIN: "#2f8a64",
+  HOLIDAYS: "#d9573f",
+  BIRTHDAYS: "#d9a21b",
+  HOUSEHOLD: "#3f7fbf",
+  EXCURSIONS: "#8b67c2"
 };
 
 const CAMPAIGN_TEMPLATES = {
@@ -2108,11 +2108,26 @@ function todaySchedulePreview(schedule, ready, date = new Date()) {
   return `Сегодня: ${lessons.slice(0, 2).join(", ")}${lessons.length > 2 ? ` · ещё ${lessons.length - 2}` : ""}`;
 }
 
+// Только отображение: уроки текущего дня на главном экране из уже загруженного расписания.
+function renderTodayLessons(schedule) {
+  const list = document.getElementById("todayLessons");
+  if (!list) return;
+  const day = schoolWeekday();
+  const dayLabel = USEFUL_DAYS.find(([key]) => key === day)?.[1] || "";
+  const lessons = state.budgetDataReady && dayLabel ? schedule[day] || [] : [];
+  list.replaceChildren(...lessons.map((lesson) => el("li", "", lesson)));
+  list.classList.toggle("hidden", lessons.length === 0);
+  document.getElementById("todaySchedulePreview")?.classList.toggle("hidden", lessons.length > 0);
+  const title = document.getElementById("todayLessonsTitle");
+  if (title) title.textContent = !dayLabel ? "Выходной день" : lessons.length ? `${dayLabel} · уроков: ${lessons.length}` : dayLabel;
+}
+
 function renderUsefulInfo() {
   const info = normalizeUsefulInfo(state.classProfile?.useful_info);
   state.classProfile.useful_info = info;
   const today = document.getElementById("todaySchedulePreview");
   if (today) today.textContent = todaySchedulePreview(info.schedule, state.budgetDataReady);
+  renderTodayLessons(info.schedule);
   if (dom.usefulContacts) {
     const contacts = [
       ["Учитель", info.teacher.name, info.teacher.phone],
@@ -3193,7 +3208,7 @@ function renderSummary() {
   if (dom.totalSpent) animateMoney(dom.totalSpent, totalSpent);
   if (dom.totalBalance) {
     animateMoney(dom.totalBalance, totalBalance);
-    dom.totalBalance.style.color = totalBalance < 0 ? "#ff9f9f" : "";
+    dom.totalBalance.classList.toggle("is-negative", totalBalance < 0);
   }
 
   renderLivingNotebook({ totalCollected, totalSpent, totalBalance });
@@ -4829,7 +4844,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=95", window.location.href);
+  const workerUrl = new URL("./sw.js?v=96", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }

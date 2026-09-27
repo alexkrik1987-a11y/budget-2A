@@ -60,7 +60,7 @@
     html.session-restore-pending #protectedContent { display: none !important; }
     html.session-restore-pending #loadingScreen { display: grid !important; }
   </style>
-  <link rel="stylesheet" href="styles.css?v=609">
+  <link rel="stylesheet" href="styles.css?v=610">
 </head>
 <body class="school-cabinet">
   <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
@@ -82,57 +82,52 @@
       <symbol id="ui-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/></symbol>
       <symbol id="ui-moon" viewBox="0 0 24 24"><path d="M20 14A9 9 0 0 1 10 3a9 9 0 1 0 10 11Z"/></symbol>
       <symbol id="ui-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></symbol>
+      <symbol id="ui-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></symbol>
+      <symbol id="ui-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+      <symbol id="ui-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M5 21h14"/></symbol>
+      <symbol id="ui-pin" viewBox="0 0 24 24"><path d="M9 3h6l-1 6 4 4H6l4-4ZM12 13v8"/></symbol>
     </defs>
   </svg>
   <div id="loadingScreen" class="loading-screen hidden" role="status" aria-live="polite" aria-label="Загрузка данных">
-    <div class="loading-board chalkboard">
-      <img class="loading-emblem" src="icons/class-2a.svg" alt="">
-      <p class="loading-kicker">2 «А» класс</p>
+    <div class="loading-board">
+      <span class="monogram monogram-large" aria-hidden="true">2А</span>
+      <p class="loading-kicker">Наш дружный класс 2 «А»</p>
       <strong>Загружаем дела класса…</strong>
-      <span class="pencil-loader" aria-hidden="true"><i></i></span>
+      <span class="loading-bar" aria-hidden="true"><i></i></span>
     </div>
   </div>
 
-  <div class="page-decor decor-pencil" aria-hidden="true">✏️</div>
-  <div class="page-decor decor-ruler" aria-hidden="true">📐</div>
   <div id="seasonDecor" class="season-decor" aria-hidden="true"></div>
 
   <main id="authGate" class="auth-screen">
-    <section class="auth-card notebook-login" aria-labelledby="authTitle">
-      <div class="notebook-doodle doodle-plane" aria-hidden="true">✈</div>
-      <div class="notebook-doodle doodle-splatter-left" aria-hidden="true">✦</div>
-      <div class="notebook-doodle doodle-splatter-right" aria-hidden="true">✦</div>
-      <div class="notebook-doodle doodle-compass" aria-hidden="true">⌁</div>
-      <div class="notebook-doodle doodle-pencil" aria-hidden="true">✎</div>
-      <header class="notebook-topbar">
-        <div class="notebook-header"><img class="topbar-emblem" src="icons/class-2a.svg" alt=""><strong>НАШ ДРУЖНЫЙ КЛАСС <span>2 «А»</span></strong></div>
-        <p class="topbar-copy">Школьные дела — в одном месте</p>
-      </header>
-      <p class="notebook-note note-money">Сменка на месте?<br><b>Почти всегда 🙂</b></p>
-      <p class="notebook-note note-calm">Всё важное<br>рядом!</p>
-      <p class="notebook-note note-equation">2 × 2 = 4 ✓</p>
-      <p class="notebook-note note-soda">Опыт + любопытство = открытие</p>
-      <p class="notebook-note note-zone">ТЕРРИТОРИЯ<br>2 «А»</p>
-      <p class="notebook-note note-masha">Дружба + знания = класс!</p>
-      <div class="login-showcase monitor-showcase">
+    <section class="auth-card" aria-labelledby="authTitle">
+      <div class="auth-board">
+        <header class="auth-board-top">
+          <div class="notebook-header"><span class="monogram" aria-hidden="true">2А</span><strong>НАШ ДРУЖНЫЙ КЛАСС <span>2 «А»</span></strong></div>
+        </header>
         <div class="login-title-block">
-          <img class="auth-emblem" src="icons/class-2a.svg" alt="Эмблема 2 А класса">
           <span class="auth-kicker">Здесь живут дела нашего класса</span>
           <h1 id="authTitle">Наш дружный класс 2 «А»</h1>
           <p>Расписание, объявления, памятки и деньги класса. Войдите, чтобы увидеть дела своего класса.</p>
         </div>
-        <div class="monitor-assembly" aria-label="Экран входа в бюджет класса">
-          <div class="monitor-shell">
-            <div class="monitor-screen">
+        <ul class="auth-points" aria-label="Что есть на сайте">
+          <li><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-calendar"></use></svg> Уроки на сегодня и на неделю</li>
+          <li><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-notice"></use></svg> Объявления и памятки класса</li>
+          <li><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg> Сборы, расходы и чеки — открыто</li>
+        </ul>
+        <p class="auth-board-motto" aria-hidden="true">Дружба + знания = класс!</p>
+      </div>
+      <div class="auth-form-side">
               <section class="login-panel" aria-label="Вход на сайт класса">
+                <h2 class="login-panel-title">Вход</h2>
                 <form id="emailPasswordForm" class="email-password-form" novalidate>
                   <label for="emailPasswordEmailInput">Вход по почте и паролю</label>
                   <div class="auth-input-shell">
-                    <span class="auth-input-icon" aria-hidden="true">✉</span>
+                    <span class="auth-input-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-mail"></use></svg></span>
                     <input id="emailPasswordEmailInput" type="email" inputmode="email" autocomplete="email" placeholder="Ваша почта" required>
                   </div>
                   <div class="auth-input-shell">
-                    <span class="auth-input-icon" aria-hidden="true">🔒</span>
+                    <span class="auth-input-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-lock"></use></svg></span>
                     <input id="emailPasswordInput" type="password" autocomplete="current-password" minlength="6" placeholder="Пароль" required>
                     <button id="togglePasswordVisibility" class="auth-password-toggle" type="button" aria-label="Показать пароль" aria-pressed="false">◉</button>
                   </div>
@@ -153,23 +148,18 @@
                 <div id="configWarning" class="notice notice-warning hidden" role="alert"></div>
                 <div id="authError" class="notice notice-error hidden" role="alert"></div>
               </section>
-            </div>
-          </div>
-          <span class="monitor-neck" aria-hidden="true"></span>
-          <span class="monitor-base" aria-hidden="true"></span>
-        </div>
-        <p class="mobile-masha-note" aria-hidden="true">2 «А» — одна команда!</p>
+        <p class="auth-load-note">Первый вход может занять немного больше времени — проверяем доступ к классу.</p>
+        <p class="auth-note login-footnote">Почта и пароль — для уже зарегистрированных пользователей. Новый родитель: при открытом приёме заявок войдите через Google, и заявка сразу появится у ответственного за доступ.</p>
       </div>
-      <p class="auth-load-note"><span aria-hidden="true">⏳</span> Первый вход может занять немного больше времени — проверяем доступ к классу.</p>
-      <p class="auth-note login-footnote">Почта и пароль — для уже зарегистрированных пользователей. Новый родитель: при открытом приёме заявок войдите через Google, и заявка сразу появится у ответственного за доступ.</p>
     </section>
   </main>
 
   <div id="protectedContent" class="app">
-    <header class="site-header chalkboard">
+   <div class="app-rail">
+    <header class="site-header">
       <div class="header-inner">
         <div class="brand">
-          <span class="brand-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-book"></use></svg></span>
+          <span class="brand-icon monogram" aria-hidden="true">2А</span>
           <div class="brand-copy">
             <p class="eyebrow"><span class="eyebrow-label">Школьные дела и важные новости</span> <span data-school-year>2026–2027</span></p>
             <h1><span class="class-cover-label">Наш дружный класс</span> <span data-class-name>2 «А»</span></h1>
@@ -180,47 +170,41 @@
           </div>
         </div>
 
-        <div class="user-panel">
-          <div class="user-copy">
-            <strong id="userName">Пользователь</strong>
-            <span id="roleBadge" class="role-badge">Родитель · просмотр</span>
-          </div>
-          <img id="userAvatar" class="avatar hidden" alt="Аватар пользователя" referrerpolicy="no-referrer">
-          <button id="themeToggleButton" class="theme-toggle" type="button" aria-label="Включить тёмную тему" aria-pressed="false"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-moon"></use></svg></button>
-          <button id="logoutButton" class="button button-light button-small" type="button">Выйти</button>
-        </div>
       </div>
-      <span class="chalk-note chalk-note-left" aria-hidden="true">
-        <span class="chalk-doodles"><i>☀</i><i>✎</i><i>♡</i></span>
-        <span class="chalk-note-line">Учимся. Дружим. Растём!</span>
-        <span class="chalk-note-second">И ничего не забываем ☺</span>
-      </span>
-      <span class="chalk-note chalk-note-right" aria-hidden="true">
-        <span class="chalk-doodles"><i>☆</i><i>↗</i><i>₂ₐ</i></span>
-        <span class="chalk-note-line">2 «А» = одна команда</span>
-        <span class="chalk-note-second">Всё важное рядом. Даже то, что потерялось в чате 🙂</span>
-      </span>
     </header>
 
     <nav class="main-nav" aria-label="Основная навигация">
       <div class="nav-inner">
-        <button class="nav-button active" type="button" data-view="summary" aria-current="page"><span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-home"></use></svg></span> Сегодня</button>
-        <button class="nav-button" type="button" data-view="schedule"><span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-calendar"></use></svg></span> Расписание</button>
-        <button class="nav-button" type="button" data-view="contributions"><span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span> Деньги</button>
-        <button class="nav-button" type="button" data-view="directory"><span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-grid"></use></svg></span> Все разделы</button>
+        <button class="nav-button active" type="button" data-view="summary" aria-current="page"><span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-home"></use></svg></span> Сего&shy;дня</button>
+        <button class="nav-button" type="button" data-view="schedule"><span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-calendar"></use></svg></span> Распи&shy;сание</button>
+        <button class="nav-button" type="button" data-view="contributions"><span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span> День&shy;ги</button>
+        <button class="nav-button" type="button" data-view="directory"><span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-grid"></use></svg></span> Все раз&shy;делы</button>
       </div>
     </nav>
 
-    <div class="utility-strip" aria-label="Сезонное объявление">
-      <span id="seasonBadge" class="season-badge" aria-live="polite">📚 Учебный год</span>
+    <div class="rail-footer">
+      <div class="user-panel">
+        <img id="userAvatar" class="avatar hidden" alt="Аватар пользователя" referrerpolicy="no-referrer">
+        <div class="user-copy">
+          <strong id="userName">Пользователь</strong>
+          <span id="roleBadge" class="role-badge">Родитель · просмотр</span>
+        </div>
+        <button id="themeToggleButton" class="theme-toggle" type="button" aria-label="Включить тёмную тему" aria-pressed="false"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-moon"></use></svg></button>
+        <button id="logoutButton" class="button button-light button-small" type="button">Выйти</button>
+      </div>
+      <button id="installAppButton" class="button install-button hidden" type="button">
+        <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-download"></use></svg></span> Установить приложение
+      </button>
     </div>
+   </div>
 
+   <div class="app-main">
     <main class="content">
       <div id="globalNotice" class="notice hidden" role="status" aria-live="polite"></div>
       <p id="copyStatus" class="copy-status hidden" role="status" aria-live="polite"></p>
       <div id="sectionNavigation" class="section-navigation hidden">
-        <button id="sectionHomeButton" class="button button-secondary button-small" type="button" data-view="summary">← На сегодня</button>
-        <span id="currentSectionLabel" aria-live="polite"></span>
+        <button id="sectionHomeButton" class="button button-secondary button-small" type="button" data-view="summary"><span aria-hidden="true">←</span> Сего&shy;дня</button>
+        <span id="currentSectionLabel" class="sr-only" aria-live="polite"></span>
       </div>
       <nav id="moneyNavigation" class="money-navigation hidden" aria-label="Деньги класса">
         <button type="button" data-view="contributions">Сборы и реквизиты</button>
@@ -230,64 +214,89 @@
         <button type="button" data-view="household">Хознужды</button>
       </nav>
       <section id="view-summary" class="view active" aria-labelledby="summaryTitle">
-        <div class="section-heading">
-          <div>
-            <span class="sticker sticker-yellow">Всё под контролем. Ну, почти 🙂</span>
-            <h2 id="summaryTitle">Наш класс<br><em>сегодня.</em></h2>
-            <p class="summary-guide">Расписание, объявления и дела класса. Выберите, что нужно сейчас.</p>
-          </div>
-          <div class="summary-status">
+        <div class="today-board">
+          <div class="board-head">
             <aside id="schoolCalendar" class="school-calendar" aria-label="Школьный календарь Приморского края">
               <span id="schoolCalendarDay" class="school-calendar-day">--</span>
               <span id="schoolCalendarMonth" class="school-calendar-month">месяц</span>
             </aside>
-            <span class="mascot-chip" title="Совёнок-счётовод помогает следить за бюджетом">
-              <span class="mascot-owl" aria-hidden="true">🦉</span>
-              <span>Совёнок-счётовод</span>
-            </span>
-            <p id="lastUpdated" class="last-updated">Обновляем данные…</p>
+            <div class="board-title">
+              <p class="board-kicker"><span id="todayLessonsTitle">Классная работа</span></p>
+              <h2 id="summaryTitle">Сегодня в&nbsp;классе</h2>
+              <p class="board-meta"><span id="seasonBadge" class="season-badge" aria-live="polite">📚 Учебный год</span> <span id="lastUpdated" class="last-updated">Обновляем данные…</span></p>
+            </div>
           </div>
-          <svg class="collector-art" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 340" fill="none">
-            <circle cx="245" cy="175" r="145" stroke="#D9C6A0" stroke-opacity=".3"/>
-            <circle cx="245" cy="175" r="120" stroke="#D9C6A0" stroke-opacity=".12"/>
-            <path d="M113 47v18m-9-9h18M381 244v14m-7-7h14" stroke="#E3B581" stroke-width="1.5"/>
-            <circle cx="371" cy="92" r="3" fill="#E3B581"/>
-            <g transform="translate(33 15) rotate(-12 220 200)">
-              <path d="m90 135 111 8 127 3 3 145-123-5-120-3Z" fill="#151F38" opacity=".35"/>
-              <path d="m72 116 126 12 128 0 0 150-131-5-127-15Z" fill="#B77954"/>
-              <path d="m78 106 120 20 126-12-3 151-124 0-122-18Z" fill="#D6C2A1"/>
-              <path d="M79 91q67-7 121 24 59-26 125-8v147q-71-16-125 8-62-26-121-22Z" fill="#F4EBD7"/>
-              <path d="M200 115v147" stroke="#BBA88A" stroke-width="2"/>
-              <path d="m94 121 83 12m-83 9 83 12m-83 9 83 12m-83 9 83 12m-83 9 83 12" stroke="#81909D" stroke-opacity=".45"/>
-              <path d="M221 133q39-13 83-5m-83 24q39-13 83-5m-83 24q39-13 83-5m-83 24q39-13 83-5m-83 24q39-13 83-5" stroke="#81909D" stroke-opacity=".45"/>
-              <path d="m102 114 0 119M283 127v115" stroke="#BB775F" stroke-opacity=".5"/>
-              <path d="M228 113v58l10-8 10 5v-60" fill="#AD6242"/>
-              <path d="M231 115v44" stroke="#E7B689"/>
-            </g>
-            <g transform="rotate(24 350 170)"><path d="M346 55h10v150l-5 19-5-19Z" fill="#D3AB70"/><path d="M351 60v144" stroke="#A87748"/><path d="m346 205 5 19 5-19" fill="#E4D1AD"/><path d="m349 218 2 6 2-6" fill="#253350"/></g>
-            <path d="M113 288c-27-3-34-19-22-26 11-7 31 12 9 37" stroke="#C5CEDE" stroke-width="2" stroke-linecap="round"/>
-          </svg>
+          <div class="board-lessons">
+            <ol id="todayLessons" class="today-lessons hidden" aria-labelledby="todayLessonsTitle"></ol>
+            <p id="todaySchedulePreview" class="board-empty">Расписание пока загружается</p>
+            <button type="button" class="board-link" data-view="schedule">Расписание на неделю <span aria-hidden="true">→</span></button>
+          </div>
+          <p class="board-motto" aria-hidden="true">Всё под контролем. Ну, почти 🙂</p>
         </div>
 
-        <div class="home-shortcuts" aria-label="Куда перейти">
-          <button type="button" class="destination-link" data-view="schedule"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-calendar"></use></svg></span><span><strong>Расписание</strong><small id="todaySchedulePreview">Расписание пока загружается</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-          <button type="button" class="destination-link" data-view="announcements"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-notice"></use></svg></span><span><strong>Объявления</strong><small>Закреплённая новость из чата</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-          <button type="button" class="destination-link" data-view="contributions"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span><span><strong>Сборы и реквизиты</strong><small id="todayCampaignPreview">Сборы пока загружаются</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
-          <button type="button" class="destination-link" data-view="memos"><span class="destination-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-note"></use></svg></span><span><strong>Памятки</strong><small>Что взять и о чём помнить</small></span><span class="destination-arrow" aria-hidden="true">›</span></button>
+        <section id="parentOnboardingGuide" class="parent-onboarding-guide hidden" aria-labelledby="parentOnboardingGuideTitle"></section>
+
+        <div class="today-grid">
+          <div class="today-main">
+            <section class="home-announcement" aria-labelledby="homeAnnouncementTitle">
+              <span class="home-announcement-pin" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-pin"></use></svg></span>
+              <h3 id="homeAnnouncementTitle">Важное для класса</h3>
+              <p id="homeAnnouncementPreview">Объявления появятся после загрузки чата.</p>
+              <button type="button" class="text-link" data-view="announcements">Открыть объявление <span aria-hidden="true">→</span></button>
+            </section>
+
+            <section id="contributionReminder" class="contribution-reminder hidden" aria-live="polite"></section>
+
+            <div class="money-quick" aria-label="Куда переводить">
+              <button type="button" class="money-quick-link" data-view="contributions" data-target="paymentDetailsCard">
+                <span class="money-quick-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span>
+                <span><strong>Реквизиты для перевода</strong><small id="todayCampaignPreview">Сборы пока загружаются</small></span>
+                <span class="destination-arrow" aria-hidden="true">›</span>
+              </button>
+              <button type="button" class="money-quick-link" data-view="household">
+                <span class="money-quick-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-clean"></use></svg></span>
+                <span><strong>Хознужды</strong><small>Отдельный перевод по СБП</small></span>
+                <span class="destination-arrow" aria-hidden="true">›</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="today-side">
+            <section class="today-panel" aria-labelledby="progressTitle">
+              <div class="panel-head">
+                <h3 id="progressTitle">Сборы класса</h3>
+                <button type="button" class="text-link" data-view="contributions">Все взносы <span aria-hidden="true">→</span></button>
+              </div>
+              <div id="currentCampaignSummary" class="campaign-summary empty-state">
+                <span class="empty-illustration" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span>
+                <strong>Открытых сборов пока нет</strong>
+                <small>Новая цель появится здесь сразу после открытия сбора.</small>
+              </div>
+            </section>
+
+            <section class="today-panel" aria-labelledby="recentExpensesTitle">
+              <div class="panel-head">
+                <h3 id="recentExpensesTitle">Последние расходы</h3>
+                <button type="button" class="text-link" data-view="expenses">Все чеки <span aria-hidden="true">→</span></button>
+              </div>
+              <div id="recentExpenses" class="compact-list empty-state">
+                <span class="empty-illustration" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-receipt"></use></svg></span>
+                <strong>Расходов пока нет</strong>
+                <small>Копилка в порядке — новые записи появятся здесь.</small>
+              </div>
+            </section>
+          </div>
         </div>
-        <section class="home-announcement paper-card" aria-labelledby="homeAnnouncementTitle">
-          <h3 id="homeAnnouncementTitle">Важное для класса</h3>
-          <p id="homeAnnouncementPreview">Объявления появятся после загрузки чата.</p>
-          <button type="button" class="text-link" data-view="announcements">Открыть объявления →</button>
-        </section>
-        <div class="home-utility-links">
-          <button type="button" class="text-link" data-view="notifications"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-bell"></use></svg> Настроить уведомления</button>
-          <button type="button" class="text-link" data-view="useful"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-phone"></use></svg> Контакты и школа</button>
-          <button type="button" class="text-link" data-view="household">Хознужды · куда перевести</button>
-        </div>
+
+        <nav class="home-shortcuts" aria-label="Куда перейти">
+          <button type="button" class="shortcut" data-view="memos"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-note"></use></svg> Памятки</button>
+          <button type="button" class="shortcut" data-view="useful"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-phone"></use></svg> Контакты и школа</button>
+          <button type="button" class="shortcut" data-living-action="chat"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-chat"></use></svg> Чат класса</button>
+          <button type="button" class="shortcut" data-view="notifications"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-bell"></use></svg> Уведомления</button>
+        </nav>
 
         <details class="home-money-details">
-          <summary>Деньги класса <span>Посмотреть сводку</span></summary>
+          <summary><span class="summary-title">Касса класса</span> <span class="summary-hint">Остаток, поступления и расходы</span></summary>
         <section id="livingNotebook" class="living-notebook" aria-labelledby="livingNotebookTitle">
           <div class="living-notebook-heading">
             <div>
@@ -347,20 +356,14 @@
           <p id="liveNotebookMessage" class="living-notebook-message" aria-live="polite">Данные появятся после загрузки бюджета.</p>
         </section>
         </details>
-
-        <section id="contributionReminder" class="contribution-reminder hidden" aria-live="polite"></section>
-        <section id="parentOnboardingGuide" class="parent-onboarding-guide hidden" aria-labelledby="parentOnboardingGuideTitle"></section>
-
-
       </section>
 
       <section id="view-contributions" class="view" aria-labelledby="contributionsTitle">
         <div class="section-heading">
           <div>
-            <span class="sticker sticker-pink">Наша общая копилка</span>
+            <span class="sticker">Наша общая копилка</span>
             <h2 id="contributionsTitle">Сборы и реквизиты</h2>
             <p class="section-lead">Выберите сбор, посмотрите общий прогресс и найдите ребёнка в списке.</p>
-            <button type="button" class="text-link" data-view="contributions" data-target="paymentDetailsCard">К реквизитам для перевода ↓</button>
           </div>
           <label class="field campaign-picker">
             <span><b class="step-number" aria-hidden="true">1</b> Выберите сбор</span>
@@ -383,8 +386,7 @@
 
         <section id="paymentDetailsCard" class="paper-card payment-details-card hidden" aria-label="Куда переводить взносы">
           <div class="card-title-row compact">
-            <div><span class="sticker sticker-yellow">Куда переводить</span><h3>Реквизиты для перевода</h3></div>
-            <span class="payment-paperclip" aria-hidden="true">📎</span>
+            <div><span class="sticker">Куда переводить</span><h3>Реквизиты для перевода</h3></div>
           </div>
           <p class="payment-details-lead">Для текущих сборов класса</p>
           <dl class="payment-details-list">
@@ -408,7 +410,7 @@
             </div>
           </dl>
           <p class="payment-details-note">Перед переводом проверьте назначение текущего сбора 🙂</p>
-          <button id="editPaymentDetailsButton" class="button button-secondary button-small admin-only hidden" type="button">✏️ Изменить реквизиты</button>
+          <button id="editPaymentDetailsButton" class="button button-secondary button-small admin-only hidden" type="button">Изменить реквизиты</button>
           <form id="paymentDetailsForm" class="payment-details-form hidden" novalidate>
             <label class="field"><span>Банк</span><input id="paymentBankInput" type="text" maxlength="80" autocomplete="off"></label>
             <label class="field"><span>Телефон</span><input id="paymentPhoneInput" type="text" maxlength="32" inputmode="tel" autocomplete="off"></label>
@@ -540,7 +542,6 @@
             <h2 id="usefulTitle">Контакты и школа</h2>
             <p>Телефоны учителя и родительского комитета, адрес школы и карта.</p>
           </div>
-          <span class="useful-page-mark" aria-hidden="true">📚</span>
         </div>
 
         <section class="useful-grid" aria-label="Полезная информация класса">
@@ -563,32 +564,24 @@
 
 
         </section>
-
-
-
-
-
-
-
-
       </section>
 
       <section id="view-budget" class="view" aria-labelledby="budgetTitle">
         <div class="section-heading"><div><h2 id="budgetTitle">Баланс и отчёты</h2><p>Общие суммы, фонды, расходы и отчёт за месяц.</p></div></div>
           <div class="summary-details-content">
           <div class="totals-grid">
-          <article class="metric-card chalkboard chalk-blue">
-            <span class="metric-icon metric-icon-blue" aria-hidden="true">🪙</span>
+          <article class="metric-card metric-collected">
+            <span class="metric-icon metric-icon-blue" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span>
             <p>Всего собрано</p>
             <strong id="totalCollected">0 ₽</strong>
           </article>
-          <article class="metric-card chalkboard chalk-pink">
+          <article class="metric-card metric-spent">
             <span class="metric-icon metric-icon-pink" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-receipt"></use></svg></span>
             <p>Всего потрачено</p>
             <strong id="totalSpent">0 ₽</strong>
           </article>
-          <article class="metric-card chalkboard chalk-green">
-            <span class="metric-icon metric-icon-green" aria-hidden="true">🧮</span>
+          <article class="metric-card metric-balance">
+            <span class="metric-icon metric-icon-green" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-chart"></use></svg></span>
             <p>Остаток в кассе</p>
             <strong id="totalBalance">0 ₽</strong>
           </article>
@@ -600,7 +593,6 @@
               <span class="sticker sticker-blue">Наши копилки</span>
               <h3 id="fundsTitle">Остатки по фондам</h3>
             </div>
-            <span aria-hidden="true" class="large-emoji">🎁</span>
           </div>
           <div id="fundCards" class="fund-grid"></div>
         </section>
@@ -611,7 +603,6 @@
               <span class="sticker sticker-orange">Понятно с первого взгляда</span>
               <h3 id="analyticsTitle">На что ушли деньги</h3>
             </div>
-            <span aria-hidden="true" class="large-emoji">📊</span>
           </div>
           <div class="charts-grid">
             <article class="chart-panel">
@@ -633,61 +624,28 @@
           </div>
           <div class="report-controls">
             <label class="field"><span>Отчётный месяц</span><select id="reportMonthSelect"></select></label>
-            <button id="downloadCsvButton" class="button button-secondary" type="button">📥 Скачать Excel / CSV</button>
-            <button id="printReportButton" class="button button-primary" type="button">🖨️ Распечатать</button>
+            <button id="downloadCsvButton" class="button button-secondary" type="button"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-download"></use></svg> Скачать Excel / CSV</button>
+            <button id="printReportButton" class="button button-primary" type="button">Распечатать</button>
           </div>
         </section>
 
-        <div class="dashboard-grid">
-          <section class="paper-card" aria-labelledby="progressTitle">
-            <div class="card-title-row compact">
-              <h3 id="progressTitle">Прогресс текущего сбора</h3>
-              <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-chart"></use></svg></span>
-            </div>
-            <div id="currentCampaignSummary" class="campaign-summary empty-state">
-              <span class="empty-illustration" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-wallet"></use></svg></span>
-              <strong>Открытых сборов пока нет</strong>
-              <small>Новая цель появится здесь сразу после открытия сбора.</small>
-            </div>
-          </section>
-
-          <section class="paper-card" aria-labelledby="recentExpensesTitle">
-            <div class="card-title-row compact">
-              <h3 id="recentExpensesTitle">Последние расходы</h3>
-              <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-receipt"></use></svg></span>
-            </div>
-            <div id="recentExpenses" class="compact-list empty-state">
-              <span class="empty-illustration" aria-hidden="true">✨</span>
-              <strong>Расходов пока нет</strong>
-              <small>Копилка в порядке — новые записи появятся здесь.</small>
-            </div>
-          </section>
-        </div>
           </div>
       </section>
 
       <section id="view-schedule" class="view" aria-labelledby="scheduleTitle">
         <div class="section-heading"><div><h2 id="scheduleTitle">Расписание уроков</h2><p>Вся учебная неделя в одном месте.</p></div></div>
-          <article class="paper-card useful-card useful-schedule-card">
-            <div class="card-title-row compact">
-              <div><span class="sticker sticker-yellow">На неделю</span></div>
-              <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-calendar"></use></svg></span>
-            </div>
+          <div class="useful-schedule-card">
             <div id="usefulSchedule" class="useful-schedule-grid"></div>
-          </article>
-<button type="button" class="button button-secondary admin-only hidden" data-view="settings" data-target="usefulAdminEditor">Редактировать расписание, памятки и контакты</button>
+          </div>
+        <button type="button" class="button button-secondary admin-only hidden" data-view="settings" data-target="usefulAdminEditor">Редактировать расписание, памятки и контакты</button>
       </section>
 
       <section id="view-memos" class="view" aria-labelledby="memosTitle">
         <div class="section-heading"><div><h2 id="memosTitle">Памятки класса</h2><p>Что подготовить к занятиям, встречам и поездкам.</p></div></div>
-        <section class="paper-card useful-notes-card">
-          <div class="card-title-row compact">
-            <div><span class="sticker sticker-orange">Важное</span></div>
-            <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-note"></use></svg></span>
-          </div>
+        <section class="useful-notes-card">
           <div id="usefulNotes" class="useful-notes-list"></div>
         </section>
-<button type="button" class="button button-secondary admin-only hidden" data-view="settings" data-target="usefulAdminEditor">Редактировать расписание, памятки и контакты</button>
+        <button type="button" class="button button-secondary admin-only hidden" data-view="settings" data-target="usefulAdminEditor">Редактировать расписание, памятки и контакты</button>
       </section>
 
       <section id="view-household" class="view" aria-labelledby="householdTitle">
@@ -864,7 +822,6 @@
               <h3 id="accessManageTitle">Доступ родителей</h3>
               <p>Откройте приём, отправьте ссылку в родительский чат и одобрите только знакомые Google-аккаунты. Пока заявка не одобрена, бюджет и чат закрыты.</p>
             </div>
-            <span aria-hidden="true" class="large-emoji">🔐</span>
           </div>
           <div class="access-enrollment-controls">
             <div id="accessEnrollmentStatus" class="access-enrollment-status" aria-live="polite">Проверяем состояние приёма…</div>
@@ -894,7 +851,6 @@
               <h3 id="schoolYearTitle">Подготовить новый учебный год</h3>
               <p>Операция закрывает и архивирует все активные сборы, создаёт дополнительную копию и оставляет историю доступной в архиве.</p>
             </div>
-            <span aria-hidden="true" class="large-emoji">🎒</span>
           </div>
           <form id="startSchoolYearForm" class="school-year-form">
             <label class="field"><span>Новое название класса</span><input id="nextClassName" type="text" maxlength="40" placeholder="Например: 3 «А»" required></label>
@@ -912,7 +868,6 @@
               <h3 id="backupsTitle">Резервные копии</h3>
               <p>Автоматическая копия создаётся каждый день. Ручную можно скачать или восстановить в любое время.</p>
             </div>
-            <span aria-hidden="true" class="large-emoji">🛟</span>
           </div>
           <div class="backup-actions">
             <button id="createBackupButton" class="button button-primary" type="button">Создать копию</button>
@@ -926,12 +881,10 @@
     </main>
 
     <footer class="site-footer">
-      <p>Наш 2 «А»: учимся, дружим и держим важное под рукой <span aria-hidden="true">🍎📚</span></p>
+      <p>Наш 2 «А»: учимся, дружим и держим важное под рукой</p>
       <p class="site-version">Версия V1.2</p>
-      <button id="installAppButton" class="button install-button hidden" type="button">
-        <span aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-phone"></use></svg></span> Установить приложение
-      </button>
     </footer>
+   </div>
 
     <button id="chatToggleButton" aria-label="Чат класса" class="chat-toggle" type="button" aria-controls="classChatPanel" aria-expanded="false">
       <span class="chat-toggle-icon" aria-hidden="true"><svg class="app-icon" aria-hidden="true" focusable="false"><use href="#ui-chat"></use></svg></span>
@@ -1098,6 +1051,6 @@
 
   <!-- Local copy avoids a second network dependency on slow mobile connections. -->
   <script src="vendor/supabase.min.js?v=10" defer></script>
-  <script src="app.js?v=93" defer></script>
+  <script src="app.js?v=94" defer></script>
 </body>
 </html>

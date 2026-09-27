@@ -100,9 +100,9 @@ assert(copySource.includes("Скопировано ✓"), "после копир
 
 /* ---------- Мобильный «Итого по фильтру» ---------- */
 
-assert(/@media screen and \(max-width: 768px\)[\s\S]*?#view-expenses \.table-scroll table\.responsive-cards tfoot tr \{[\s\S]*?padding: 11px 14px !important;/.test(css), "мобильный «Итого по фильтру» должен быть одной компактной карточкой (перебивая legacy !important-правила)");
-assert(/@media screen and \(max-width: 768px\)[\s\S]*?#view-expenses \.expenses-total-footer th,[\s\S]*?#view-expenses \.expenses-total-footer td#expensesFooter \{[\s\S]*?border: 0 !important/.test(css), "внутренние рамки мобильного «Итого» должны быть убраны");
-assert(/@media screen and \(max-width: 768px\)[\s\S]*?#view-expenses \.expenses-total-footer td#expensesFooter \{[\s\S]*?font-size: 1\.18rem/.test(css), "сумма должна остаться заметной в компактном варианте");
+assert(/@media \(max-width: 700px\)[\s\S]*?#view-expenses \.table-scroll table\.responsive-cards tfoot tr \{[\s\S]*?padding: 11px 14px !important;/.test(css), "мобильный «Итого по фильтру» должен быть одной компактной карточкой (перебивая legacy !important-правила)");
+assert(/@media \(max-width: 700px\)[\s\S]*?#view-expenses \.expenses-total-footer th,[\s\S]*?#view-expenses \.expenses-total-footer td#expensesFooter \{[\s\S]*?border: 0 !important/.test(css), "внутренние рамки мобильного «Итого» должны быть убраны");
+assert(/#expensesFooter \{ font-size: 1\.125rem/.test(css), "сумма должна остаться заметной в компактном варианте");
 
 /* ---------- Миграция БД: контракт безопасности ---------- */
 
@@ -160,7 +160,7 @@ assert(/payment_details: \{\}/.test(app.match(/function resetBudgetDataState\(\)
 
 /* ---------- Версии ---------- */
 
-assert.equal(html.match(/styles\.css\?v=(\d+)/)?.[1], "609", "HTML должен подключать styles.css?v=609");
-assert(sw.includes('const CACHE_NAME = "budget-2a-v95-install-action-1";'), "cache name должен быть обновлён для новой версии стилей");
+assert.equal(html.match(/styles\.css\?v=(\d+)/)?.[1], "610", "HTML должен подключать styles.css?v=610");
+assert(sw.includes('const CACHE_NAME = "budget-2a-v96-board-receipt-1";'), "cache name должен быть обновлён для новой версии стилей");
 
 console.log("Theme + payment details checks: PASS");
