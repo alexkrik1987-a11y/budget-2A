@@ -29,6 +29,7 @@ const isSupabaseConfigured =
 
 const db = isSupabaseConfigured && window.supabase
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { fetch: fetchWithAccessDiagnostics },
       auth: {
         persistSession: true,
         autoRefreshToken: true,
@@ -145,6 +146,7 @@ const state = {
   loadRunId: 0,
   sessionRunId: 0,
   handledSessionIdentity: null,
+  accessRetryAvailable: false,
   pushSupported: false,
   pushPermission: "default",
   browserPushSubscription: null,
@@ -309,7 +311,7 @@ function clearOAuthCallbackFromUrl() {
 
 function cacheDom() {
   const ids = [
-    "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "emailPasswordForm", "emailPasswordEmailInput", "emailPasswordInput", "togglePasswordVisibility", "rememberSessionInput", "emailPasswordLoginButton", "requestPasswordSetupButton", "authRequestAccessButton", "emailPasswordStatus", "passwordResetForm", "newPasswordInput", "confirmPasswordInput", "saveNewPasswordButton", "logoutButton", "configWarning", "authError",
+    "loadingScreen", "authGate", "protectedContent", "googleLoginButton", "emailPasswordForm", "emailPasswordEmailInput", "emailPasswordInput", "togglePasswordVisibility", "rememberSessionInput", "emailPasswordLoginButton", "requestPasswordSetupButton", "authRequestAccessButton", "emailPasswordStatus", "passwordResetForm", "newPasswordInput", "confirmPasswordInput", "saveNewPasswordButton", "logoutButton", "configWarning", "authError", "retryAccessButton",
     "globalNotice", "copyStatus", "paymentDetailsUnavailable", "presenceStatus", "presenceStatusText", "userName", "userAvatar", "roleBadge", "settingsNavButton", "lastUpdated", "schoolCalendar", "schoolCalendarDay", "schoolCalendarMonth",
     "seasonDecor", "seasonBadge", "installAppButton", "installHelpModal", "installInstructions", "parentChildOnboardingModal", "parentChildOnboardingForm", "parentChildOnboardingSelect", "parentChildOnboardingError", "parentChildOnboardingSaveButton",
     "themeToggleButton", "paymentDetailsCard", "paymentBankValue", "paymentPhoneValue", "paymentCardValue", "copyPaymentPhoneButton", "copyPaymentCardButton", "editPaymentDetailsButton", "paymentDetailsForm", "paymentBankInput", "paymentPhoneInput", "paymentCardInput", "paymentDetailsError", "savePaymentDetailsButton", "cancelPaymentDetailsButton", "addPaymentDetailsButton", "paymentDetailsEmpty",
@@ -370,6 +372,7 @@ function bindEvents() {
   document.addEventListener("visibilitychange", handlePresenceVisibilityChange);
   // Google Identity самостоятельно управляет кнопкой внутри googleLoginButton.
   if (dom.emailPasswordForm) dom.emailPasswordForm.addEventListener("submit", loginWithEmailPassword);
+  if (dom.retryAccessButton) dom.retryAccessButton.addEventListener("click", retryClassAccess);
   if (dom.togglePasswordVisibility) dom.togglePasswordVisibility.addEventListener("click", togglePasswordVisibility);
   if (dom.authRequestAccessButton) dom.authRequestAccessButton.addEventListener("click", requestAccessWithGoogle);
   if (dom.requestPasswordSetupButton) dom.requestPasswordSetupButton.addEventListener("click", requestPasswordSetup);
@@ -812,14 +815,16 @@ function sessionIdentity(session) {
   return session?.user?.id || "guest";
 }
 
-function queueSessionHandling(session) {
+function queueSessionHandling(session, { retryAccess = false } = {}) {
   const identity = sessionIdentity(session);
 
   // getSession(), INITIAL_SESSION и SIGNED_IN могут сообщить одну и ту же
   // авторизацию. Не запускаем заново проверку прав и полную загрузку бюджета,
   // если пользователь не изменился. Это исключает мерцание и нулевые суммы
   // при обновлении страницы и после повторного входа.
-  if (identity === state.handledSessionIdentity) {
+  const explicitRetry = retryAccess && state.accessRetryAvailable && session?.user &&
+    identity === sessionIdentity(state.session);
+  if (identity === state.handledSessionIdentity && !explicitRetry) {
     if (session?.user) {
       state.session = session;
       state.user = session.user;
@@ -837,10 +842,63 @@ function isCurrentSessionRun(runId, session) {
   return runId === state.sessionRunId && state.user?.id === session?.user?.id;
 }
 
+function isFutureIssuedJwtError(error) {
+  return error?.code === "PGRST303" &&
+    typeof error.message === "string" && /JWT issued at future/i.test(error.message);
+}
+
+async function fetchWithAccessDiagnostics(input, options) {
+  const response = await fetch(input, options);
+  try {
+    const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url, window.location.href);
+    if (!response.ok && url.pathname.endsWith("/rest/v1/rpc/can_access_budget")) {
+      const error = await response.clone().json();
+      if (isFutureIssuedJwtError(error)) {
+        const rawId = response.headers.get("sb-request-id") || response.headers.get("x-request-id");
+        const requestId = typeof rawId === "string" && /^[a-zA-Z0-9_-]{1,128}$/.test(rawId) ? rawId : null;
+        console.warn("[Бюджет 2А] Проверка JWT", { code: "PGRST303", requestId });
+      }
+    }
+  } catch (_) {
+    // Диагностика не меняет ответ SDK; ключи, токены и тело ошибки не выводим.
+  }
+  return response;
+}
+
+function isCurrentAccessSession(runId, session) {
+  return isCurrentSessionRun(runId, session) && state.session?.user?.id === session.user.id &&
+    state.session?.access_token === session.access_token;
+}
+
+async function checkClassAccess(session, runId) {
+  const delays = [2000, 5000];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (!isCurrentAccessSession(runId, session)) return null;
+    const result = await withTimeout(() => db.rpc("can_access_budget"), "проверка доступа к классу", CORE_DATA_TIMEOUT_MS);
+    if (!isCurrentAccessSession(runId, session)) return null;
+    if (!isFutureIssuedJwtError(result.error) || attempt === 2) return result;
+    hideElement(dom.authError);
+    hideLoadingScreen();
+    showEmailPasswordStatus("Подключаемся… Проверяем доступ к классу.");
+    await new Promise((resolve) => window.setTimeout(resolve, delays[attempt]));
+  }
+}
+
+function retryClassAccess() {
+  if (!state.accessRetryAvailable || !state.session?.user) return Promise.resolve();
+  const pending = queueSessionHandling(state.session, { retryAccess: true });
+  hideElement(dom.authError);
+  showEmailPasswordStatus("Подключаемся… Проверяем доступ к классу.");
+  return pending;
+}
+
 async function handleSession(session, runId) {
   if (runId !== state.sessionRunId) return;
   state.session = session;
   state.user = session?.user ?? null;
+  state.accessRetryAvailable = false;
+  hideElement(dom.retryAccessButton);
+  hideElement(dom.emailPasswordStatus);
 
   if (!session) {
     state.accessApproved = false;
@@ -879,14 +937,24 @@ async function handleSession(session, runId) {
   applyRoleToUi();
   setProtectedAccess(false);
 
+  let accessCheckError = null;
   try {
     showNotice(`${APP_VERSION}: проверяем доступ к классу…`, "info", 0);
-    const accessResult = await withTimeout(
-      () => db.rpc("can_access_budget"),
-      "проверка доступа к классу",
-      CORE_DATA_TIMEOUT_MS
-    );
-    if (accessResult.error) throw accessResult.error;
+    const accessResult = await checkClassAccess(session, runId);
+    if (!accessResult) {
+      if (isCurrentSessionRun(runId, session) && state.session?.user) {
+        state.accessRetryAvailable = true;
+        hideLoadingScreen();
+        hideElement(dom.emailPasswordStatus);
+        showAuthError("Сессия обновилась. Нажмите «Повторить», чтобы проверить доступ.");
+        dom.retryAccessButton?.classList.remove("hidden");
+      }
+      return;
+    }
+    if (accessResult.error) {
+      accessCheckError = accessResult.error;
+      throw accessResult.error;
+    }
     if (!isCurrentSessionRun(runId, session)) return;
     const canAccess = accessResult.data;
 
@@ -909,6 +977,7 @@ async function handleSession(session, runId) {
     }
 
     state.accessApproved = true;
+    hideElement(dom.emailPasswordStatus);
     hideElement(dom.authError);
     state.accessRequestStatus = "APPROVED";
     // Официальная кнопка Google остаётся внутри своего контейнера.
@@ -936,7 +1005,8 @@ async function handleSession(session, runId) {
     }
   } catch (error) {
     if (!isCurrentSessionRun(runId, session)) return;
-    console.error(error);
+    const futureJwt = error === accessCheckError && isFutureIssuedJwtError(error);
+    if (!futureJwt) console.error(error);
     state.isAdmin = false;
     state.accessApproved = false;
     await cleanupPresence();
@@ -946,7 +1016,14 @@ async function handleSession(session, runId) {
     clearSessionRestoreHint();
     hideLoadingScreen();
     setProtectedAccess(false);
-    showAuthError(`Не удалось проверить доступ: ${friendlyError(error)}. Обновите страницу или попробуйте позже.`);
+    hideElement(dom.emailPasswordStatus);
+    if (futureJwt) {
+      state.accessRetryAvailable = true;
+      showAuthError("Сервер пока не смог подтвердить время токена. Вы остались в аккаунте. Нажмите «Повторить», чтобы снова проверить доступ.");
+      dom.retryAccessButton?.classList.remove("hidden");
+    } else {
+      showAuthError(`Не удалось проверить доступ: ${friendlyError(error)}. Обновите страницу или попробуйте позже.`);
+    }
     return;
   }
 
@@ -4844,7 +4921,7 @@ function isStandalone() {
 
 function activateServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
-  const workerUrl = new URL("./sw.js?v=96", window.location.href);
+  const workerUrl = new URL("./sw.js?v=97", window.location.href);
   navigator.serviceWorker.register(workerUrl.href, { updateViaCache: "none" })
     .catch((error) => console.warn("Service worker registration failed:", error));
 }

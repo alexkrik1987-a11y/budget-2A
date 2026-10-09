@@ -161,6 +161,6 @@ assert(/payment_details: \{\}/.test(app.match(/function resetBudgetDataState\(\)
 /* ---------- Версии ---------- */
 
 assert.equal(html.match(/styles\.css\?v=(\d+)/)?.[1], "610", "HTML должен подключать styles.css?v=610");
-assert(sw.includes('const CACHE_NAME = "budget-2a-v96-board-receipt-1";'), "cache name должен быть обновлён для новой версии стилей");
+assert(sw.includes('const CACHE_NAME = "budget-2a-v97-access-retry-1";'), "cache name должен быть обновлён для новой версии стилей");
 
 console.log("Theme + payment details checks: PASS");

@@ -5,13 +5,13 @@ const fs = require("node:fs");
 const vm = require("node:vm");
 
 const ORIGIN = "https://budget.example";
-const SW_URL = `${ORIGIN}/sw.js?v=96`;
+const SW_URL = `${ORIGIN}/sw.js?v=97`;
 const OLD_CACHE_NAME = "budget-2a-v86-artistic-chalkboard-4";
-const EXPECTED_CACHE_NAME = "budget-2a-v96-board-receipt-1";
+const EXPECTED_CACHE_NAME = "budget-2a-v97-access-retry-1";
 const EXPECTED_APP_SHELL = [
   "./index.html",
   "./styles.css?v=610",
-  "./app.js?v=94",
+  "./app.js?v=95",
   "./vendor/supabase.min.js?v=10",
   "./manifest.webmanifest",
   "./icons/class-2a.svg",
@@ -263,7 +263,7 @@ async function main() {
   assert.deepEqual(networkRequests, [new URL("/supabase/auth/v1/token", ORIGIN).href]);
   assert.equal(operations.length, 0, "POST Auth не должен обращаться к Cache Storage");
 
-  for (const path of ["/styles.css?v=610", "/app.js?v=94"]) {
+  for (const path of ["/styles.css?v=610", "/app.js?v=95"]) {
     operations.length = 0;
     networkRequests.length = 0;
     const url = new URL(path, ORIGIN).href;
