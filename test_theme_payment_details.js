@@ -52,7 +52,7 @@ assert(/aria-pressed="false"/.test(html), "переключатель темы �
 assert(!/data-view="settings"[\s\S]{0,200}themeToggleButton/.test(html) && !/themeToggleButton[\s\S]{0,200}class="nav-button/.test(html), "переключатель темы не должен быть нижней вкладкой");
 
 assert(css.includes('html[data-theme="dark"]'), "должен существовать тёмный слой стилей");
-assert(css.includes("ВЕЧЕРНЯЯ ШКОЛЬНАЯ ТЕТРАДЬ"), "тёмная тема должна быть отдельным оформлением");
+assert(css.includes("ВЕЧЕРНЯЯ ВЕДОМОСТЬ"), "тёмная тема должна быть отдельным оформлением");
 assert(!css.includes("filter: invert"), "запрещён CSS invert для тёмной темы");
 assert(!/#000(?![0-9a-fA-F])/.test(css.split('html[data-theme="dark"]')[1] || ""), "тёмная тема не должна использовать чистый чёрный фоном");
 assert(/color-scheme: dark/.test(css), "нативные контролы должны знать про тёмную тему");
@@ -100,9 +100,9 @@ assert(copySource.includes("Скопировано ✓"), "после копир
 
 /* ---------- Мобильный «Итого по фильтру» ---------- */
 
-assert(/@media \(max-width: 700px\)[\s\S]*?#view-expenses \.table-scroll table\.responsive-cards tfoot tr \{[\s\S]*?padding: 11px 14px !important;/.test(css), "мобильный «Итого по фильтру» должен быть одной компактной карточкой (перебивая legacy !important-правила)");
+assert(/@media \(max-width: 700px\)[\s\S]*?#view-expenses \.table-scroll table\.responsive-cards tfoot tr \{[\s\S]*?padding: var\(--sp-3\) var\(--sp-4\) !important;/.test(css), "мобильный «Итого по фильтру» должен быть одной компактной карточкой (перебивая legacy !important-правила)");
 assert(/@media \(max-width: 700px\)[\s\S]*?#view-expenses \.expenses-total-footer th,[\s\S]*?#view-expenses \.expenses-total-footer td#expensesFooter \{[\s\S]*?border: 0 !important/.test(css), "внутренние рамки мобильного «Итого» должны быть убраны");
-assert(/#expensesFooter \{ font-size: 1\.125rem/.test(css), "сумма должна остаться заметной в компактном варианте");
+assert(/#expensesFooter \{ font-size: var\(--fs-(md|lg|xl)\)/.test(css), "сумма должна остаться заметной в компактном варианте");
 
 /* ---------- Миграция БД: контракт безопасности ---------- */
 
@@ -160,7 +160,7 @@ assert(/payment_details: \{\}/.test(app.match(/function resetBudgetDataState\(\)
 
 /* ---------- Версии ---------- */
 
-assert.equal(html.match(/styles\.css\?v=(\d+)/)?.[1], "610", "HTML должен подключать styles.css?v=610");
-assert(sw.includes('const CACHE_NAME = "budget-2a-v97-access-retry-1";'), "cache name должен быть обновлён для новой версии стилей");
+assert.equal(html.match(/styles\.css\?v=(\d+)/)?.[1], "611", "HTML должен подключать styles.css?v=611");
+assert(sw.includes('const CACHE_NAME = "budget-2a-v98-redesign-1";'), "cache name должен быть обновлён для новой версии стилей");
 
 console.log("Theme + payment details checks: PASS");

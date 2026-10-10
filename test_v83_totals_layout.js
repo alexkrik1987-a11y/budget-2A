@@ -21,4 +21,6 @@ for (const needle of [
   "@media (max-width: 700px)"
 ]) assert(css.includes(needle), `Не найден стиль итогов: ${needle}`);
 assert(app.includes("if (dom.expensesFooter) dom.expensesFooter.textContent"), "Расчёт суммы расходов по фильтру не найден");
+assert(app.includes('el("article", balance < 0 ? "fund-card is-negative" : "fund-card")'), "Отрицательный остаток фонда должен помечаться классом is-negative");
+assert(/\.fund-card\.is-negative strong \{ color: var\(--ui-danger\); \}/.test(css), "Отрицательный остаток фонда должен выделяться цветом");
 console.log("v83 totals layout checks: PASS");

@@ -69,12 +69,13 @@ const CAMPAIGN_TYPE_LABELS = {
   OTHER: "Другой сбор"
 };
 
+// Цвета диаграмм задаются токенами в styles.css, поэтому меняются вместе с темой.
 const CHART_COLORS = {
-  MAIN: "#2f8a64",
-  HOLIDAYS: "#d9573f",
-  BIRTHDAYS: "#d9a21b",
-  HOUSEHOLD: "#3f7fbf",
-  EXCURSIONS: "#8b67c2"
+  MAIN: "var(--chart-main)",
+  HOLIDAYS: "var(--chart-holidays)",
+  BIRTHDAYS: "var(--chart-birthdays)",
+  HOUSEHOLD: "var(--chart-household)",
+  EXCURSIONS: "var(--chart-excursions)"
 };
 
 const CAMPAIGN_TEMPLATES = {
@@ -3295,7 +3296,7 @@ function renderSummary() {
       const collected = collectedByFund[fund] ?? 0;
       const spent = spentByFund[fund] ?? 0;
       const balance = collected - spent;
-      const card = el("article", "fund-card");
+      const card = el("article", balance < 0 ? "fund-card is-negative" : "fund-card");
       card.append(
         el("p", "", `${FUND_ICONS[fund]} ${FUND_LABELS[fund]}`),
         el("strong", "", formatMoney(balance)),
@@ -3775,13 +3776,13 @@ function renderExpenseDistribution(container, totals, labels) {
     const heading = el("div", "expense-distribution-heading");
     const label = el("span", "expense-distribution-label");
     const dot = el("i", "chart-dot");
-    dot.style.background = CHART_COLORS[key] || "#78909c";
+    dot.style.background = CHART_COLORS[key] || "var(--chart-other)";
     label.append(dot, document.createTextNode(labels[key] || key));
     heading.append(label, el("strong", "", `${formatMoney(value)} · ${percent}% расходов`));
     const track = el("div", "expense-distribution-track");
     const bar = el("span", "expense-distribution-bar");
     bar.style.width = `${percent}%`;
-    bar.style.background = CHART_COLORS[key] || "#78909c";
+    bar.style.background = CHART_COLORS[key] || "var(--chart-other)";
     track.append(bar);
     row.append(heading, track);
     list.append(row);
@@ -3812,7 +3813,7 @@ function renderDonutChart(container, totals, labels) {
   const slices = entries.map(([key, value]) => {
     const start = cursor;
     cursor += (value / total) * 100;
-    return `${CHART_COLORS[key] || "#78909c"} ${start}% ${cursor}%`;
+    return `${CHART_COLORS[key] || "var(--chart-other)"} ${start}% ${cursor}%`;
   });
 
   const donut = el("div", "donut-chart");
@@ -3828,7 +3829,7 @@ function renderDonutChart(container, totals, labels) {
     const item = el("div", "chart-legend-item");
     const label = el("span", "chart-legend-label");
     const dot = el("i", "chart-dot");
-    dot.style.background = CHART_COLORS[key] || "#78909c";
+    dot.style.background = CHART_COLORS[key] || "var(--chart-other)";
     label.append(dot, document.createTextNode(labels[key] || key));
     item.append(label, el("strong", "", `${Math.round((value / total) * 100)}%`), el("small", "", formatMoney(value)));
     legend.append(item);

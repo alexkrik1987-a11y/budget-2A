@@ -6,8 +6,8 @@ const vm = require("node:vm");
 const html = fs.readFileSync("index.html", "utf8");
 const css = fs.readFileSync("styles.css", "utf8");
 const app = fs.readFileSync("app.js", "utf8");
-const visual = css.slice(css.indexOf("«ДОСКА И КВИТАНЦИЯ» — ВИЗУАЛЬНАЯ СИСТЕМА 2 «А»"));
-assert(css.indexOf("«ДОСКА И КВИТАНЦИЯ»") >= 0, "visual system header must exist");
+const visual = css.slice(css.indexOf("«СБЕРКНИЖКА И ПЕЧАТЬ» — ВИЗУАЛЬНАЯ СИСТЕМА 2 «А»"));
+assert(css.indexOf("«СБЕРКНИЖКА И ПЕЧАТЬ»") >= 0, "visual system header must exist");
 assert(visual.length > 0, "visual system must exist");
 
 function luminance(hex) {
@@ -35,7 +35,7 @@ const symbols = [...html.matchAll(/<symbol id="(ui-[^"]+)" viewBox="0 0 24 24"/g
 assert.equal(new Set(symbols).size, symbols.length, "unique sprite IDs");
 for (const [, reference] of html.matchAll(/<use href="#(ui-[^"]+)"/g)) assert(symbols.includes(reference), reference);
 assert.match(visual, /stroke-width: 1\.75/);
-assert(!html.includes("fonts.googleapis.com"), "system typography requires no external font");
+assert(!html.includes("fonts.googleapis.com") && !css.includes("fonts.googleapis.com"), "typography is served locally, no external font requests");
 assert.match(visual, /:focus-visible\s*\{[^}]*outline: 3px/);
 assert.match(visual, /prefers-reduced-motion: reduce/);
 assert.match(visual, /#protectedContent \.hidden\.hidden,[\s\S]*?display: none !important/,
@@ -99,16 +99,16 @@ for (const expected of ["light", "dark", "light"]) {
 }
 assert.equal(saved, "light");
 
-// The chalkboard (Today hero, today's lesson card, balance tile) and the
-// marker highlight must keep readable contrast in BOTH designed themes.
+// The cover (Today hero, today's lesson card, balance tile) and the
+// stamp accent must keep readable contrast in BOTH designed themes.
 function ratio(a, b) { const x = luminance(a), y = luminance(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
 for (const theme of ["light", "dark"]) {
   const block = [...visual.matchAll(new RegExp(`html\\[data-theme="${theme}"\\] \\{([^}]+)`, "g"))].map(m => m[1]).join("\n");
   const t = Object.fromEntries([...block.matchAll(/--ui-([\w-]+):\s*(#[a-f\d]{6})/gi)].map(m => [m[1], m[2]]));
-  for (const [fg, bg] of [["board-ink", "board"], ["board-muted", "board"], ["marker", "board"], ["marker-ink", "marker"], ["success", "success-surface"], ["warn", "warn-surface"], ["primary", "primary-soft"], ["muted", "primary-soft"]]) {
+  for (const [fg, bg] of [["cover-ink", "cover"], ["cover-muted", "cover"], ["stamp", "cover"], ["stamp-ink", "stamp"], ["success", "success-surface"], ["warn", "warn-surface"], ["primary", "primary-soft"], ["muted", "primary-soft"]]) {
     assert(ratio(t[fg], t[bg]) >= 4.5, `${theme}: ${fg}/${bg} contrast`);
   }
-  assert.notEqual(t.canvas, t.board, `${theme}: board must stand apart from the page`);
+  assert.notEqual(t.canvas, t.cover, `${theme}: cover must stand apart from the page`);
 }
 // Dark mode is designed separately, not inverted.
 assert(!css.includes("filter: invert"));

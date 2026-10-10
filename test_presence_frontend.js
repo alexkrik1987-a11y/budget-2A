@@ -93,11 +93,11 @@ const htmlAppVersion = html.match(/app\.js\?v=(\d+)/)?.[1];
 const workerAppVersion = serviceWorker.match(/\.\/app\.js\?v=(\d+)/)?.[1];
 const htmlStyleVersion = html.match(/styles\.css\?v=(\d+)/)?.[1];
 const workerStyleVersion = serviceWorker.match(/\.\/styles\.css\?v=(\d+)/)?.[1];
-assert.equal(htmlAppVersion, "95", "index.html должен подключать app.js?v=95");
+assert.equal(htmlAppVersion, "96", "index.html должен подключать app.js?v=96");
 assert.equal(workerAppVersion, htmlAppVersion, "app.js asset version должна совпадать в HTML и Service Worker");
-assert.equal(htmlStyleVersion, "610", "index.html должен подключать styles.css?v=610");
+assert.equal(htmlStyleVersion, "611", "index.html должен подключать styles.css?v=611");
 assert.equal(workerStyleVersion, htmlStyleVersion, "styles.css asset version должна совпадать в HTML и Service Worker");
-assert(serviceWorker.includes('const CACHE_NAME = "budget-2a-v97-access-retry-1";'), "Service Worker cache name должен быть обновлён");
+assert(serviceWorker.includes('const CACHE_NAME = "budget-2a-v98-redesign-1";'), "Service Worker cache name должен быть обновлён");
 
 function createCleanupHarness({ removeStatus = "ok", removeError = null, untrackError = null } = {}) {
   const calls = [];
